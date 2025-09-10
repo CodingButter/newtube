@@ -1,0 +1,122 @@
+@import "tailwindcss";
+
+:root {
+  /* NEWTUBE Brand Colors */
+  --newtube-primary: #1e40af;
+  --newtube-primary-dark: #1e3a8a;
+  --newtube-secondary: #7c3aed;
+  --newtube-accent: #f59e0b;
+  --newtube-danger: #dc2626;
+  --newtube-success: #16a34a;
+  
+  /* Background & Surface Colors */
+  --background: #ffffff;
+  --surface: #f8fafc;
+  --surface-elevated: #ffffff;
+  --foreground: #0f172a;
+  --muted: #64748b;
+  --muted-foreground: #475569;
+  
+  /* Panel System Colors */
+  --panel-bg: #ffffff;
+  --panel-border: #e2e8f0;
+  --panel-shadow: rgba(0, 0, 0, 0.05);
+  --panel-hover: #f1f5f9;
+  
+  /* Layout & Spacing */
+  --panel-radius: 8px;
+  --panel-gap: 16px;
+  --header-height: 64px;
+  --sidebar-width: 280px;
+}
+
+@theme inline {
+  /* Color System */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  
+  --color-primary: var(--newtube-primary);
+  --color-primary-dark: var(--newtube-primary-dark);
+  --color-secondary: var(--newtube-secondary);
+  --color-accent: var(--newtube-accent);
+  --color-danger: var(--newtube-danger);
+  --color-success: var(--newtube-success);
+  
+  --color-panel-bg: var(--panel-bg);
+  --color-panel-border: var(--panel-border);
+  --color-panel-hover: var(--panel-hover);
+  
+  /* Typography */
+  --font-sans: ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+  
+  /* Spacing */
+  --panel-radius: 8px;
+  --panel-gap: 16px;
+  --header-height: 64px;
+  --sidebar-width: 280px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Dark Mode Colors */
+    --background: #0f172a;
+    --surface: #1e293b;
+    --surface-elevated: #334155;
+    --foreground: #f1f5f9;
+    --muted: #64748b;
+    --muted-foreground: #94a3b8;
+    
+    /* Panel System Dark Mode */
+    --panel-bg: #1e293b;
+    --panel-border: #334155;
+    --panel-shadow: rgba(0, 0, 0, 0.3);
+    --panel-hover: #334155;
+    
+    /* Adjust brand colors for dark mode */
+    --newtube-primary: #3b82f6;
+    --newtube-primary-dark: #2563eb;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  antialiased: true;
+}
+
+/* Panel System Base Styles */
+.panel {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--panel-radius);
+  box-shadow: 0 1px 3px var(--panel-shadow);
+  transition: all 0.2s ease-in-out;
+}
+
+.panel:hover {
+  background: var(--panel-hover);
+  box-shadow: 0 4px 8px var(--panel-shadow);
+}
+
+/* Drag and Drop Styles */
+.panel-dragging {
+  transform: rotate(5deg);
+  z-index: 1000;
+  opacity: 0.9;
+}
+
+.panel-drop-zone {
+  border: 2px dashed var(--newtube-primary);
+  background: rgba(30, 64, 175, 0.05);
+}

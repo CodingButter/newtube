@@ -68,3 +68,4 @@ temp/
 
 # Redis dump
 dump.rdb
+/src/generated/prisma

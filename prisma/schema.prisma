@@ -1,0 +1,348 @@
+// NEWTUBE Database Schema
+// Streaming aggregator database for users, connections, layouts, panels, lists, and preferences
+// See: https://github.com/CodingButter/newtube/blob/main/docs/Project_Document.md
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ================================
+// CORE USER MANAGEMENT
+// ================================
+
+/// User accounts with settings and preferences
+model User {
+  id          String    @id @default(cuid())
+  email       String    @unique
+  clerkId     String?   @unique // Clerk authentication ID
+  username    String?   @unique
+  displayName String?
+  avatar      String?   // URL to avatar image
+  
+  // JSON field for flexible user settings
+  settingsJson Json     @default("{}")
+  
+  // Timestamps
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  lastLoginAt DateTime?
+  
+  // Status and flags
+  isActive    Boolean   @default(true)
+  isVerified  Boolean   @default(false)
+  
+  // Relations
+  connections Connection[]
+  layouts     Layout[]
+  lists       List[]
+  preferences Preference[]
+  
+  @@map("users")
+}
+
+// ================================
+// EXTERNAL PLATFORM CONNECTIONS
+// ================================
+
+/// OAuth connections to external platforms (YouTube, Vimeo, Nebula)
+model Connection {
+  id       String @id @default(cuid())
+  userId   String
+  provider String // 'youtube', 'vimeo', 'nebula'
+  
+  // OAuth data (encrypted)
+  accessTokenEnc  String    // Encrypted access token
+  refreshTokenEnc String?   // Encrypted refresh token (if available)
+  expiresAt       DateTime? // Token expiration
+  
+  // Permission scopes granted
+  scopes  String[] @default([])
+  
+  // Connection status
+  status     ConnectionStatus @default(ACTIVE)
+  lastSyncAt DateTime?
+  
+  // Metadata
+  providerUserId   String? // External platform user ID
+  providerUsername String? // External platform username
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, provider])
+  @@map("connections")
+}
+
+enum ConnectionStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+  ERROR
+}
+
+// ================================
+// LAYOUT SYSTEM
+// ================================
+
+/// User-defined dashboard layouts with drag-and-drop panels
+model Layout {
+  id     String @id @default(cuid())
+  userId String
+  name   String
+  
+  // Layout configuration
+  theme         String? @default("default")
+  gridSpecJson  Json    // Grid layout specification with panel positions
+  
+  // Metadata
+  isDefault     Boolean @default(false)
+  isPublic      Boolean @default(false)
+  description   String?
+  tags          String[] @default([])
+  
+  // Version control
+  version   Int @default(1)
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  layoutPanels LayoutPanel[]
+  
+  @@map("layouts")
+}
+
+/// Panel library/definitions - reusable panel configurations
+model Panel {
+  id   String    @id @default(cuid())
+  type PanelType
+  
+  // Panel configuration
+  name         String
+  description  String?
+  propsJson    Json    @default("{}") // Default props for this panel type
+  
+  // Metadata
+  category     String?  // e.g., "video", "social", "tools"
+  tags         String[] @default([])
+  isBuiltIn    Boolean  @default(false) // System-defined vs user-created
+  
+  // Version control
+  version      Int      @default(1)
+  
+  // Timestamps
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  // Relations
+  layoutPanels LayoutPanel[]
+  
+  @@map("panels")
+}
+
+/// Junction table for layouts and their panel instances
+model LayoutPanel {
+  id       String @id @default(cuid())
+  layoutId String
+  panelId  String
+  
+  // Panel instance configuration
+  propsJson Json @default("{}") // Instance-specific props
+  
+  // Grid position and sizing
+  gridX      Int
+  gridY      Int
+  gridWidth  Int
+  gridHeight Int
+  
+  // Display options
+  isVisible  Boolean @default(true)
+  zIndex     Int     @default(0)
+  
+  // Timestamps
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  // Relations
+  layout Layout @relation(fields: [layoutId], references: [id], onDelete: Cascade)
+  panel  Panel  @relation(fields: [panelId], references: [id], onDelete: Cascade)
+  
+  @@unique([layoutId, panelId])
+  @@map("layout_panels")
+}
+
+enum PanelType {
+  VIDEO_FEED       // Video listing/grid
+  VIDEO_PLAYER     // Embedded video player
+  SEARCH           // Search interface
+  FILTERS          // Content filters
+  PLAYLISTS        // Playlist management
+  SUBSCRIPTIONS    // Subscription feed
+  TRENDING         // Trending content
+  RECOMMENDATIONS  // AI recommendations
+  SETTINGS         // User settings
+  ANALYTICS        // Usage analytics
+  CUSTOM           // User-defined custom panel
+}
+
+// ================================
+// USER CONTENT ORGANIZATION
+// ================================
+
+/// User-created lists (playlists, smart lists, etc.)
+model List {
+  id     String   @id @default(cuid())
+  userId String
+  name   String
+  type   ListType
+  
+  // List configuration
+  description String?
+  isPublic    Boolean @default(false)
+  rulesJson   Json    @default("{}") // Smart list rules or static content
+  
+  // Metadata
+  tags        String[] @default([])
+  thumbnail   String?  // URL to thumbnail image
+  itemCount   Int      @default(0)
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  lastSyncAt  DateTime?
+  
+  // Relations
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listItems  ListItem[]
+  
+  @@map("lists")
+}
+
+enum ListType {
+  PLAYLIST  // Manual playlist
+  SMART     // Smart list with rules
+  FAVORITES // User favorites
+  WATCHLIST // Watch later
+  HISTORY   // Watch history
+}
+
+/// Items within user lists
+model ListItem {
+  id     String @id @default(cuid())
+  listId String
+  
+  // External content reference
+  platformId   String // YouTube video ID, Vimeo ID, etc.
+  platform     String // 'youtube', 'vimeo', 'nebula'
+  contentType  String @default("video") // Future: audio, article, etc.
+  
+  // Cached metadata
+  title        String?
+  description  String?
+  thumbnailUrl String?
+  duration     Int?    // Duration in seconds
+  publishedAt  DateTime?
+  
+  // List-specific data
+  position     Int     @default(0)
+  addedAt      DateTime @default(now())
+  notes        String? // User notes about this item
+  
+  // Engagement tracking
+  watchProgress Float?  @default(0) // 0.0 to 1.0
+  rating        Int?    // 1-5 stars
+  isFavorite    Boolean @default(false)
+  
+  // Relations
+  list List @relation(fields: [listId], references: [id], onDelete: Cascade)
+  
+  @@unique([listId, platformId, platform])
+  @@map("list_items")
+}
+
+// ================================
+// USER PREFERENCES & SETTINGS
+// ================================
+
+/// Fine-grained user preferences and settings
+model Preference {
+  id     String @id @default(cuid())
+  userId String
+  key    String // Hierarchical key like "ui.theme" or "ai.recommendations.enabled"
+  
+  // Flexible value storage
+  valueJson Json
+  
+  // Metadata
+  category    String? // e.g., "ui", "ai", "notifications", "privacy"
+  description String?
+  isUserSet   Boolean @default(true) // false for system defaults
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, key])
+  @@map("preferences")
+}
+
+// ================================
+// SYSTEM TABLES
+// ================================
+
+/// Database migrations tracking
+model Migration {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  executedAt  DateTime @default(now())
+  checksum    String?
+  
+  @@map("migrations")
+}
+
+/// System configuration and feature flags
+model SystemConfig {
+  id    String @id @default(cuid())
+  key   String @unique
+  value Json
+  
+  description String?
+  category    String? // e.g., "feature_flags", "api_limits", "maintenance"
+  isActive    Boolean @default(true)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("system_config")
+}
+
+// ================================
+// INDEXES FOR PERFORMANCE
+// ================================
+
+// Additional indexes are automatically created by Prisma for:
+// - Primary keys (@id)
+// - Unique constraints (@unique)
+// - Foreign key relations
+
+// Custom indexes for query optimization:
+// - User email lookups
+// - Connection status queries
+// - Layout user queries
+// - List item position ordering
+// - Preference key-based lookups

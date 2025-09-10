@@ -1,0 +1,100 @@
+# Multi-stage build for Node.js backend API
+FROM node:20-alpine AS base
+
+# Install dependencies only when needed
+FROM base AS deps
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+
+# Install dependencies based on the preferred package manager
+COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+RUN \
+  if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
+  elif [ -f package-lock.json ]; then npm ci; \
+  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i --frozen-lockfile; \
+  else echo "Lockfile not found." && exit 1; \
+  fi
+
+# Development image with hot reload
+FROM base AS development
+WORKDIR /app
+
+ENV NODE_ENV=development
+
+# Install nodemon globally for development hot reload
+RUN npm install -g nodemon
+
+# Install dependencies
+COPY --from=deps /app/node_modules ./node_modules
+
+# Copy source code
+COPY . .
+
+# Create non-root user for security
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nodeapp
+
+# Change ownership of the app directory
+RUN chown -R nodeapp:nodejs /app
+USER nodeapp
+
+# Expose the port on which the backend will run
+EXPOSE 4000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:4000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })" || exit 1
+
+# Start the application in development mode with nodemon
+CMD \
+  if [ -f yarn.lock ]; then yarn dev; \
+  elif [ -f package-lock.json ]; then npm run dev; \
+  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm dev; \
+  else echo "Lockfile not found." && exit 1; \
+  fi
+
+# Production build stage
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# Build the application (if build script exists)
+RUN \
+  if [ -f yarn.lock ]; then yarn build 2>/dev/null || echo "No build script found"; \
+  elif [ -f package-lock.json ]; then npm run build 2>/dev/null || echo "No build script found"; \
+  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm build 2>/dev/null || echo "No build script found"; \
+  else echo "Lockfile not found." && exit 1; \
+  fi
+
+# Production image
+FROM base AS production
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+# Create non-root user
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nodeapp
+
+# Copy built application
+COPY --from=builder --chown=nodeapp:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nodeapp:nodejs /app/package*.json ./
+COPY --from=builder --chown=nodeapp:nodejs /app/dist ./dist 2>/dev/null || COPY --from=builder --chown=nodeapp:nodejs /app/src ./src
+COPY --from=builder --chown=nodeapp:nodejs /app/*.js ./
+
+USER nodeapp
+
+EXPOSE 4000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:4000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })" || exit 1
+
+# Start the application
+CMD \
+  if [ -f yarn.lock ]; then yarn start; \
+  elif [ -f package-lock.json ]; then npm start; \
+  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm start; \
+  else echo "Lockfile not found." && exit 1; \
+  fi

@@ -38,10 +38,12 @@ model User {
   isVerified  Boolean   @default(false)
   
   // Relations
-  connections Connection[]
-  layouts     Layout[]
-  lists       List[]
-  preferences Preference[]
+  connections    Connection[]
+  layouts        Layout[]
+  lists          List[]
+  preferences    Preference[]
+  userEmbedding  UserEmbedding?
+  searchEmbeddings SearchEmbedding[]
   
   @@map("users")
 }
@@ -332,6 +334,198 @@ model SystemConfig {
 }
 
 // ================================
+// AI/ML VECTOR EMBEDDINGS (pgvector)
+// ================================
+
+/// Video content embeddings for personalization and search
+model VideoEmbedding {
+  id           String   @id @default(cuid())
+  platformId   String   // YouTube video ID, Vimeo ID, etc.
+  platform     String   // 'youtube', 'vimeo', 'nebula'
+  
+  // Video metadata
+  title        String?
+  description  String?
+  tags         String[] @default([])
+  category     String?
+  duration     Int?     // Duration in seconds
+  publishedAt  DateTime?
+  channelId    String?
+  channelName  String?
+  
+  // Embeddings (1536 dimensions for OpenAI text-embedding-3-small)
+  titleEmbedding       Unsupported("vector(1536)")?
+  descriptionEmbedding Unsupported("vector(1536)")?
+  combinedEmbedding    Unsupported("vector(1536)")   // Weighted combination
+  
+  // Embedding metadata
+  embeddingModel      String   @default("text-embedding-3-small")
+  embeddingVersion    String   @default("1.0")
+  processingStatus    EmbeddingStatus @default(PENDING)
+  qualityScore        Float?   // 0.0 to 1.0
+  
+  // Processing timestamps
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  lastProcessedAt     DateTime?
+  
+  @@unique([platformId, platform])
+  @@map("video_embeddings")
+}
+
+/// User preference embeddings for personalization
+model UserEmbedding {
+  id       String @id @default(cuid())
+  userId   String @unique
+  
+  // User preference vector derived from interactions
+  preferenceEmbedding Unsupported("vector(1536)")
+  
+  // Metadata
+  confidenceScore     Float    @default(0.5) // 0.0 to 1.0
+  interactionCount    Int      @default(0)
+  lastUpdateThreshold Int      @default(10)  // Min interactions for update
+  
+  // Processing info
+  embeddingModel      String   @default("text-embedding-3-small")
+  embeddingVersion    String   @default("1.0")
+  processingStatus    EmbeddingStatus @default(PENDING)
+  
+  // Timestamps
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  lastCalculatedAt    DateTime?
+  
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("user_embeddings")
+}
+
+/// Comment embeddings for toxicity detection and relevance scoring
+model CommentEmbedding {
+  id         String @id @default(cuid())
+  platformId String // Original comment ID from platform
+  platform   String
+  videoId    String // Associated video
+  
+  // Comment content
+  content           String
+  authorName        String?
+  publishedAt       DateTime?
+  
+  // Embeddings and analysis
+  contentEmbedding  Unsupported("vector(1536)")
+  toxicityScore     Float?   // 0.0 to 1.0 (higher = more toxic)
+  relevanceScore    Float?   // 0.0 to 1.0 (higher = more relevant to video)
+  sentimentScore    Float?   // -1.0 to 1.0 (negative to positive)
+  
+  // Processing metadata
+  embeddingModel    String   @default("text-embedding-3-small")
+  embeddingVersion  String   @default("1.0")
+  processingStatus  EmbeddingStatus @default(PENDING)
+  
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@unique([platformId, platform])
+  @@map("comment_embeddings")
+}
+
+/// Search query embeddings for query expansion and personalization
+model SearchEmbedding {
+  id       String @id @default(cuid())
+  userId   String?
+  query    String
+  
+  // Query analysis
+  queryEmbedding    Unsupported("vector(1536)")
+  intent            String?  // e.g., "entertainment", "educational", "music"
+  entities          String[] @default([]) // Extracted entities from query
+  
+  // Usage statistics
+  searchCount       Int      @default(1)
+  clickThrough      Float    @default(0.0) // Click-through rate
+  avgWatchTime      Float?   // Average watch time for results
+  
+  // Processing metadata
+  embeddingModel    String   @default("text-embedding-3-small")
+  embeddingVersion  String   @default("1.0")
+  
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  lastSearchedAt    DateTime @default(now())
+  
+  // Relations
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  @@unique([query, userId])
+  @@map("search_embeddings")
+}
+
+/// Batch processing jobs for embeddings
+model EmbeddingJob {
+  id          String    @id @default(cuid())
+  type        JobType
+  status      JobStatus @default(PENDING)
+  
+  // Job configuration
+  batchSize   Int       @default(100)
+  priority    Int       @default(0)  // Higher = more priority
+  configJson  Json      @default("{}")
+  
+  // Progress tracking
+  totalItems      Int     @default(0)
+  processedItems  Int     @default(0)
+  failedItems     Int     @default(0)
+  successItems    Int     @default(0)
+  
+  // Error handling
+  errorMessage    String?
+  retryCount      Int     @default(0)
+  maxRetries      Int     @default(3)
+  
+  // Performance metrics
+  startedAt       DateTime?
+  completedAt     DateTime?
+  avgProcessingTime Float? // Average time per item in seconds
+  
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@map("embedding_jobs")
+}
+
+enum EmbeddingStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  STALE      // Needs update
+}
+
+enum JobType {
+  VIDEO_EMBEDDING
+  USER_EMBEDDING
+  COMMENT_EMBEDDING
+  SEARCH_EMBEDDING
+  BATCH_UPDATE
+  INCREMENTAL_UPDATE
+}
+
+enum JobStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+  RETRYING
+}
+
+// ================================
 // INDEXES FOR PERFORMANCE
 // ================================
 
@@ -346,3 +540,7 @@ model SystemConfig {
 // - Layout user queries
 // - List item position ordering
 // - Preference key-based lookups
+
+// Vector similarity indexes (created via raw SQL):
+// - HNSW indexes on all embedding columns for fast similarity search
+// - GIN indexes for tag and entity arrays

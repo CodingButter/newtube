@@ -160,10 +160,12 @@ export type Platform = 'youtube' | 'vimeo' | 'nebula'
 
 export type PanelType = 
   | 'video-feed'
+  | 'video-player'
+  | 'search'
+  | 'list'
   | 'recommendations'
   | 'watch-later'
   | 'subscriptions'
-  | 'search'
   | 'trending'
   | 'ai-curated'
   | 'custom'
@@ -229,6 +231,72 @@ export interface SearchForm {
   duration?: 'short' | 'medium' | 'long'
   uploadDate?: 'hour' | 'today' | 'week' | 'month' | 'year'
   sortBy?: 'relevance' | 'date' | 'views' | 'rating'
+}
+
+// Drag and Drop Types
+export interface DndItem {
+  id: string
+  type: PanelType
+  data?: any
+}
+
+export interface PanelProps {
+  panel: Panel
+  onUpdate: (panelId: string, updates: Partial<Panel>) => void
+  onRemove: (panelId: string) => void
+  isDragging?: boolean
+  className?: string
+}
+
+// Specific Panel Config Types
+export interface VideoFeedPanelConfig extends PanelConfig {
+  platform: Platform
+  category?: string
+  maxVideos?: number
+  refreshInterval?: number
+}
+
+export interface VideoPlayerPanelConfig extends PanelConfig {
+  videoId: string
+  platform: Platform
+  autoplay?: boolean
+  controls?: boolean
+}
+
+export interface SearchPanelConfig extends PanelConfig {
+  platforms: Platform[]
+  defaultQuery?: string
+  resultsLimit?: number
+}
+
+export interface ListPanelConfig extends PanelConfig {
+  listType: 'playlist' | 'favorites' | 'watch-later' | 'history'
+  platform?: Platform
+  listId?: string
+}
+
+export interface RecommendationPanelConfig extends PanelConfig {
+  category: RecommendationCategory
+  maxRecommendations?: number
+  aiEnabled?: boolean
+}
+
+// Layout and Grid Types
+export interface LayoutEngine {
+  addPanel: (type: PanelType, config?: PanelConfig) => void
+  removePanel: (panelId: string) => void
+  updatePanel: (panelId: string, updates: Partial<Panel>) => void
+  movePanel: (panelId: string, position: Position) => void
+  resizePanel: (panelId: string, size: Size) => void
+  saveLayout: () => Promise<void>
+  loadLayout: (layoutId: string) => Promise<void>
+}
+
+export interface ResponsiveBreakpoint {
+  name: string
+  minWidth: number
+  columns: number
+  maxPanelWidth: number
 }
 
 // Utility Types

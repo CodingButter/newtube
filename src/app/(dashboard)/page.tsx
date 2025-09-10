@@ -1,70 +1,86 @@
-import { Button } from "@/components/ui/button"
+'use client'
+
+import React, { useEffect } from 'react'
+import { LayoutEngine, PanelToolbar } from '@/components/panels'
+import { useLayoutStore } from '@/stores/layoutStore'
+import { Button } from '@/components/ui/button'
 
 export default function DashboardPage() {
-  return (
-    <div className="container mx-auto p-4">
-      <header className="mb-8">
-        <h1 className="text-4xl font-bold text-foreground mb-2">
-          Welcome to NEWTUBE
-        </h1>
-        <p className="text-lg text-muted-foreground">
-          Your customizable streaming aggregator for YouTube, Vimeo, and Nebula
-        </p>
-      </header>
+  const { currentLayout, createDefaultLayout, setCurrentLayout } = useLayoutStore()
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Panel-based layout placeholder */}
-        <div className="panel p-6">
-          <h2 className="text-xl font-semibold mb-4">YouTube Feed</h2>
-          <p className="text-muted-foreground mb-4">
-            Your personalized YouTube content will appear here
-          </p>
-          <Button variant="outline">Configure Panel</Button>
-        </div>
+  useEffect(() => {
+    // Initialize default layout if none exists
+    if (!currentLayout) {
+      const defaultLayout = createDefaultLayout()
+      setCurrentLayout(defaultLayout)
+    }
+  }, [currentLayout, createDefaultLayout, setCurrentLayout])
 
-        <div className="panel p-6">
-          <h2 className="text-xl font-semibold mb-4">Vimeo Discover</h2>
-          <p className="text-muted-foreground mb-4">
-            Curated Vimeo content based on your preferences
-          </p>
-          <Button variant="outline">Configure Panel</Button>
-        </div>
+  const handleLayoutChange = (updatedLayout: any) => {
+    setCurrentLayout(updatedLayout)
+  }
 
-        <div className="panel p-6">
-          <h2 className="text-xl font-semibold mb-4">Nebula Collections</h2>
-          <p className="text-muted-foreground mb-4">
-            Educational content from your favorite creators
-          </p>
-          <Button variant="outline">Configure Panel</Button>
-        </div>
-
-        <div className="panel p-6">
-          <h2 className="text-xl font-semibold mb-4">AI Recommendations</h2>
-          <p className="text-muted-foreground mb-4">
-            Smart suggestions across all platforms
-          </p>
-          <Button variant="outline">Configure Panel</Button>
-        </div>
-
-        <div className="panel p-6">
-          <h2 className="text-xl font-semibold mb-4">Watch Later</h2>
-          <p className="text-muted-foreground mb-4">
-            Your saved videos from all platforms
-          </p>
-          <Button variant="outline">Configure Panel</Button>
-        </div>
-
-        <div className="panel p-6">
-          <h2 className="text-xl font-semibold mb-4">Custom Layout</h2>
-          <p className="text-muted-foreground mb-4">
-            Drag and drop to customize your dashboard
-          </p>
-          <Button>Start Customizing</Button>
+  if (!currentLayout) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading your dashboard...</p>
         </div>
       </div>
+    )
+  }
 
-      <footer className="mt-12 text-center text-sm text-muted-foreground">
-        <p>NEWTUBE - Streaming content aggregated, simplified, and personalized</p>
+  return (
+    <div className="h-screen flex flex-col bg-background">
+      {/* Header */}
+      <header className="flex-shrink-0 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div>
+                <h1 className="text-xl font-bold text-foreground">
+                  NEWTUBE Dashboard
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  {currentLayout.name} • {currentLayout.panels.length} panels
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <PanelToolbar />
+              <Button variant="outline" size="sm">
+                Save Layout
+              </Button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="flex-1 overflow-hidden">
+        <LayoutEngine
+          layout={currentLayout}
+          onLayoutChange={handleLayoutChange}
+          className="h-full"
+        />
+      </main>
+
+      {/* Footer */}
+      <footer className="flex-shrink-0 border-t border-border bg-muted/20 px-4 py-2">
+        <div className="container mx-auto">
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <div>
+              NEWTUBE - Panel-based streaming aggregator
+            </div>
+            <div className="flex items-center gap-4">
+              <span>Drag to reorder panels</span>
+              <span>•</span>
+              <span>Use toolbar to add new panels</span>
+            </div>
+          </div>
+        </div>
       </footer>
     </div>
   )

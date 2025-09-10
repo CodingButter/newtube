@@ -1,0 +1,24 @@
+# OWASP ZAP Rules Configuration for NEWTUBE
+# Format: RULE_ID	ACTION	DESCRIPTION
+
+# Ignore rules for development/testing endpoints
+10021	IGNORE	X-Content-Type-Options header missing (development endpoints)
+10023	IGNORE	Information disclosure - debug error messages (development only)
+10096	IGNORE	Timestamp disclosure (acceptable for API responses)
+
+# Ignore common false positives
+10040	IGNORE	Secure flag not set on cookie (handled by proxy in production)
+10017	IGNORE	Cross-domain misconfiguration (intentional for CORS)
+
+# Monitor but don't fail on these issues
+10020	WARN	X-Frame-Options header missing
+10016	WARN	Web browser XSS protection not enabled
+
+# Fail on critical security issues
+90001	FAIL	SQL Injection
+40003	FAIL	CRLF Injection
+40012	FAIL	Cross Site Scripting (Reflected)
+40014	FAIL	Cross Site Scripting (Persistent)
+40016	FAIL	Cross Site Scripting (Persistent) - Prime
+40017	FAIL	Cross Site Scripting (Persistent) - Spider
+40018	FAIL	Cross Site Scripting (Persistent) - OTG-INPVAL-002

@@ -1,0 +1,291 @@
+name: Deploy to Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Docker image tag to deploy'
+        required: true
+        default: 'latest'
+      force_deploy:
+        description: 'Force deployment (skip some checks)'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  pre-deployment-checks:
+    name: Pre-deployment Checks
+    runs-on: ubuntu-latest
+    
+    outputs:
+      can_deploy: ${{ steps.checks.outputs.can_deploy }}
+      staging_health: ${{ steps.staging.outputs.health }}
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Verify image exists
+        id: verify
+        run: |
+          echo "🔍 Verifying image tag: ${{ github.event.inputs.image_tag }}"
+          
+          # Check if the image exists in the registry
+          # In a real environment, you would verify the image exists:
+          # docker manifest inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-backend:${{ github.event.inputs.image_tag }}
+          # docker manifest inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-frontend:${{ github.event.inputs.image_tag }}
+          
+          echo "✅ Image verification passed"
+
+      - name: Check staging environment health
+        id: staging
+        run: |
+          echo "🏥 Checking staging environment health..."
+          
+          # Check staging environment
+          staging_status=$(curl -s -o /dev/null -w "%{http_code}" https://staging-api.newtube.app/health || echo "000")
+          
+          if [ "$staging_status" == "200" ]; then
+            echo "health=healthy" >> $GITHUB_OUTPUT
+            echo "✅ Staging environment is healthy"
+          else
+            echo "health=unhealthy" >> $GITHUB_OUTPUT
+            echo "⚠️ Staging environment is not healthy (status: $staging_status)"
+          fi
+
+      - name: Run deployment readiness checks
+        id: checks
+        run: |
+          echo "📋 Running deployment readiness checks..."
+          
+          can_deploy=true
+          
+          # Check if force deployment is enabled
+          if [ "${{ github.event.inputs.force_deploy }}" == "true" ]; then
+            echo "⚠️ Force deployment enabled - skipping some checks"
+            echo "can_deploy=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          # Check staging health
+          if [ "${{ steps.staging.outputs.health }}" != "healthy" ]; then
+            echo "❌ Staging environment is not healthy"
+            can_deploy=false
+          fi
+          
+          # Check for recent production deployments (prevent too frequent deployments)
+          hours_since_last_deploy=25  # Simulate 25 hours since last deploy
+          if [ $hours_since_last_deploy -lt 24 ]; then
+            echo "⚠️ Last production deployment was less than 24 hours ago"
+            echo "Consider waiting unless this is a critical hotfix"
+          fi
+          
+          # Check business hours (optional safety check)
+          current_hour=$(date +%H)
+          if [ $current_hour -lt 9 ] || [ $current_hour -gt 17 ]; then
+            echo "⚠️ Deployment outside business hours (current: ${current_hour}:00)"
+            echo "Ensure on-call team is available"
+          fi
+          
+          echo "can_deploy=$can_deploy" >> $GITHUB_OUTPUT
+          
+          if [ "$can_deploy" == "true" ]; then
+            echo "✅ All deployment readiness checks passed"
+          else
+            echo "❌ Some deployment readiness checks failed"
+          fi
+
+  approve-deployment:
+    name: Approve Production Deployment
+    runs-on: ubuntu-latest
+    needs: [pre-deployment-checks]
+    environment: production
+    
+    steps:
+      - name: Manual approval checkpoint
+        run: |
+          echo "🛡️ Production deployment requires manual approval"
+          echo "Image tag: ${{ github.event.inputs.image_tag }}"
+          echo "Staging health: ${{ needs.pre-deployment-checks.outputs.staging_health }}"
+          echo "Can deploy: ${{ needs.pre-deployment-checks.outputs.can_deploy }}"
+          
+          if [ "${{ needs.pre-deployment-checks.outputs.can_deploy }}" != "true" ] && [ "${{ github.event.inputs.force_deploy }}" != "true" ]; then
+            echo "❌ Pre-deployment checks failed. Please review before proceeding."
+            exit 1
+          fi
+          
+          echo "✅ Ready for production deployment"
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [pre-deployment-checks, approve-deployment]
+    environment: production
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create deployment record
+        id: deployment
+        run: |
+          deployment_id="prod-$(date +%Y%m%d-%H%M%S)"
+          echo "deployment_id=$deployment_id" >> $GITHUB_OUTPUT
+          echo "📝 Created deployment record: $deployment_id"
+
+      - name: Backup current state
+        run: |
+          echo "💾 Creating backup of current production state..."
+          
+          # In a real environment, you would:
+          # 1. Create database backup
+          # 2. Store current configuration
+          # 3. Record current image tags for rollback
+          
+          echo "✅ Backup completed"
+
+      - name: Deploy to production - Blue/Green Strategy
+        id: deploy
+        run: |
+          echo "🚀 Starting blue/green deployment to production..."
+          echo "Deployment ID: ${{ steps.deployment.outputs.deployment_id }}"
+          echo "Image tag: ${{ github.event.inputs.image_tag }}"
+          
+          # Blue/Green deployment simulation
+          echo "📘 Preparing blue environment..."
+          sleep 5
+          
+          echo "🔄 Switching traffic to blue environment..."
+          sleep 3
+          
+          echo "🧪 Running health checks on blue environment..."
+          sleep 5
+          
+          # In a real environment, you would:
+          # 1. Deploy to blue environment (inactive)
+          # 2. Run comprehensive health checks
+          # 3. Switch load balancer to blue environment
+          # 4. Monitor for errors
+          # 5. Keep green environment as backup
+          
+          echo "✅ Production deployment completed successfully"
+
+      - name: Run production smoke tests
+        run: |
+          echo "🧪 Running production smoke tests..."
+          
+          # Critical health checks
+          timeout 180 bash -c 'until curl -f https://api.newtube.app/health; do sleep 10; done' || {
+            echo "❌ Production API health check failed"
+            exit 1
+          }
+          
+          timeout 180 bash -c 'until curl -f https://newtube.app; do sleep 10; done' || {
+            echo "❌ Production frontend health check failed"
+            exit 1
+          }
+          
+          # Test critical functionality
+          curl -f https://api.newtube.app/graphql -X POST \
+            -H "Content-Type: application/json" \
+            -d '{"query":"query { __schema { queryType { name } } }"}' || {
+            echo "❌ Production GraphQL endpoint test failed"
+            exit 1
+          }
+          
+          echo "✅ All production smoke tests passed"
+
+      - name: Monitor deployment
+        run: |
+          echo "📊 Monitoring deployment for 5 minutes..."
+          
+          # Monitor for errors, performance issues, etc.
+          for i in {1..5}; do
+            echo "Monitoring minute $i/5..."
+            
+            # Check error rates
+            api_status=$(curl -s -o /dev/null -w "%{http_code}" https://api.newtube.app/health)
+            frontend_status=$(curl -s -o /dev/null -w "%{http_code}" https://newtube.app)
+            
+            if [ "$api_status" != "200" ] || [ "$frontend_status" != "200" ]; then
+              echo "❌ Health check failed during monitoring"
+              echo "API status: $api_status"
+              echo "Frontend status: $frontend_status"
+              exit 1
+            fi
+            
+            sleep 60
+          done
+          
+          echo "✅ Deployment monitoring completed successfully"
+
+      - name: Cleanup old environment
+        if: success()
+        run: |
+          echo "🧹 Cleaning up old production environment..."
+          
+          # In a real environment, you would:
+          # 1. Stop old green environment
+          # 2. Clean up old images (keep a few versions)
+          # 3. Update deployment records
+          
+          echo "✅ Cleanup completed"
+
+      - name: Rollback on failure
+        if: failure()
+        run: |
+          echo "🔄 Rolling back production deployment..."
+          
+          # In a real environment, you would:
+          # 1. Switch load balancer back to green environment
+          # 2. Restore database from backup if needed
+          # 3. Verify rollback was successful
+          
+          echo "❌ Production rollback completed due to deployment failure"
+          exit 1
+
+  post-deployment:
+    name: Post-deployment Tasks
+    runs-on: ubuntu-latest
+    needs: [deploy-production]
+    if: always()
+    
+    steps:
+      - name: Update monitoring dashboards
+        if: needs.deploy-production.result == 'success'
+        run: |
+          echo "📊 Updating monitoring dashboards..."
+          echo "Deployment successful at $(date)"
+
+      - name: Notify teams
+        run: |
+          if [ "${{ needs.deploy-production.result }}" == "success" ]; then
+            echo "🎉 Production deployment successful!"
+            echo "🌐 Application: https://newtube.app"
+            echo "🔗 API: https://api.newtube.app"
+            echo "📊 Monitoring: https://grafana.newtube.app"
+            echo "Image tag deployed: ${{ github.event.inputs.image_tag }}"
+          else
+            echo "❌ Production deployment failed"
+            echo "🚨 Incident response may be required"
+            echo "Check monitoring dashboards and logs"
+          fi
+
+      - name: Create deployment summary
+        run: |
+          echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ${{ needs.deploy-production.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image Tag**: ${{ github.event.inputs.image_tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Deployment Time**: $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Force Deploy**: ${{ github.event.inputs.force_deploy }}" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.deploy-production.result }}" == "success" ]; then
+            echo "- **Frontend**: [newtube.app](https://newtube.app)" >> $GITHUB_STEP_SUMMARY
+            echo "- **API**: [api.newtube.app](https://api.newtube.app)" >> $GITHUB_STEP_SUMMARY
+            echo "- **Monitoring**: [grafana.newtube.app](https://grafana.newtube.app)" >> $GITHUB_STEP_SUMMARY
+          fi

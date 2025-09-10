@@ -1,0 +1,354 @@
+name: Security Scan
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 2 AM
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # Static Application Security Testing (SAST)
+  sast-scan:
+    name: SAST Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript, typescript
+          queries: security-and-quality
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:javascript"
+
+  # Dependency vulnerability scanning
+  dependency-scan:
+    name: Dependency Vulnerabilities
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        component: [backend, frontend]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies - ${{ matrix.component }}
+        working-directory: ./${{ matrix.component }}
+        run: npm ci
+
+      - name: Run npm audit
+        working-directory: ./${{ matrix.component }}
+        run: |
+          echo "🔍 Running npm audit for ${{ matrix.component }}..."
+          npm audit --audit-level=moderate --format=json > audit-results.json || true
+          
+          # Parse results
+          HIGH_VULN=$(jq '.metadata.vulnerabilities.high // 0' audit-results.json)
+          CRITICAL_VULN=$(jq '.metadata.vulnerabilities.critical // 0' audit-results.json)
+          
+          echo "Critical vulnerabilities: $CRITICAL_VULN"
+          echo "High vulnerabilities: $HIGH_VULN"
+          
+          if [ "$CRITICAL_VULN" -gt 0 ]; then
+            echo "❌ Critical vulnerabilities found!"
+            npm audit --audit-level=critical
+            exit 1
+          elif [ "$HIGH_VULN" -gt 0 ]; then
+            echo "⚠️ High vulnerabilities found!"
+            npm audit --audit-level=high
+            # Don't fail on high, but report them
+          else
+            echo "✅ No critical or high vulnerabilities found"
+          fi
+
+      - name: Run Snyk security scan
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high --file=${{ matrix.component }}/package.json
+
+      - name: Upload Snyk results to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: snyk.sarif
+
+  # Container security scanning
+  container-scan:
+    name: Container Security
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request' || github.base_ref == 'main'
+
+    strategy:
+      matrix:
+        component: [backend, frontend]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          if [ "${{ matrix.component }}" == "frontend" ]; then
+            # Create a minimal frontend Dockerfile for scanning if it doesn't exist
+            if [ ! -f "./docker/Dockerfile.frontend" ]; then
+              cat > Dockerfile.frontend.tmp << 'EOF'
+          FROM node:20-alpine
+          WORKDIR /app
+          COPY frontend/package*.json ./
+          RUN npm ci
+          COPY frontend/ ./
+          RUN npm run build
+          EXPOSE 3000
+          CMD ["npm", "start"]
+          EOF
+              docker build -f Dockerfile.frontend.tmp -t newtube-frontend:scan .
+            else
+              docker build -f ./docker/Dockerfile.frontend -t newtube-frontend:scan .
+            fi
+          else
+            docker build -f ./docker/Dockerfile.backend -t newtube-backend:scan .
+          fi
+
+      - name: Run Trivy container scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'newtube-${{ matrix.component }}:scan'
+          format: 'sarif'
+          output: 'trivy-${{ matrix.component }}.sarif'
+
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-${{ matrix.component }}.sarif'
+
+      - name: Run container security best practices check
+        run: |
+          echo "🔍 Checking container security best practices..."
+          
+          # Check if running as root
+          USER_ID=$(docker run --rm newtube-${{ matrix.component }}:scan id -u)
+          if [ "$USER_ID" == "0" ]; then
+            echo "⚠️ Container running as root user"
+          else
+            echo "✅ Container running as non-root user (UID: $USER_ID)"
+          fi
+          
+          # Check for security updates
+          docker run --rm newtube-${{ matrix.component }}:scan sh -c "
+            if command -v apk >/dev/null 2>&1; then
+              echo 'Checking for Alpine security updates...'
+              apk update >/dev/null 2>&1
+              UPDATES=\$(apk list --upgradable 2>/dev/null | grep -i security | wc -l)
+              if [ \$UPDATES -gt 0 ]; then
+                echo '⚠️ \$UPDATES security updates available'
+              else
+                echo '✅ No security updates available'
+              fi
+            fi
+          "
+
+  # Secrets scanning
+  secrets-scan:
+    name: Secrets Detection
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for secret scanning
+
+      - name: TruffleHog OSS
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: main
+          head: HEAD
+          extra_args: --debug --only-verified
+
+      - name: GitLeaks scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Infrastructure security
+  infrastructure-scan:
+    name: Infrastructure Security
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Checkov on Docker files
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: .
+          framework: dockerfile
+          output_format: sarif
+          output_file_path: checkov-docker.sarif
+
+      - name: Run Checkov on Docker Compose
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: .
+          framework: docker_compose
+          output_format: sarif
+          output_file_path: checkov-compose.sarif
+
+      - name: Upload Checkov results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: checkov-docker.sarif
+
+  # OWASP security testing
+  owasp-scan:
+    name: OWASP Security Testing
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Start application
+        run: |
+          docker-compose -f docker-compose.yml -f docker-compose.override.yml up -d
+          sleep 60
+
+      - name: Wait for application to be ready
+        run: |
+          timeout 300 bash -c 'until curl -f http://localhost:3000; do sleep 10; done'
+          timeout 300 bash -c 'until curl -f http://localhost:4000/health; do sleep 10; done'
+
+      - name: OWASP ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.10.0
+        with:
+          target: 'http://localhost:3000'
+          rules_file_name: '.zap/rules.tsv'
+          cmd_options: '-a'
+
+      - name: OWASP ZAP API Scan
+        uses: zaproxy/action-api-scan@v0.6.0
+        with:
+          target: 'http://localhost:4000/graphql'
+          format: openapi
+          cmd_options: '-a'
+
+      - name: Stop application
+        if: always()
+        run: docker-compose down
+
+  # Security policy compliance
+  compliance-check:
+    name: Security Policy Compliance
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check security policy files
+        run: |
+          echo "🔍 Checking security policy compliance..."
+          
+          # Check for required security files
+          MISSING_FILES=()
+          
+          if [ ! -f "SECURITY.md" ]; then
+            MISSING_FILES+=("SECURITY.md")
+          fi
+          
+          if [ ! -f ".github/dependabot.yml" ]; then
+            MISSING_FILES+=(".github/dependabot.yml")
+          fi
+          
+          if [ ${#MISSING_FILES[@]} -gt 0 ]; then
+            echo "⚠️ Missing security policy files:"
+            printf '%s\n' "${MISSING_FILES[@]}"
+          else
+            echo "✅ All required security policy files present"
+          fi
+
+      - name: Check environment file security
+        run: |
+          echo "🔍 Checking for exposed secrets in environment files..."
+          
+          # Check if .env files are properly gitignored
+          if git ls-files | grep -E '\.env$'; then
+            echo "❌ .env files found in git repository!"
+            exit 1
+          else
+            echo "✅ No .env files in repository"
+          fi
+          
+          # Check .env.example for potential secrets
+          if [ -f ".env.example" ]; then
+            if grep -E "(SECRET|KEY|PASSWORD|TOKEN)" .env.example | grep -v "your_" | grep -v "change_me" | grep -v "placeholder"; then
+              echo "⚠️ Potential secrets found in .env.example"
+            else
+              echo "✅ .env.example looks secure"
+            fi
+          fi
+
+  # Security summary
+  security-summary:
+    name: Security Summary
+    runs-on: ubuntu-latest
+    needs: [sast-scan, dependency-scan, container-scan, secrets-scan, infrastructure-scan, compliance-check]
+    if: always()
+
+    steps:
+      - name: Generate security report
+        run: |
+          echo "# Security Scan Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| SAST Analysis | ${{ needs.sast-scan.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Dependency Scan | ${{ needs.dependency-scan.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Container Security | ${{ needs.container-scan.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Secrets Detection | ${{ needs.secrets-scan.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Infrastructure Security | ${{ needs.infrastructure-scan.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Compliance Check | ${{ needs.compliance-check.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+
+      - name: Security recommendations
+        run: |
+          echo "## Security Recommendations" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Review all security findings in the Security tab" >> $GITHUB_STEP_SUMMARY
+          echo "- Update dependencies with known vulnerabilities" >> $GITHUB_STEP_SUMMARY
+          echo "- Ensure all secrets are properly configured" >> $GITHUB_STEP_SUMMARY
+          echo "- Monitor security alerts and notifications" >> $GITHUB_STEP_SUMMARY
+          echo "- Regular security training for development team" >> $GITHUB_STEP_SUMMARY

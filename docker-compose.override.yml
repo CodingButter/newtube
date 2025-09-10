@@ -1,0 +1,100 @@
+# Docker Compose Development Overrides for NEWTUBE
+# This file automatically extends docker-compose.yml for development
+version: '3.8'
+
+services:
+  # Frontend Development Overrides
+  frontend:
+    environment:
+      # Enable development features
+      - FAST_REFRESH=true
+      - CHOKIDAR_USEPOLLING=false
+      - WATCHPACK_POLLING=false
+    volumes:
+      # Additional development mounts
+      - ../.eslintrc.json:/app/.eslintrc.json:ro
+      - ../.prettierrc:/app/.prettierrc:ro
+      - ../jest.config.js:/app/jest.config.js:ro
+    command: >
+      sh -c "
+        echo '🚀 Starting Next.js development server...' &&
+        if [ -f yarn.lock ]; then
+          yarn dev
+        elif [ -f package-lock.json ]; then
+          npm run dev
+        elif [ -f pnpm-lock.yaml ]; then
+          pnpm dev
+        else
+          echo 'No lockfile found' && exit 1
+        fi
+      "
+
+  # Backend Development Overrides
+  backend:
+    environment:
+      # Enable development debugging
+      - DEBUG=newtube:*
+      - LOG_LEVEL=debug
+    volumes:
+      # Additional development mounts
+      - ../.eslintrc.json:/app/.eslintrc.json:ro
+      - ../.prettierrc:/app/.prettierrc:ro
+      - ../jest.config.js:/app/jest.config.js:ro
+    command: >
+      sh -c "
+        echo '🔧 Starting Node.js backend with nodemon...' &&
+        if [ -f yarn.lock ]; then
+          yarn dev
+        elif [ -f package-lock.json ]; then
+          npm run dev
+        elif [ -f pnpm-lock.yaml ]; then
+          pnpm dev
+        else
+          echo 'No lockfile found' && exit 1
+        fi
+      "
+
+  # PostgreSQL Development Overrides
+  postgres:
+    environment:
+      # Enable detailed logging for development
+      - POSTGRES_LOG_STATEMENT=all
+      - POSTGRES_LOG_MIN_DURATION_STATEMENT=0
+    ports:
+      # Expose additional port for direct access
+      - "5433:5432"  # Alternative port for external tools
+
+  # Redis Development Overrides
+  redis:
+    ports:
+      # Expose additional port for direct access
+      - "6380:6379"  # Alternative port for external tools
+
+  # Neo4j Development Overrides
+  neo4j:
+    environment:
+      # Enable detailed logging
+      - NEO4J_server_logs_debug_level=DEBUG
+    ports:
+      # Expose additional ports for development tools
+      - "7475:7474"  # Alternative HTTP port
+      - "7688:7687"  # Alternative Bolt port
+
+# Development-specific volumes
+volumes:
+  # Development cache volumes for better performance
+  dev_cache:
+  eslint_cache:
+  prettier_cache:
+
+# Development network configuration
+networks:
+  newtube-network:
+    # Enable communication between containers by name
+    driver: bridge
+    driver_opts:
+      com.docker.network.enable_ipv6: "false"
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/16

@@ -1,0 +1,34 @@
+{
+  "name": "newtube-ai-vector",
+  "version": "1.0.0",
+  "description": "NEWTUBE AI/ML vector database setup with pgvector",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node --env-file=.env src/index.js",
+    "build": "echo 'No build step needed for this component'",
+    "test": "node src/scripts/test-embeddings.js test",
+    "db:migrate": "node src/migrations/migrate.js",
+    "db:seed": "node src/scripts/seed-embeddings.js",
+    "generate-embeddings": "node src/scripts/generate-embeddings.js"
+  },
+  "dependencies": {
+    "pg": "^8.11.3",
+    "pgvector": "^0.2.1",
+    "openai": "^4.38.5",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "@types/pg": "^8.10.9"
+  },
+  "keywords": [
+    "pgvector",
+    "embeddings",
+    "vector-database",
+    "ai",
+    "ml",
+    "postgresql"
+  ],
+  "author": "NEWTUBE AI/ML Team",
+  "license": "ISC"
+}

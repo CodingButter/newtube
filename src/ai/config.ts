@@ -169,15 +169,15 @@ export function getAIConfig(): AIConfig {
         ...AI_CONFIG.embeddings,
         processing: {
           ...AI_CONFIG.embeddings.processing,
-          batchSize: 10,      // Smaller batches in development
-          concurrency: 1,     // Single concurrent request
+          batchSize: 50,      // Smaller batches in development
+          concurrency: 3,     // Single concurrent request
         },
       },
       jobs: {
         ...AI_CONFIG.jobs,
         incrementalUpdates: {
           ...AI_CONFIG.jobs.incrementalUpdates,
-          intervalMs: 60000,  // 1 minute in development
+          intervalMs: 300000,  // 1 minute in development
         },
       },
     };

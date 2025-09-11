@@ -4,13 +4,17 @@
  */
 
 // Core processors and pipeline
-export { videoEmbeddingProcessor, VideoMetadata, ProcessedVideoEmbedding, ProcessingResult } from './processor';
-export { videoEmbeddingPipeline, PipelineOptions, PipelineResult, IncrementalUpdateResult } from './pipeline';
+export { videoEmbeddingProcessor } from './processor';
+export type { VideoMetadata, ProcessedVideoEmbedding, ProcessingResult } from './processor';
+export { videoEmbeddingPipeline } from './pipeline';
+export type { PipelineOptions, PipelineResult, IncrementalUpdateResult } from './pipeline';
 
 // Providers and models
 export { 
   embeddingProviderManager, 
-  OpenAIEmbeddingProvider,
+  OpenAIEmbeddingProvider
+} from './providers';
+export type {
   EmbeddingProvider,
   EmbeddingRequest,
   EmbeddingResult,
@@ -18,26 +22,27 @@ export {
 } from './providers';
 
 // Database operations
-export { 
-  vectorDatabaseManager, 
+export { vectorDatabaseManager } from './database';
+export type { 
   SimilaritySearchOptions, 
   SimilarityResult, 
   EmbeddingStats 
 } from './database';
 
 // Caching system
-export { embeddingCache, CacheEntry, CacheStats } from './cache';
+export { embeddingCache } from './cache';
+export type { CacheEntry, CacheStats } from './cache';
 
 // Background job system
-export { 
-  embeddingJobQueue, 
+export { embeddingJobQueue } from './jobs';
+export type { 
   EmbeddingJob, 
   JobQueueStats 
 } from './jobs';
 
 // Similarity search and recommendations
-export { 
-  similaritySearchEngine,
+export { similaritySearchEngine } from './similarity';
+export type {
   PersonalizedSearchOptions,
   RecommendationOptions,
   ScoredRecommendation,

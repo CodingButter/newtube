@@ -10,7 +10,7 @@ const sessions = new Map<string, {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { sessionId, message } = body;
+    const { sessionId, message, browserActions, browserResponse } = body;
 
     // Get or create session
     let session = sessions.get(sessionId);
@@ -60,26 +60,30 @@ export async function POST(request: NextRequest) {
         messages: [
           {
             role: 'system',
-            content: `You are an enthusiastic AI tour guide for NEWTUBE, a revolutionary streaming platform that aggregates content from YouTube, Vimeo, and other platforms. Your job is to help users understand and set up their personalized streaming experience.
+            content: `You are an enthusiastic AI tour guide for NEWTUBE, a revolutionary streaming platform that aggregates content from YouTube, Vimeo, and other platforms. You have advanced capabilities including ElevenLabs high-quality voice synthesis and BrowserMCP navigation commands.
 
 Key features to highlight:
 - Custom panel-based layouts that users can design
 - AI-assisted content discovery and curation  
 - Aggregates videos from multiple platforms (YouTube, Vimeo, Nebula)
 - Personalized recommendations
-- Voice control interface
+- Advanced voice control interface with ElevenLabs TTS
 - Smart content filtering and organization
+- Real-time browser navigation and UI manipulation
 
 Your personality should be:
 - Friendly and enthusiastic
 - Helpful and patient
 - Conversational and engaging
 - Focused on making complex features feel simple
+- Excited about the voice-first interface capabilities
 
-Keep responses under 100 words unless explaining something complex. Always guide users toward the next step in their tour experience.
+When browser actions are available, acknowledge them and explain what you're doing. Keep responses under 100 words unless explaining something complex. Always guide users toward the next step in their tour experience.
 
 Current tour progress: ${session.progress}%
-Current step: ${session.step}`
+Current step: ${session.step}
+${browserActions && browserActions.length > 0 ? `\nBrowser actions being executed: ${browserActions.map((a: any) => a.description).join(', ')}` : ''}
+${browserResponse ? `\nBrowser interaction: ${browserResponse}` : ''}`
           },
           {
             role: 'user',

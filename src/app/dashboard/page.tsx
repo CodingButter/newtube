@@ -4,7 +4,7 @@ import React, { useEffect } from 'react'
 import { LayoutEngine } from '@/components/layout/LayoutEngine'
 import { useLayoutStore } from '@/stores/layoutStore'
 import { Button } from '@/components/ui/button'
-import { Home, Settings, PlusCircle } from 'lucide-react'
+import { Home, Settings, PlusCircle, Bot } from 'lucide-react'
 import Link from 'next/link'
 
 export default function DashboardPage() {

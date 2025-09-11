@@ -1,7 +1,10 @@
 import { Server as SocketIOServer, Socket } from 'socket.io';
 import { ConversationService } from './conversation.service.js';
 import { TourService } from './tour.service.js';
+import { getVoiceService } from './voice.service.js';
+import { getAudioService } from './audio.service.js';
 import { UIUpdateEvent, DynamicUIState, ComponentDefinition, VoiceCommand, VoiceResponse } from '../types/dynamic-ui';
+import { AudioChunk, WebSocketMessage } from '../types/voice.types';
 import { logger } from '../lib/logger';
 
 export interface SocketWithUser extends Socket {
@@ -298,6 +301,252 @@ export class WebSocketService {
         } catch (error) {
           logger.error('Error processing voice command:', error);
           socket.emit('ui:voice_error', { error: 'Failed to process voice command' });
+        }
+      });
+
+      // ENHANCED VOICE AND AUDIO STREAMING HANDLERS
+
+      // Handle audio streaming requests
+      socket.on('audio:stream_start', async (data: {
+        messageId: string;
+        text: string;
+        voiceId?: string;
+        emotions?: any[];
+        streaming?: boolean;
+      }) => {
+        try {
+          if (!socket.userId) {
+            socket.emit('audio:error', { error: 'Not authenticated', messageId: data.messageId });
+            return;
+          }
+
+          logger.info('Starting audio stream', {
+            userId: socket.userId,
+            messageId: data.messageId,
+            textLength: data.text?.length || 0
+          });
+
+          const voiceService = getVoiceService();
+          const audioService = getAudioService();
+
+          // Emit stream start event
+          const startMessage: WebSocketMessage = {
+            type: 'audio_start',
+            messageId: data.messageId,
+            data: {
+              status: 'started',
+              timestamp: Date.now()
+            }
+          };
+          socket.emit('audio:stream_event', startMessage);
+
+          if (data.streaming) {
+            // Handle streaming TTS
+            const streamResponse = await voiceService.streamTTS(
+              data.text, 
+              { voiceId: data.voiceId }, 
+              data.messageId
+            );
+
+            // For MVP, simulate streaming by sending progress updates
+            let progress = 0;
+            const streamInterval = setInterval(() => {
+              progress += 10;
+              
+              const progressMessage: WebSocketMessage = {
+                type: 'audio_chunk',
+                messageId: data.messageId,
+                data: {
+                  progress,
+                  sequence: Math.floor(progress / 10),
+                  timestamp: Date.now()
+                }
+              };
+              
+              socket.emit('audio:stream_event', progressMessage);
+
+              if (progress >= 100) {
+                clearInterval(streamInterval);
+                
+                const completeMessage: WebSocketMessage = {
+                  type: 'audio_complete',
+                  messageId: data.messageId,
+                  data: {
+                    status: 'completed',
+                    streamUrl: streamResponse.streamUrl,
+                    timestamp: Date.now()
+                  }
+                };
+                socket.emit('audio:stream_event', completeMessage);
+              }
+            }, 200);
+
+            // Store interval for potential cancellation
+            socket.data = socket.data || {};
+            socket.data[`stream_${data.messageId}`] = streamInterval;
+
+          } else {
+            // Handle regular TTS
+            const voiceResponse = await voiceService.synthesizeSpeech(
+              data.text, 
+              data.emotions || [], 
+              { voiceId: data.voiceId }
+            );
+
+            const completeMessage: WebSocketMessage = {
+              type: 'audio_complete',
+              messageId: data.messageId,
+              data: {
+                audio: voiceResponse.audio,
+                mimeType: voiceResponse.mimeType,
+                voiceId: voiceResponse.voiceId,
+                timestamp: Date.now()
+              }
+            };
+            socket.emit('audio:stream_event', completeMessage);
+          }
+
+        } catch (error) {
+          logger.error('Audio streaming error:', error);
+          
+          const errorMessage: WebSocketMessage = {
+            type: 'audio_error',
+            messageId: data.messageId,
+            error: {
+              code: error.code || 'AUDIO_STREAM_FAILED',
+              message: error.message || 'Audio streaming failed',
+              retryable: error.retryable || false
+            }
+          };
+          socket.emit('audio:stream_event', errorMessage);
+        }
+      });
+
+      // Handle stream cancellation
+      socket.on('audio:stream_cancel', (data: { messageId: string }) => {
+        try {
+          logger.info('Cancelling audio stream', {
+            userId: socket.userId,
+            messageId: data.messageId
+          });
+
+          const voiceService = getVoiceService();
+          const cancelled = voiceService.cancelStream(data.messageId);
+
+          // Clear any local intervals
+          if (socket.data && socket.data[`stream_${data.messageId}`]) {
+            clearInterval(socket.data[`stream_${data.messageId}`]);
+            delete socket.data[`stream_${data.messageId}`];
+          }
+
+          socket.emit('audio:stream_cancelled', {
+            success: cancelled,
+            messageId: data.messageId,
+            timestamp: Date.now()
+          });
+
+        } catch (error) {
+          logger.error('Error cancelling audio stream:', error);
+          socket.emit('audio:stream_error', {
+            error: 'Failed to cancel stream',
+            messageId: data.messageId
+          });
+        }
+      });
+
+      // Handle audio chunk requests (for custom streaming)
+      socket.on('audio:request_chunk', async (data: {
+        messageId: string;
+        sequence: number;
+        chunkSize?: number;
+      }) => {
+        try {
+          // For MVP, this would fetch from an active stream
+          // In production, would implement proper chunk management
+          
+          logger.debug('Audio chunk requested', {
+            messageId: data.messageId,
+            sequence: data.sequence,
+            chunkSize: data.chunkSize
+          });
+
+          // Simulate chunk response
+          const chunk: AudioChunk = {
+            id: `${data.messageId}-${data.sequence}`,
+            sequence: data.sequence,
+            data: new ArrayBuffer(data.chunkSize || 4096), // Empty buffer for MVP
+            format: 'mp3',
+            isLast: data.sequence >= 10, // Simulate 10 chunks
+            timestamp: Date.now()
+          };
+
+          socket.emit('audio:chunk', {
+            messageId: data.messageId,
+            chunk: {
+              ...chunk,
+              data: Buffer.from(chunk.data).toString('base64') // Convert for transmission
+            }
+          });
+
+        } catch (error) {
+          logger.error('Error handling chunk request:', error);
+          socket.emit('audio:chunk_error', {
+            error: 'Failed to fetch chunk',
+            messageId: data.messageId,
+            sequence: data.sequence
+          });
+        }
+      });
+
+      // Handle audio quality updates
+      socket.on('audio:update_quality', (data: {
+        messageId: string;
+        quality: 'high' | 'medium' | 'low';
+        bitRate?: number;
+      }) => {
+        try {
+          logger.info('Audio quality update requested', {
+            messageId: data.messageId,
+            quality: data.quality,
+            bitRate: data.bitRate
+          });
+
+          // For MVP, acknowledge the update
+          socket.emit('audio:quality_updated', {
+            success: true,
+            messageId: data.messageId,
+            newQuality: data.quality,
+            appliedBitRate: data.bitRate || (data.quality === 'high' ? 320 : data.quality === 'medium' ? 192 : 128)
+          });
+
+        } catch (error) {
+          logger.error('Error updating audio quality:', error);
+          socket.emit('audio:quality_error', {
+            error: 'Failed to update quality',
+            messageId: data.messageId
+          });
+        }
+      });
+
+      // Handle voice health checks
+      socket.on('voice:health_check', async () => {
+        try {
+          const voiceService = getVoiceService();
+          const healthStatus = await voiceService.healthCheck();
+          
+          socket.emit('voice:health_status', {
+            status: healthStatus.status,
+            timestamp: Date.now(),
+            details: healthStatus.details
+          });
+
+        } catch (error) {
+          logger.error('Voice health check error:', error);
+          socket.emit('voice:health_status', {
+            status: 'unhealthy',
+            timestamp: Date.now(),
+            error: error.message
+          });
         }
       });
 

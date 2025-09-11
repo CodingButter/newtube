@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { EmotionAnalysisService } from '../../../../../services/emotion-analysis.service.js';
-import { SSMLGeneratorService } from '../../../../../services/ssml-generator.service.js';
-import { EmotionalConsistencyService } from '../../../../../services/emotional-consistency.service.js';
-import { EmotionType } from '../../../../../types/emotion.types.js';
+import { EmotionAnalysisService } from '../../../../../services/emotion-analysis.service';
+import { SSMLGeneratorService } from '../../../../../services/ssml-generator.service';
+import { EmotionalConsistencyService } from '../../../../../services/emotional-consistency.service';
+import { EmotionType } from '../../../../../types/emotion.types';
 
 // Initialize services
 const emotionAnalysis = new EmotionAnalysisService();

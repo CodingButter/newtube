@@ -1,15 +1,19 @@
 import { Server as SocketIOServer, Socket } from 'socket.io';
 import { ConversationService } from './conversation.service.js';
 import { TourService } from './tour.service.js';
+import { UIUpdateEvent, DynamicUIState, ComponentDefinition, VoiceCommand, VoiceResponse } from '../types/dynamic-ui';
 import { logger } from '../lib/logger.js';
 
 export interface SocketWithUser extends Socket {
   userId?: string;
+  sessionId?: string;
 }
 
 export class WebSocketService {
   private connectedUsers: Map<string, string> = new Map(); // userId -> socketId
   private socketUsers: Map<string, string> = new Map(); // socketId -> userId
+  private sessionSockets: Map<string, string> = new Map(); // sessionId -> socketId
+  private socketSessions: Map<string, string> = new Map(); // socketId -> sessionId
 
   constructor(
     private io: SocketIOServer,
@@ -22,7 +26,7 @@ export class WebSocketService {
       logger.info('WebSocket connection established', { socketId: socket.id });
 
       // Handle user authentication/identification
-      socket.on('authenticate', async (data: { userId: string; token?: string }) => {
+      socket.on('authenticate', async (data: { userId: string; sessionId?: string; token?: string }) => {
         try {
           // For MVP, we'll accept any userId without validation
           // In production, validate the token here
@@ -30,12 +34,20 @@ export class WebSocketService {
           this.connectedUsers.set(data.userId, socket.id);
           this.socketUsers.set(socket.id, data.userId);
 
+          // Handle session association
+          if (data.sessionId) {
+            socket.sessionId = data.sessionId;
+            this.sessionSockets.set(data.sessionId, socket.id);
+            this.socketSessions.set(socket.id, data.sessionId);
+          }
+
           logger.info('User authenticated via WebSocket', {
             userId: data.userId,
+            sessionId: data.sessionId,
             socketId: socket.id,
           });
 
-          socket.emit('authenticated', { success: true, userId: data.userId });
+          socket.emit('authenticated', { success: true, userId: data.userId, sessionId: data.sessionId });
         } catch (error) {
           logger.error('WebSocket authentication error:', error);
           socket.emit('authenticated', { success: false, error: 'Authentication failed' });
@@ -209,17 +221,191 @@ export class WebSocketService {
         }
       });
 
+      // DYNAMIC UI EVENT HANDLERS
+      
+      // Join a UI session for real-time updates
+      socket.on('ui:join_session', (data: { sessionId: string }) => {
+        try {
+          socket.sessionId = data.sessionId;
+          socket.join(`ui_session_${data.sessionId}`);
+          this.sessionSockets.set(data.sessionId, socket.id);
+          this.socketSessions.set(socket.id, data.sessionId);
+
+          logger.info('Socket joined UI session', {
+            socketId: socket.id,
+            sessionId: data.sessionId,
+            userId: socket.userId
+          });
+
+          socket.emit('ui:session_joined', { success: true, sessionId: data.sessionId });
+        } catch (error) {
+          logger.error('Error joining UI session:', error);
+          socket.emit('ui:session_error', { error: 'Failed to join session' });
+        }
+      });
+
+      // Leave a UI session
+      socket.on('ui:leave_session', (data: { sessionId: string }) => {
+        try {
+          socket.leave(`ui_session_${data.sessionId}`);
+          this.sessionSockets.delete(data.sessionId);
+          this.socketSessions.delete(socket.id);
+          socket.sessionId = undefined;
+
+          logger.info('Socket left UI session', {
+            socketId: socket.id,
+            sessionId: data.sessionId
+          });
+
+          socket.emit('ui:session_left', { success: true, sessionId: data.sessionId });
+        } catch (error) {
+          logger.error('Error leaving UI session:', error);
+          socket.emit('ui:session_error', { error: 'Failed to leave session' });
+        }
+      });
+
+      // Handle voice commands for dynamic UI
+      socket.on('ui:voice_command', async (data: VoiceCommand) => {
+        try {
+          if (!socket.sessionId) {
+            socket.emit('ui:voice_error', { error: 'No active UI session' });
+            return;
+          }
+
+          logger.info('Processing voice command for UI', {
+            sessionId: socket.sessionId,
+            transcript: data.transcript,
+            confidence: data.confidence
+          });
+
+          // Broadcast to session that voice command is being processed
+          this.io.to(`ui_session_${socket.sessionId}`).emit('ui:voice_processing', {
+            sessionId: socket.sessionId,
+            transcript: data.transcript
+          });
+
+          // Here you would integrate with your dynamic UI service
+          // For now, we'll emit a placeholder response
+          const response: VoiceResponse = {
+            text: `Processing command: "${data.transcript}"`,
+            actions: [],
+            shouldSpeak: true,
+            confidence: 0.8
+          };
+
+          socket.emit('ui:voice_response', response);
+
+        } catch (error) {
+          logger.error('Error processing voice command:', error);
+          socket.emit('ui:voice_error', { error: 'Failed to process voice command' });
+        }
+      });
+
+      // Handle component updates
+      socket.on('ui:update_component', async (data: {
+        sessionId: string;
+        componentId: string;
+        updates: Partial<ComponentDefinition>;
+      }) => {
+        try {
+          if (!socket.sessionId || socket.sessionId !== data.sessionId) {
+            socket.emit('ui:update_error', { error: 'Invalid session' });
+            return;
+          }
+
+          logger.info('Component update via WebSocket', {
+            sessionId: data.sessionId,
+            componentId: data.componentId,
+            socketId: socket.id
+          });
+
+          // Broadcast update to all clients in the session
+          this.io.to(`ui_session_${data.sessionId}`).emit('ui:component_updated', {
+            sessionId: data.sessionId,
+            componentId: data.componentId,
+            updates: data.updates,
+            timestamp: Date.now(),
+            source: socket.userId || 'anonymous'
+          });
+
+        } catch (error) {
+          logger.error('Error updating component:', error);
+          socket.emit('ui:update_error', { error: 'Failed to update component' });
+        }
+      });
+
+      // Handle layout changes
+      socket.on('ui:update_layout', async (data: {
+        sessionId: string;
+        layout: any;
+        reason?: string;
+      }) => {
+        try {
+          if (!socket.sessionId || socket.sessionId !== data.sessionId) {
+            socket.emit('ui:update_error', { error: 'Invalid session' });
+            return;
+          }
+
+          logger.info('Layout update via WebSocket', {
+            sessionId: data.sessionId,
+            reason: data.reason,
+            socketId: socket.id
+          });
+
+          // Broadcast layout update to all clients in the session
+          this.io.to(`ui_session_${data.sessionId}`).emit('ui:layout_updated', {
+            sessionId: data.sessionId,
+            layout: data.layout,
+            timestamp: Date.now(),
+            reason: data.reason,
+            source: socket.userId || 'anonymous'
+          });
+
+        } catch (error) {
+          logger.error('Error updating layout:', error);
+          socket.emit('ui:update_error', { error: 'Failed to update layout' });
+        }
+      });
+
+      // Handle state sync requests
+      socket.on('ui:sync_state', async (data: { sessionId: string }) => {
+        try {
+          if (!socket.sessionId || socket.sessionId !== data.sessionId) {
+            socket.emit('ui:sync_error', { error: 'Invalid session' });
+            return;
+          }
+
+          // Here you would fetch the current UI state from your state manager
+          // For now, we'll emit a placeholder
+          socket.emit('ui:state_synced', {
+            sessionId: data.sessionId,
+            timestamp: Date.now(),
+            success: true
+          });
+
+        } catch (error) {
+          logger.error('Error syncing UI state:', error);
+          socket.emit('ui:sync_error', { error: 'Failed to sync state' });
+        }
+      });
+
       // Handle disconnection
       socket.on('disconnect', (reason) => {
         logger.info('WebSocket disconnection', {
           socketId: socket.id,
           userId: socket.userId,
+          sessionId: socket.sessionId,
           reason,
         });
 
         if (socket.userId) {
           this.connectedUsers.delete(socket.userId);
           this.socketUsers.delete(socket.id);
+        }
+
+        if (socket.sessionId) {
+          this.sessionSockets.delete(socket.sessionId);
+          this.socketSessions.delete(socket.id);
         }
       });
 
@@ -273,15 +459,119 @@ export class WebSocketService {
     totalConnections: number;
     authenticatedUsers: number;
     anonymousConnections: number;
+    activeSessions: number;
   } {
     const totalConnections = this.io.sockets.sockets.size;
     const authenticatedUsers = this.connectedUsers.size;
     const anonymousConnections = totalConnections - authenticatedUsers;
+    const activeSessions = this.sessionSockets.size;
 
     return {
       totalConnections,
       authenticatedUsers,
       anonymousConnections,
+      activeSessions,
     };
+  }
+
+  // DYNAMIC UI BROADCASTING METHODS
+
+  async broadcastUIUpdate(update: UIUpdateEvent): Promise<void> {
+    try {
+      const sessionRoom = `ui_session_${update.sessionId}`;
+      
+      logger.info('Broadcasting UI update', {
+        sessionId: update.sessionId,
+        updateType: update.type,
+        timestamp: update.metadata.timestamp
+      });
+
+      this.io.to(sessionRoom).emit('ui:update', update);
+    } catch (error) {
+      logger.error('Error broadcasting UI update:', error);
+    }
+  }
+
+  async broadcastToSession(sessionId: string, event: string, data: any): Promise<boolean> {
+    try {
+      const sessionRoom = `ui_session_${sessionId}`;
+      this.io.to(sessionRoom).emit(event, data);
+      
+      logger.debug('Broadcast sent to session', { sessionId, event });
+      return true;
+    } catch (error) {
+      logger.error('Error broadcasting to session:', error);
+      return false;
+    }
+  }
+
+  async notifyComponentUpdate(
+    sessionId: string, 
+    componentId: string, 
+    updates: Partial<ComponentDefinition>
+  ): Promise<void> {
+    const updateEvent: UIUpdateEvent = {
+      type: 'component_updated',
+      sessionId,
+      component: { id: componentId, ...updates } as ComponentDefinition,
+      metadata: {
+        timestamp: Date.now(),
+        source: 'system',
+        reason: 'Component state changed'
+      }
+    };
+
+    await this.broadcastUIUpdate(updateEvent);
+  }
+
+  async notifyLayoutChange(sessionId: string, layout: any, reason?: string): Promise<void> {
+    const updateEvent: UIUpdateEvent = {
+      type: 'layout_changed',
+      sessionId,
+      layout,
+      metadata: {
+        timestamp: Date.now(),
+        source: 'system',
+        reason: reason || 'Layout modified'
+      }
+    };
+
+    await this.broadcastUIUpdate(updateEvent);
+  }
+
+  async notifyVoiceCommandProcessed(
+    sessionId: string, 
+    transcript: string, 
+    response: VoiceResponse
+  ): Promise<void> {
+    await this.broadcastToSession(sessionId, 'ui:voice_command_result', {
+      transcript,
+      response,
+      timestamp: Date.now()
+    });
+  }
+
+  getSessionSocketId(sessionId: string): string | undefined {
+    return this.sessionSockets.get(sessionId);
+  }
+
+  getSocketSession(socketId: string): string | undefined {
+    return this.socketSessions.get(socketId);
+  }
+
+  isSessionActive(sessionId: string): boolean {
+    return this.sessionSockets.has(sessionId);
+  }
+
+  getActiveSessions(): string[] {
+    return Array.from(this.sessionSockets.keys());
+  }
+
+  async syncUIStateToSession(sessionId: string, state: DynamicUIState): Promise<void> {
+    await this.broadcastToSession(sessionId, 'ui:state_update', {
+      sessionId,
+      state,
+      timestamp: Date.now()
+    });
   }
 }

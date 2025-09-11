@@ -1,11 +1,11 @@
 version: '3.8'
 
 services:
-  # Frontend - Next.js Application
+  # Frontend - Next.js AI-First Interface
   frontend:
     build:
-      context: ..
-      dockerfile: docker/Dockerfile.frontend
+      context: ../../project
+      dockerfile: ../worktrees/devops-aws-infrastructure/docker/Dockerfile.frontend
       target: development
     container_name: newtube-frontend
     restart: unless-stopped
@@ -15,18 +15,22 @@ services:
       - NODE_ENV=development
       - NEXT_TELEMETRY_DISABLED=1
       - NEXT_PUBLIC_API_URL=http://backend:4000
+      - NEXT_PUBLIC_WS_URL=ws://backend:4000
+      # AI Interface specific environment variables
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - NEXT_PUBLIC_AI_ENABLED=true
+      - NEXT_PUBLIC_VOICE_ENABLED=true
     volumes:
-      # Mount source code for hot reload
-      - ../src:/app/src:cached
-      - ../public:/app/public:cached
-      - ../components:/app/components:cached
-      - ../pages:/app/pages:cached
-      - ../app:/app/app:cached
-      - ../styles:/app/styles:cached
-      - ../package.json:/app/package.json:ro
-      - ../next.config.js:/app/next.config.js:ro
-      - ../tailwind.config.js:/app/tailwind.config.js:ro
-      - ../tsconfig.json:/app/tsconfig.json:ro
+      # Mount source code for hot reload - updated for current structure
+      - ../../project/src:/app/src:cached
+      - ../../project/public:/app/public:cached
+      - ../../project/package.json:/app/package.json:ro
+      - ../../project/next.config.ts:/app/next.config.ts:ro
+      - ../../project/tailwind.config.js:/app/tailwind.config.js:ro
+      - ../../project/tsconfig.json:/app/tsconfig.json:ro
+      - ../../project/postcss.config.mjs:/app/postcss.config.mjs:ro
+      - ../../project/eslint.config.mjs:/app/eslint.config.mjs:ro
+      - ../../project/.env:/app/.env:ro
       # Node modules cache
       - frontend_node_modules:/app/node_modules
     networks:
@@ -41,11 +45,11 @@ services:
       retries: 5
       start_period: 60s
 
-  # Backend - Node.js API
+  # Backend - Node.js API with AI Support
   backend:
     build:
-      context: ..
-      dockerfile: docker/Dockerfile.backend
+      context: ../../project
+      dockerfile: ../worktrees/devops-aws-infrastructure/docker/Dockerfile.backend
       target: development
     container_name: newtube-backend
     restart: unless-stopped
@@ -60,10 +64,20 @@ services:
       - NEO4J_PASSWORD=memento_password
       - JWT_SECRET=dev_jwt_secret_change_in_production
       - PORT=4000
+      # AI Interface support
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GOOGLE_AI_API_KEY=${GOOGLE_AI_API_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      # CORS for AI frontend
+      - CORS_ORIGIN=http://localhost:3000
     volumes:
-      # Mount source code for hot reload
-      - ../backend:/app:cached
-      - ../package.json:/app/package.json:ro
+      # Mount source code for hot reload - updated for current structure
+      - ../../project/src/server:/app:cached
+      - ../../project/src/lib:/app/lib:cached
+      - ../../project/prisma:/app/prisma:cached
+      - ../../project/package.json:/app/package.json:ro
+      - ../../project/tsconfig.json:/app/tsconfig.json:ro
+      - ../../project/.env:/app/.env:ro
       # Node modules cache
       - backend_node_modules:/app/node_modules
     networks:

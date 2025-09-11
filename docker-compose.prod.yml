@@ -1,11 +1,11 @@
 version: '3.8'
 
 services:
-  # Frontend - Next.js Application (Production)
+  # Frontend - Next.js AI-First Interface (Production)
   frontend:
     build:
-      context: ..
-      dockerfile: docker/Dockerfile.frontend
+      context: ../../project
+      dockerfile: ../worktrees/devops-aws-infrastructure/docker/Dockerfile.frontend
       target: production
     container_name: newtube-frontend-prod
     restart: unless-stopped
@@ -15,6 +15,12 @@ services:
       - NODE_ENV=production
       - NEXT_TELEMETRY_DISABLED=1
       - NEXT_PUBLIC_API_URL=http://backend:4000
+      - NEXT_PUBLIC_WS_URL=ws://backend:4000
+      # AI Interface production settings
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - NEXT_PUBLIC_AI_ENABLED=true
+      - NEXT_PUBLIC_VOICE_ENABLED=true
+      - NEXT_PUBLIC_ENVIRONMENT=production
     networks:
       - newtube-network
     depends_on:
@@ -29,17 +35,17 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.0'
-          memory: 512M
+          cpus: '1.5'
+          memory: 1G
         reservations:
-          cpus: '0.5'
-          memory: 256M
+          cpus: '0.75'
+          memory: 512M
 
-  # Backend - Node.js API (Production)
+  # Backend - Node.js API with AI Support (Production)
   backend:
     build:
-      context: ..
-      dockerfile: docker/Dockerfile.backend
+      context: ../../project
+      dockerfile: ../worktrees/devops-aws-infrastructure/docker/Dockerfile.backend
       target: production
     container_name: newtube-backend-prod
     restart: unless-stopped
@@ -57,7 +63,12 @@ services:
       - YOUTUBE_API_KEY=${YOUTUBE_API_KEY}
       - VIMEO_CLIENT_ID=${VIMEO_CLIENT_ID}
       - VIMEO_CLIENT_SECRET=${VIMEO_CLIENT_SECRET}
+      # AI Interface APIs
       - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GOOGLE_AI_API_KEY=${GOOGLE_AI_API_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      # Production CORS
+      - CORS_ORIGIN=${FRONTEND_URL}
     networks:
       - newtube-network
     depends_on:

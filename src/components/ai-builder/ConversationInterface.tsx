@@ -2,7 +2,10 @@
 
 import React, { useState, useRef, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { Mic, MicOff, Send, Volume2, VolumeX } from 'lucide-react'
+import { Mic, MicOff, Send, Volume2, VolumeX, Settings } from 'lucide-react'
+import { AudioVisualizer } from '@/components/AudioVisualizer'
+import { VoiceSettings } from '@/components/VoiceSettings'
+import { useVoiceStore } from '@/stores/voiceStore'
 
 interface Message {
   id: string
@@ -26,37 +29,42 @@ export function ConversationInterface({
 }: ConversationInterfaceProps) {
   const [isListening, setIsListening] = useState(false)
   const [currentInput, setCurrentInput] = useState('')
-  const [speechSynthesis, setSpeechSynthesis] = useState<SpeechSynthesis | null>(null)
-  const [isSpeaking, setIsSpeaking] = useState(false)
+  const [showVoiceSettings, setShowVoiceSettings] = useState(false)
   const recognitionRef = useRef<any>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  
+  // Use ElevenLabs TTS store
+  const { 
+    isPlaying, 
+    isLoading: isTTSLoading, 
+    playText, 
+    stopPlayback,
+    playWithBrowserTTS,
+    stopBrowserTTS
+  } = useVoiceStore()
 
-  // Initialize speech synthesis and recognition
+  // Initialize speech recognition
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setSpeechSynthesis(window.speechSynthesis)
-      
-      if (interfaceType === 'voice' && 'webkitSpeechRecognition' in window) {
-        const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition
-        recognitionRef.current = new SpeechRecognition()
-        recognitionRef.current.continuous = false
-        recognitionRef.current.interimResults = false
-        recognitionRef.current.lang = 'en-US'
+    if (typeof window !== 'undefined' && interfaceType === 'voice' && 'webkitSpeechRecognition' in window) {
+      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition
+      recognitionRef.current = new SpeechRecognition()
+      recognitionRef.current.continuous = false
+      recognitionRef.current.interimResults = false
+      recognitionRef.current.lang = 'en-US'
 
-        recognitionRef.current.onresult = (event: any) => {
-          const transcript = event.results[0][0].transcript
-          onMessage(transcript)
-          setIsListening(false)
-        }
+      recognitionRef.current.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript
+        onMessage(transcript)
+        setIsListening(false)
+      }
 
-        recognitionRef.current.onerror = (event: any) => {
-          console.error('Speech recognition error:', event.error)
-          setIsListening(false)
-        }
+      recognitionRef.current.onerror = (event: any) => {
+        console.error('Speech recognition error:', event.error)
+        setIsListening(false)
+      }
 
-        recognitionRef.current.onend = () => {
-          setIsListening(false)
-        }
+      recognitionRef.current.onend = () => {
+        setIsListening(false)
       }
     }
   }, [interfaceType, onMessage])
@@ -66,36 +74,22 @@ export function ConversationInterface({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  // Speak AI messages in voice mode
+  // Speak AI messages in voice mode using ElevenLabs TTS
   useEffect(() => {
-    if (interfaceType === 'voice' && speechSynthesis && messages.length > 0) {
+    if (interfaceType === 'voice' && messages.length > 0) {
       const lastMessage = messages[messages.length - 1]
-      if (lastMessage.role === 'ai' && !isSpeaking) {
-        speakText(lastMessage.content)
+      if (lastMessage.role === 'ai' && !isPlaying && !isTTSLoading) {
+        playText(lastMessage.content)
       }
     }
-  }, [messages, interfaceType, speechSynthesis, isSpeaking])
+  }, [messages, interfaceType, isPlaying, isTTSLoading, playText])
 
-  const speakText = (text: string) => {
-    if (!speechSynthesis) return
-
-    setIsSpeaking(true)
-    const utterance = new SpeechSynthesisUtterance(text)
-    utterance.rate = 0.9
-    utterance.pitch = 1.0
-    utterance.volume = 0.8
-
-    utterance.onend = () => setIsSpeaking(false)
-    utterance.onerror = () => setIsSpeaking(false)
-
-    speechSynthesis.speak(utterance)
-  }
-
-  const stopSpeaking = () => {
-    if (speechSynthesis) {
-      speechSynthesis.cancel()
-      setIsSpeaking(false)
+  const handleStopSpeaking = () => {
+    if (isPlaying) {
+      stopPlayback()
     }
+    // Also stop browser TTS if it's running
+    stopBrowserTTS()
   }
 
   const handleVoiceToggle = () => {
@@ -126,6 +120,25 @@ export function ConversationInterface({
 
   return (
     <div className="h-full flex flex-col">
+      {/* Voice Settings Panel */}
+      {showVoiceSettings && interfaceType === 'voice' && (
+        <div className="border-b border-border bg-card">
+          <VoiceSettings compact={true} className="m-4" />
+        </div>
+      )}
+
+      {/* Audio Visualizer for Voice Mode */}
+      {interfaceType === 'voice' && (isPlaying || isTTSLoading) && (
+        <div className="border-b border-border bg-card p-4">
+          <AudioVisualizer 
+            size="sm" 
+            variant="bars" 
+            showControls={false}
+            className="shadow-none border-0"
+          />
+        </div>
+      )}
+
       {/* Messages */}
       <div className="flex-1 overflow-auto p-4 space-y-4">
         {messages.map((message) => (
@@ -143,7 +156,7 @@ export function ConversationInterface({
           </div>
         ))}
         
-        {isProcessing && (
+        {(isProcessing || isTTSLoading) && (
           <div className="flex justify-start">
             <div className="bg-muted rounded-lg p-3 mr-4">
               <div className="flex items-center gap-2">
@@ -152,7 +165,28 @@ export function ConversationInterface({
                   <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
                   <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
                 </div>
-                <span className="text-xs text-muted-foreground">AI is thinking...</span>
+                <span className="text-xs text-muted-foreground">
+                  {isTTSLoading ? 'Preparing voice...' : 'AI is thinking...'}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {isPlaying && (
+          <div className="flex justify-start">
+            <div className="bg-primary/10 rounded-lg p-3 mr-4 border border-primary/20">
+              <div className="flex items-center gap-2">
+                <Volume2 className="w-4 h-4 text-primary animate-pulse" />
+                <span className="text-xs text-primary font-medium">AI is speaking...</span>
+                <Button
+                  onClick={handleStopSpeaking}
+                  size="sm"
+                  variant="ghost"
+                  className="h-6 px-2 text-xs"
+                >
+                  Stop
+                </Button>
               </div>
             </div>
           </div>
@@ -168,7 +202,7 @@ export function ConversationInterface({
             <div className="flex gap-2">
               <Button 
                 onClick={handleVoiceToggle}
-                disabled={isProcessing}
+                disabled={isProcessing || isTTSLoading}
                 className={`flex-1 h-12 ${
                   isListening 
                     ? 'bg-red-500 hover:bg-red-600 text-white' 
@@ -189,9 +223,19 @@ export function ConversationInterface({
                 )}
               </Button>
               
-              {isSpeaking && (
+              <Button 
+                onClick={() => setShowVoiceSettings(!showVoiceSettings)}
+                variant="outline"
+                size="lg"
+                className="px-4"
+                title="Voice Settings"
+              >
+                <Settings className="w-5 h-5" />
+              </Button>
+              
+              {(isPlaying || isTTSLoading) && (
                 <Button 
-                  onClick={stopSpeaking}
+                  onClick={handleStopSpeaking}
                   variant="outline"
                   size="lg"
                   className="px-4"
@@ -214,14 +258,6 @@ export function ConversationInterface({
               </div>
             )}
             
-            {isSpeaking && (
-              <div className="text-center">
-                <div className="flex items-center justify-center gap-1 mb-2">
-                  <Volume2 className="w-4 h-4 text-primary animate-pulse" />
-                </div>
-                <p className="text-xs text-muted-foreground">AI is speaking...</p>
-              </div>
-            )}
           </div>
         ) : (
           <div className="space-y-3">

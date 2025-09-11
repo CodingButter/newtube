@@ -242,69 +242,6 @@ exports.Prisma.PreferenceScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
-exports.Prisma.ConversationSessionScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  sessionId: 'sessionId',
-  currentStep: 'currentStep',
-  isCompleted: 'isCompleted',
-  isVoiceMode: 'isVoiceMode',
-  selectedInterests: 'selectedInterests',
-  videoRatings: 'videoRatings',
-  layoutPreferences: 'layoutPreferences',
-  llmProvider: 'llmProvider',
-  llmApiKey: 'llmApiKey',
-  conversationId: 'conversationId',
-  stepProgress: 'stepProgress',
-  completedSteps: 'completedSteps',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  lastActiveAt: 'lastActiveAt',
-  completedAt: 'completedAt'
-};
-
-exports.Prisma.ConversationLogScalarFieldEnum = {
-  id: 'id',
-  sessionId: 'sessionId',
-  role: 'role',
-  content: 'content',
-  messageId: 'messageId',
-  tourStep: 'tourStep',
-  actionType: 'actionType',
-  metadata: 'metadata',
-  tokensUsed: 'tokensUsed',
-  responseTimeMs: 'responseTimeMs',
-  llmProvider: 'llmProvider',
-  createdAt: 'createdAt'
-};
-
-exports.Prisma.TourInteractionScalarFieldEnum = {
-  id: 'id',
-  sessionId: 'sessionId',
-  tourStep: 'tourStep',
-  actionType: 'actionType',
-  actionData: 'actionData',
-  timeSpentMs: 'timeSpentMs',
-  wasSkipped: 'wasSkipped',
-  satisfaction: 'satisfaction',
-  createdAt: 'createdAt'
-};
-
-exports.Prisma.LocalStorageSyncScalarFieldEnum = {
-  id: 'id',
-  sessionId: 'sessionId',
-  interests: 'interests',
-  videoRatings: 'videoRatings',
-  onboardingStep: 'onboardingStep',
-  layoutData: 'layoutData',
-  isRegistered: 'isRegistered',
-  userId: 'userId',
-  syncedAt: 'syncedAt',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  expiresAt: 'expiresAt'
-};
-
 exports.Prisma.MigrationScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -319,6 +256,96 @@ exports.Prisma.SystemConfigScalarFieldEnum = {
   description: 'description',
   category: 'category',
   isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.VideoEmbeddingScalarFieldEnum = {
+  id: 'id',
+  platformId: 'platformId',
+  platform: 'platform',
+  title: 'title',
+  description: 'description',
+  tags: 'tags',
+  category: 'category',
+  duration: 'duration',
+  publishedAt: 'publishedAt',
+  channelId: 'channelId',
+  channelName: 'channelName',
+  embeddingModel: 'embeddingModel',
+  embeddingVersion: 'embeddingVersion',
+  processingStatus: 'processingStatus',
+  qualityScore: 'qualityScore',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  lastProcessedAt: 'lastProcessedAt'
+};
+
+exports.Prisma.UserEmbeddingScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  confidenceScore: 'confidenceScore',
+  interactionCount: 'interactionCount',
+  lastUpdateThreshold: 'lastUpdateThreshold',
+  embeddingModel: 'embeddingModel',
+  embeddingVersion: 'embeddingVersion',
+  processingStatus: 'processingStatus',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  lastCalculatedAt: 'lastCalculatedAt'
+};
+
+exports.Prisma.CommentEmbeddingScalarFieldEnum = {
+  id: 'id',
+  platformId: 'platformId',
+  platform: 'platform',
+  videoId: 'videoId',
+  content: 'content',
+  authorName: 'authorName',
+  publishedAt: 'publishedAt',
+  toxicityScore: 'toxicityScore',
+  relevanceScore: 'relevanceScore',
+  sentimentScore: 'sentimentScore',
+  embeddingModel: 'embeddingModel',
+  embeddingVersion: 'embeddingVersion',
+  processingStatus: 'processingStatus',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.SearchEmbeddingScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  query: 'query',
+  intent: 'intent',
+  entities: 'entities',
+  searchCount: 'searchCount',
+  clickThrough: 'clickThrough',
+  avgWatchTime: 'avgWatchTime',
+  embeddingModel: 'embeddingModel',
+  embeddingVersion: 'embeddingVersion',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  lastSearchedAt: 'lastSearchedAt'
+};
+
+exports.Prisma.EmbeddingJobScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  status: 'status',
+  batchSize: 'batchSize',
+  priority: 'priority',
+  configJson: 'configJson',
+  totalItems: 'totalItems',
+  processedItems: 'processedItems',
+  failedItems: 'failedItems',
+  successItems: 'successItems',
+  errorMessage: 'errorMessage',
+  retryCount: 'retryCount',
+  maxRetries: 'maxRetries',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  avgProcessingTime: 'avgProcessingTime',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -376,20 +403,30 @@ exports.ListType = exports.$Enums.ListType = {
   HISTORY: 'HISTORY'
 };
 
-exports.TourStep = exports.$Enums.TourStep = {
-  WELCOME: 'WELCOME',
-  INTRODUCTION: 'INTRODUCTION',
-  INTERESTS: 'INTERESTS',
-  VIDEO_RATING: 'VIDEO_RATING',
-  LAYOUT_BUILDING: 'LAYOUT_BUILDING',
-  REGISTRATION: 'REGISTRATION',
-  COMPLETED: 'COMPLETED'
+exports.EmbeddingStatus = exports.$Enums.EmbeddingStatus = {
+  PENDING: 'PENDING',
+  PROCESSING: 'PROCESSING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED',
+  STALE: 'STALE'
 };
 
-exports.MessageRole = exports.$Enums.MessageRole = {
-  USER: 'USER',
-  ASSISTANT: 'ASSISTANT',
-  SYSTEM: 'SYSTEM'
+exports.JobType = exports.$Enums.JobType = {
+  VIDEO_EMBEDDING: 'VIDEO_EMBEDDING',
+  USER_EMBEDDING: 'USER_EMBEDDING',
+  COMMENT_EMBEDDING: 'COMMENT_EMBEDDING',
+  SEARCH_EMBEDDING: 'SEARCH_EMBEDDING',
+  BATCH_UPDATE: 'BATCH_UPDATE',
+  INCREMENTAL_UPDATE: 'INCREMENTAL_UPDATE'
+};
+
+exports.JobStatus = exports.$Enums.JobStatus = {
+  PENDING: 'PENDING',
+  RUNNING: 'RUNNING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED',
+  CANCELLED: 'CANCELLED',
+  RETRYING: 'RETRYING'
 };
 
 exports.Prisma.ModelName = {
@@ -401,12 +438,13 @@ exports.Prisma.ModelName = {
   List: 'List',
   ListItem: 'ListItem',
   Preference: 'Preference',
-  ConversationSession: 'ConversationSession',
-  ConversationLog: 'ConversationLog',
-  TourInteraction: 'TourInteraction',
-  LocalStorageSync: 'LocalStorageSync',
   Migration: 'Migration',
-  SystemConfig: 'SystemConfig'
+  SystemConfig: 'SystemConfig',
+  VideoEmbedding: 'VideoEmbedding',
+  UserEmbedding: 'UserEmbedding',
+  CommentEmbedding: 'CommentEmbedding',
+  SearchEmbedding: 'SearchEmbedding',
+  EmbeddingJob: 'EmbeddingJob'
 };
 
 /**

@@ -155,7 +155,7 @@ async function main(): Promise<void> {
   } else if (args.includes('--create')) {
     const nameIndex = args.findIndex(arg => arg === '--name');
     const name = nameIndex !== -1 ? args[nameIndex + 1] : '';
-    await createMigration(name);
+    await createMigration(name || 'unnamed_migration');
   } else {
     await runMigrations();
   }

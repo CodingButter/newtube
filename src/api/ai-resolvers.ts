@@ -53,15 +53,15 @@ export const aiResolvers = {
           userId: input.userId || context.userId!,
           type: input.type,
           context: {
-            currentVideoId: input.currentVideoId,
-            categories: input.categories,
-            excludeVideoIds: input.excludeVideoIds
+            ...(input.currentVideoId && { currentVideoId: input.currentVideoId }),
+            ...(input.categories && { categories: input.categories }),
+            ...(input.excludeVideoIds && { excludeVideoIds: input.excludeVideoIds })
           },
           options: {
-            limit: input.limit,
-            platforms: input.platforms,
-            diversityWeight: input.diversityWeight,
-            recencyWeight: input.recencyWeight
+            ...(input.limit && { limit: input.limit }),
+            ...(input.platforms && { platforms: input.platforms }),
+            ...(input.diversityWeight && { diversityWeight: input.diversityWeight }),
+            ...(input.recencyWeight && { recencyWeight: input.recencyWeight })
           }
         });
 
@@ -116,8 +116,8 @@ export const aiResolvers = {
           author: c.author,
           text: c.text,
           timestamp: new Date(c.timestamp),
-          likeCount: c.likeCount,
-          replyCount: c.replyCount
+          likeCount: c.likeCount || 0,
+          replyCount: c.replyCount || 0
         }));
 
         const analysisResult = await context.aiService.analyzeContent({
@@ -137,7 +137,7 @@ export const aiResolvers = {
             wordCount: analysis.metadata.wordCount,
             hasLinks: analysis.metadata.hasLinks,
             hasEmojis: analysis.metadata.hasEmojis,
-            languageDetected: analysis.metadata.languageDetected
+            languageDetected: analysis.metadata.languageDetected || 'unknown'
           }
         }));
 
@@ -370,9 +370,20 @@ export const aiResolvers = {
           }
         }));
 
+        // Ensure filter has all required fields
+        const filterWithDefaults = typeof input.filter === 'string' ? input.filter : {
+          toxicityThreshold: input.filter.toxicityThreshold || 0.7,
+          relevanceThreshold: input.filter.relevanceThreshold || 0.3,
+          categories: input.filter.categories || [],
+          sortBy: input.filter.sortBy || 'relevance',
+          sortOrder: input.filter.sortOrder || 'desc',
+          includeReplies: true,
+          ...(input.filter.limit && { limit: input.filter.limit })
+        };
+
         const filtered = await context.aiService.filterComments(
           comments,
-          input.filter
+          filterWithDefaults
         );
 
         return {
@@ -433,13 +444,13 @@ export const aiResolvers = {
           title: `Video ${videoId}`, // Would fetch actual title
           description: '', // Would fetch actual description
           tags: [], // Would fetch actual tags
-          duration: duration
+          duration: duration || 0
         };
 
         await context.aiService.updateUserPreferences(userId, video, {
           type: interactionType,
-          duration,
-          rating
+          ...(duration && { duration }),
+          ...(rating && { rating })
         });
 
         return {

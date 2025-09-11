@@ -28,7 +28,6 @@ export {
 
 export {
   VectorSearchOptions,
-  SimilaritySearchResult,
   HybridSearchOptions,
   VectorDatabaseStats,
   VectorDatabaseService

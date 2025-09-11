@@ -662,10 +662,10 @@ export class VectorDatabaseService {
       );
 
       return {
-        videoIndex: results[0].rows.length > 0,
-        userIndex: results[1].rows.length > 0,
-        commentIndex: results[2].rows.length > 0,
-        searchIndex: results[3].rows.length > 0
+        videoIndex: (results[0]?.rows?.length || 0) > 0,
+        userIndex: (results[1]?.rows?.length || 0) > 0,
+        commentIndex: (results[2]?.rows?.length || 0) > 0,
+        searchIndex: (results[3]?.rows?.length || 0) > 0
       };
 
     } catch (error) {

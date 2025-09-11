@@ -168,12 +168,12 @@ export class AIService {
           result.processingStats.commentsProcessed = result.commentAnalyses.length;
 
           // Store comment embeddings if vector search enabled
-          if (this.config.features.vectorSearch && request.includeEmbeddings) {
+          if (this.config.features.vectorSearch && request.includeEmbeddings && result.commentAnalyses) {
             for (let i = 0; i < result.commentAnalyses.length; i++) {
               const analysis = result.commentAnalyses[i];
-              const comment = request.comments[i];
+              const comment = request.comments?.[i];
               
-              if (analysis.embedding) {
+              if (analysis?.embedding && comment) {
                 await this.vectorDatabaseService.storeCommentEmbedding(
                   comment.id,
                   comment.videoId,
@@ -408,20 +408,20 @@ export class AIService {
 
   // Private helper methods
 
-  private async getPersonalizedRecommendations(request: RecommendationRequest): Promise<RecommendationScore[]> {
+  private async getPersonalizedRecommendations(request: AIRecommendationRequest): Promise<RecommendationScore[]> {
     return this.personalizationService.getPersonalizedRecommendations({
       userId: request.userId,
       excludeVideoIds: request.context?.excludeVideoIds,
       categories: request.context?.categories,
-      platforms: request.options?.platforms,
+      platforms: request.options?.platforms as ('youtube' | 'vimeo' | 'nebula')[],
       limit: request.options?.limit,
       diversityWeight: request.options?.diversityWeight,
       recencyWeight: request.options?.recencyWeight
     });
   }
 
-  private async getSimilarContentRecommendations(request: RecommendationRequest): Promise<RecommendationScore[]> {
-    if (!request.context?.currentVideoId || !request.context?.currentPlatform) {
+  private async getSimilarContentRecommendations(request: AIRecommendationRequest): Promise<RecommendationScore[]> {
+    if (!request.context?.currentVideoId) {
       throw new Error('Current video context required for similar content recommendations');
     }
 
@@ -430,7 +430,7 @@ export class AIService {
       // This would typically fetch from database, but for now we'll simulate
       const currentVideoEmbedding = await this.generateVideoQueryEmbedding(
         request.context.currentVideoId,
-        request.context.currentPlatform
+        request.context.currentPlatform || 'youtube'
       );
 
       // Find similar videos
@@ -439,7 +439,7 @@ export class AIService {
         {
           limit: request.options?.limit || 20,
           excludeIds: [request.context.currentVideoId],
-          platforms: request.options?.platforms
+          ...(request.options?.platforms && { platforms: request.options.platforms })
         }
       );
 
@@ -464,13 +464,13 @@ export class AIService {
     }
   }
 
-  private async getTrendingRecommendations(request: RecommendationRequest): Promise<RecommendationScore[]> {
+  private async getTrendingRecommendations(request: AIRecommendationRequest): Promise<RecommendationScore[]> {
     // TODO: Implement trending algorithm based on recent popularity metrics
     console.log('Trending recommendations not yet implemented');
     return [];
   }
 
-  private async getCategoryRecommendations(request: RecommendationRequest): Promise<RecommendationScore[]> {
+  private async getCategoryRecommendations(request: AIRecommendationRequest): Promise<RecommendationScore[]> {
     if (!request.context?.categories || request.context.categories.length === 0) {
       throw new Error('Categories required for category-based recommendations');
     }

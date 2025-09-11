@@ -97,12 +97,12 @@ export class EmbeddingService {
         videoId: video.id,
         platform: video.platform,
         titleEmbedding,
-        descriptionEmbedding,
+        descriptionEmbedding: descriptionEmbedding || [],
         combinedEmbedding,
         metadata: {
           title: video.title,
-          description: video.description,
-          tags: video.tags,
+          description: video.description || '',
+          tags: video.tags || [],
           embeddingVersion: 'v2.0',
           createdAt: new Date()
         }
@@ -289,9 +289,9 @@ export class EmbeddingService {
     let normB = 0;
 
     for (let i = 0; i < vecA.length; i++) {
-      dotProduct += vecA[i] * vecB[i];
-      normA += vecA[i] * vecA[i];
-      normB += vecB[i] * vecB[i];
+      dotProduct += (vecA[i] || 0) * (vecB[i] || 0);
+      normA += (vecA[i] || 0) * (vecA[i] || 0);
+      normB += (vecB[i] || 0) * (vecB[i] || 0);
     }
 
     return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));

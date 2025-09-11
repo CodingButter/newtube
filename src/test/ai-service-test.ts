@@ -74,7 +74,7 @@ async function testAIServices() {
     console.log('Videos processed:', analysisResult.processingStats.videosProcessed);
     console.log('Processing time:', analysisResult.processingStats.processingTime, 'ms');
     if (analysisResult.videoEmbeddings) {
-      console.log('Embedding dimensions:', analysisResult.videoEmbeddings[0].combinedEmbedding.length);
+      console.log('Embedding dimensions:', analysisResult.videoEmbeddings[0]?.combinedEmbedding?.length || 0);
     }
     console.log('✅ Video embedding test completed\n');
 

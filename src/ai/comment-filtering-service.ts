@@ -60,8 +60,8 @@ export class CommentFilteringService {
   private redis: Redis;
   
   // Toxicity detection keywords and patterns
-  private toxicKeywords: Set<string>;
-  private spamPatterns: RegExp[];
+  private toxicKeywords: Set<string> = new Set();
+  private spamPatterns: RegExp[] = [];
   
   // Predefined comment lenses
   private readonly defaultLenses: CommentLens[];

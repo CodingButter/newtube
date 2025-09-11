@@ -1,0 +1,179 @@
+# NEWTUBE Grafana Cloud Configuration
+# Monitoring and observability setup for the streaming aggregator
+
+apiVersion: 1
+
+# Data sources configuration
+datasources:
+  # AWS CloudWatch
+  - name: CloudWatch
+    type: cloudwatch
+    access: proxy
+    jsonData:
+      authType: credentials
+      defaultRegion: us-east-1
+    secureJsonData:
+      accessKey: ${AWS_ACCESS_KEY_ID}
+      secretKey: ${AWS_SECRET_ACCESS_KEY}
+
+  # Prometheus for application metrics
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: https://prometheus-us-central1.grafana.net/api/prom
+    basicAuth: true
+    basicAuthUser: ${GRAFANA_PROMETHEUS_USER_ID}
+    secureJsonData:
+      basicAuthPassword: ${GRAFANA_API_KEY}
+
+  # Loki for logs
+  - name: Loki
+    type: loki
+    access: proxy
+    url: https://logs-prod-us-central1.grafana.net
+    basicAuth: true
+    basicAuthUser: ${GRAFANA_LOKI_USER_ID}
+    secureJsonData:
+      basicAuthPassword: ${GRAFANA_API_KEY}
+
+  # Tempo for traces
+  - name: Tempo
+    type: tempo
+    access: proxy
+    url: https://tempo-us-central1.grafana.net
+    basicAuth: true
+    basicAuthUser: ${GRAFANA_TEMPO_USER_ID}
+    secureJsonData:
+      basicAuthPassword: ${GRAFANA_API_KEY}
+
+# Dashboard configuration
+dashboards:
+  default:
+    NEWTUBE Infrastructure:
+      gnetId: 1860
+      revision: 27
+      datasource: CloudWatch
+    
+    NEWTUBE Application Metrics:
+      file: dashboards/application-metrics.json
+      datasource: Prometheus
+    
+    NEWTUBE Database Performance:
+      file: dashboards/database-performance.json
+      datasource: CloudWatch
+    
+    NEWTUBE Error Tracking:
+      file: dashboards/error-tracking.json
+      datasource: Loki
+
+# Notification channels
+notifiers:
+  - name: slack-alerts
+    type: slack
+    settings:
+      url: ${SLACK_WEBHOOK_URL}
+      channel: '#newtube-alerts'
+      title: 'NEWTUBE Alert'
+      text: '{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+
+  - name: email-alerts
+    type: email
+    settings:
+      addresses: ${NOTIFICATION_EMAIL}
+      subject: 'NEWTUBE Alert - {{ .GroupLabels.alertname }}'
+
+# Alert rules
+groups:
+  - name: NEWTUBE Infrastructure Alerts
+    rules:
+      - alert: HighCPUUsage
+        expr: avg(aws_ecs_service_cpu_utilization_average) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High CPU usage detected
+          description: ECS service CPU usage is above 80% for 5 minutes
+
+      - alert: HighMemoryUsage
+        expr: avg(aws_ecs_service_memory_utilization_average) > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High memory usage detected
+          description: ECS service memory usage is above 85% for 5 minutes
+
+      - alert: DatabaseConnectionHigh
+        expr: aws_rds_database_connections_average > 150
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: High database connections
+          description: RDS connection count is above 150
+
+      - alert: DatabaseCPUHigh
+        expr: aws_rds_cpuutilization_average > 80
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: Database CPU usage critical
+          description: RDS CPU usage is above 80% for 5 minutes
+
+      - alert: ALBResponseTimeHigh
+        expr: aws_alb_target_response_time_average > 2
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: High response time
+          description: Application Load Balancer response time is above 2 seconds
+
+      - alert: ALBErrorRateHigh
+        expr: rate(aws_alb_httpcode_target_5xx_count_sum[5m]) > 0.05
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: High error rate
+          description: 5xx error rate is above 5% for 2 minutes
+
+  - name: NEWTUBE Application Alerts
+    rules:
+      - alert: YouTubeAPIQuotaHigh
+        expr: youtube_api_quota_usage_percent > 80
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: YouTube API quota usage high
+          description: YouTube API quota usage is above 80%
+
+      - alert: EmbeddingProcessingBacklog
+        expr: embedding_queue_size > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Embedding processing backlog
+          description: Embedding queue has more than 1000 pending items
+
+      - alert: VectorDatabaseLatencyHigh
+        expr: vector_db_query_duration_seconds > 0.5
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: Vector database latency high
+          description: Vector database query latency is above 500ms
+
+      - alert: PanelRenderingSlowdown
+        expr: panel_render_duration_seconds > 2
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: Panel rendering slowdown
+          description: Panel rendering time is above 2 seconds

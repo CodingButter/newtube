@@ -2,11 +2,14 @@
 
 import React, { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { Mic, Send, Sparkles, ArrowLeft } from 'lucide-react'
+import { Mic, Send, Sparkles, ArrowLeft, Volume2, Settings } from 'lucide-react'
 import Link from 'next/link'
 import { AIUIGenerator } from '@/components/ai-builder/AIUIGenerator'
-import { ConversationInterface } from '@/components/ai-builder/ConversationInterface'
+import { AIConversation } from './components/AIConversation'
+import { VoiceSettings } from '@/components/VoiceSettings'
+import { AudioVisualizer } from '@/components/AudioVisualizer'
 import { uiGenerator } from '@/lib/ui-generator'
+import { useVoiceStore } from '@/stores/voiceStore'
 
 interface Message {
   id: string
@@ -28,6 +31,10 @@ export default function AICanvasPage() {
   ])
   const [generatedComponents, setGeneratedComponents] = useState<React.ReactNode[]>([])
   const [isProcessing, setIsProcessing] = useState(false)
+  const [showGlobalVoiceSettings, setShowGlobalVoiceSettings] = useState(false)
+  
+  // Use voice store for TTS state
+  const { isPlaying, isLoading: isTTSLoading } = useVoiceStore()
 
   useEffect(() => {
     // Get interface type from URL params
@@ -115,12 +122,37 @@ export default function AICanvasPage() {
                 </Button>
               </Link>
               <h1 className="text-lg font-semibold">AI Canvas</h1>
+              
+              {/* Voice Status Indicator */}
+              {interfaceType === 'voice' && (isPlaying || isTTSLoading) && (
+                <div className="flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-full border border-primary/20">
+                  <Volume2 className="w-3 h-3 text-primary animate-pulse" />
+                  <span className="text-xs text-primary font-medium">
+                    {isTTSLoading ? 'Preparing voice...' : 'AI speaking'}
+                  </span>
+                </div>
+              )}
             </div>
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-primary" />
-              <span className="text-sm text-muted-foreground">
-                {generatedComponents.length} component{generatedComponents.length !== 1 ? 's' : ''} created
-              </span>
+            
+            <div className="flex items-center gap-3">
+              {interfaceType === 'voice' && (
+                <Button
+                  onClick={() => setShowGlobalVoiceSettings(!showGlobalVoiceSettings)}
+                  variant="ghost"
+                  size="sm"
+                  className="gap-2"
+                >
+                  <Settings className="w-4 h-4" />
+                  Voice Settings
+                </Button>
+              )}
+              
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-primary" />
+                <span className="text-sm text-muted-foreground">
+                  {generatedComponents.length} component{generatedComponents.length !== 1 ? 's' : ''} created
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -168,32 +200,33 @@ export default function AICanvasPage() {
 
       {/* Right Side - AI Conversation */}
       <div className="w-96 bg-card border-l border-border flex flex-col">
-        {/* Conversation Header */}
-        <div className="p-4 border-b border-border">
-          <div className="flex items-center gap-3">
-            {interfaceType === 'voice' ? (
-              <div className="flex items-center gap-2 text-primary">
-                <Mic className="w-5 h-5" />
-                <span className="font-medium">Voice Mode</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2 text-purple-600">
-                <Send className="w-5 h-5" />
-                <span className="font-medium">Text Mode</span>
-              </div>
-            )}
+        {/* Global Voice Settings Panel */}
+        {showGlobalVoiceSettings && interfaceType === 'voice' && (
+          <div className="border-b border-border bg-muted/20">
+            <VoiceSettings className="m-4" />
           </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            Describe what you want and I'll create it instantly
-          </p>
-        </div>
+        )}
 
-        {/* Conversation Interface */}
-        <ConversationInterface
+        {/* Global Audio Visualizer */}
+        {interfaceType === 'voice' && (isPlaying || isTTSLoading) && !showGlobalVoiceSettings && (
+          <div className="border-b border-border bg-card p-4">
+            <AudioVisualizer 
+              size="md" 
+              variant="wave" 
+              showControls={true}
+              className="shadow-none border-0"
+            />
+          </div>
+        )}
+
+        {/* AI Conversation Component */}
+        <AIConversation
           interfaceType={interfaceType || 'keyboard'}
           onMessage={handleSendMessage}
           messages={messages}
           isProcessing={isProcessing}
+          showHeader={false}
+          className="border-0 shadow-none"
         />
       </div>
     </div>

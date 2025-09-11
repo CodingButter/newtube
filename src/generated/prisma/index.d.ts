@@ -54,26 +54,6 @@ export type ListItem = $Result.DefaultSelection<Prisma.$ListItemPayload>
  */
 export type Preference = $Result.DefaultSelection<Prisma.$PreferencePayload>
 /**
- * Model ConversationSession
- * Conversational AI tour sessions for onboarding and interaction
- */
-export type ConversationSession = $Result.DefaultSelection<Prisma.$ConversationSessionPayload>
-/**
- * Model ConversationLog
- * Individual messages/interactions within a conversation
- */
-export type ConversationLog = $Result.DefaultSelection<Prisma.$ConversationLogPayload>
-/**
- * Model TourInteraction
- * Specific tour interactions and user actions
- */
-export type TourInteraction = $Result.DefaultSelection<Prisma.$TourInteractionPayload>
-/**
- * Model LocalStorageSync
- * Temporary storage for unregistered user data before account creation
- */
-export type LocalStorageSync = $Result.DefaultSelection<Prisma.$LocalStorageSyncPayload>
-/**
  * Model Migration
  * Database migrations tracking
  */
@@ -83,6 +63,31 @@ export type Migration = $Result.DefaultSelection<Prisma.$MigrationPayload>
  * System configuration and feature flags
  */
 export type SystemConfig = $Result.DefaultSelection<Prisma.$SystemConfigPayload>
+/**
+ * Model VideoEmbedding
+ * Video content embeddings for personalization and search
+ */
+export type VideoEmbedding = $Result.DefaultSelection<Prisma.$VideoEmbeddingPayload>
+/**
+ * Model UserEmbedding
+ * User preference embeddings for personalization
+ */
+export type UserEmbedding = $Result.DefaultSelection<Prisma.$UserEmbeddingPayload>
+/**
+ * Model CommentEmbedding
+ * Comment embeddings for toxicity detection and relevance scoring
+ */
+export type CommentEmbedding = $Result.DefaultSelection<Prisma.$CommentEmbeddingPayload>
+/**
+ * Model SearchEmbedding
+ * Search query embeddings for query expansion and personalization
+ */
+export type SearchEmbedding = $Result.DefaultSelection<Prisma.$SearchEmbeddingPayload>
+/**
+ * Model EmbeddingJob
+ * Batch processing jobs for embeddings
+ */
+export type EmbeddingJob = $Result.DefaultSelection<Prisma.$EmbeddingJobPayload>
 
 /**
  * Enums
@@ -126,26 +131,39 @@ export const ListType: {
 export type ListType = (typeof ListType)[keyof typeof ListType]
 
 
-export const TourStep: {
-  WELCOME: 'WELCOME',
-  INTRODUCTION: 'INTRODUCTION',
-  INTERESTS: 'INTERESTS',
-  VIDEO_RATING: 'VIDEO_RATING',
-  LAYOUT_BUILDING: 'LAYOUT_BUILDING',
-  REGISTRATION: 'REGISTRATION',
-  COMPLETED: 'COMPLETED'
+export const EmbeddingStatus: {
+  PENDING: 'PENDING',
+  PROCESSING: 'PROCESSING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED',
+  STALE: 'STALE'
 };
 
-export type TourStep = (typeof TourStep)[keyof typeof TourStep]
+export type EmbeddingStatus = (typeof EmbeddingStatus)[keyof typeof EmbeddingStatus]
 
 
-export const MessageRole: {
-  USER: 'USER',
-  ASSISTANT: 'ASSISTANT',
-  SYSTEM: 'SYSTEM'
+export const JobType: {
+  VIDEO_EMBEDDING: 'VIDEO_EMBEDDING',
+  USER_EMBEDDING: 'USER_EMBEDDING',
+  COMMENT_EMBEDDING: 'COMMENT_EMBEDDING',
+  SEARCH_EMBEDDING: 'SEARCH_EMBEDDING',
+  BATCH_UPDATE: 'BATCH_UPDATE',
+  INCREMENTAL_UPDATE: 'INCREMENTAL_UPDATE'
 };
 
-export type MessageRole = (typeof MessageRole)[keyof typeof MessageRole]
+export type JobType = (typeof JobType)[keyof typeof JobType]
+
+
+export const JobStatus: {
+  PENDING: 'PENDING',
+  RUNNING: 'RUNNING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED',
+  CANCELLED: 'CANCELLED',
+  RETRYING: 'RETRYING'
+};
+
+export type JobStatus = (typeof JobStatus)[keyof typeof JobStatus]
 
 }
 
@@ -161,13 +179,17 @@ export type ListType = $Enums.ListType
 
 export const ListType: typeof $Enums.ListType
 
-export type TourStep = $Enums.TourStep
+export type EmbeddingStatus = $Enums.EmbeddingStatus
 
-export const TourStep: typeof $Enums.TourStep
+export const EmbeddingStatus: typeof $Enums.EmbeddingStatus
 
-export type MessageRole = $Enums.MessageRole
+export type JobType = $Enums.JobType
 
-export const MessageRole: typeof $Enums.MessageRole
+export const JobType: typeof $Enums.JobType
+
+export type JobStatus = $Enums.JobStatus
+
+export const JobStatus: typeof $Enums.JobStatus
 
 /**
  * ##  Prisma Client ʲˢ
@@ -368,46 +390,6 @@ export class PrismaClient<
   get preference(): Prisma.PreferenceDelegate<ExtArgs, ClientOptions>;
 
   /**
-   * `prisma.conversationSession`: Exposes CRUD operations for the **ConversationSession** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more ConversationSessions
-    * const conversationSessions = await prisma.conversationSession.findMany()
-    * ```
-    */
-  get conversationSession(): Prisma.ConversationSessionDelegate<ExtArgs, ClientOptions>;
-
-  /**
-   * `prisma.conversationLog`: Exposes CRUD operations for the **ConversationLog** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more ConversationLogs
-    * const conversationLogs = await prisma.conversationLog.findMany()
-    * ```
-    */
-  get conversationLog(): Prisma.ConversationLogDelegate<ExtArgs, ClientOptions>;
-
-  /**
-   * `prisma.tourInteraction`: Exposes CRUD operations for the **TourInteraction** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more TourInteractions
-    * const tourInteractions = await prisma.tourInteraction.findMany()
-    * ```
-    */
-  get tourInteraction(): Prisma.TourInteractionDelegate<ExtArgs, ClientOptions>;
-
-  /**
-   * `prisma.localStorageSync`: Exposes CRUD operations for the **LocalStorageSync** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more LocalStorageSyncs
-    * const localStorageSyncs = await prisma.localStorageSync.findMany()
-    * ```
-    */
-  get localStorageSync(): Prisma.LocalStorageSyncDelegate<ExtArgs, ClientOptions>;
-
-  /**
    * `prisma.migration`: Exposes CRUD operations for the **Migration** model.
     * Example usage:
     * ```ts
@@ -426,6 +408,56 @@ export class PrismaClient<
     * ```
     */
   get systemConfig(): Prisma.SystemConfigDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.videoEmbedding`: Exposes CRUD operations for the **VideoEmbedding** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more VideoEmbeddings
+    * const videoEmbeddings = await prisma.videoEmbedding.findMany()
+    * ```
+    */
+  get videoEmbedding(): Prisma.VideoEmbeddingDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.userEmbedding`: Exposes CRUD operations for the **UserEmbedding** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more UserEmbeddings
+    * const userEmbeddings = await prisma.userEmbedding.findMany()
+    * ```
+    */
+  get userEmbedding(): Prisma.UserEmbeddingDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.commentEmbedding`: Exposes CRUD operations for the **CommentEmbedding** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more CommentEmbeddings
+    * const commentEmbeddings = await prisma.commentEmbedding.findMany()
+    * ```
+    */
+  get commentEmbedding(): Prisma.CommentEmbeddingDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.searchEmbedding`: Exposes CRUD operations for the **SearchEmbedding** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SearchEmbeddings
+    * const searchEmbeddings = await prisma.searchEmbedding.findMany()
+    * ```
+    */
+  get searchEmbedding(): Prisma.SearchEmbeddingDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.embeddingJob`: Exposes CRUD operations for the **EmbeddingJob** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more EmbeddingJobs
+    * const embeddingJobs = await prisma.embeddingJob.findMany()
+    * ```
+    */
+  get embeddingJob(): Prisma.EmbeddingJobDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -874,12 +906,13 @@ export namespace Prisma {
     List: 'List',
     ListItem: 'ListItem',
     Preference: 'Preference',
-    ConversationSession: 'ConversationSession',
-    ConversationLog: 'ConversationLog',
-    TourInteraction: 'TourInteraction',
-    LocalStorageSync: 'LocalStorageSync',
     Migration: 'Migration',
-    SystemConfig: 'SystemConfig'
+    SystemConfig: 'SystemConfig',
+    VideoEmbedding: 'VideoEmbedding',
+    UserEmbedding: 'UserEmbedding',
+    CommentEmbedding: 'CommentEmbedding',
+    SearchEmbedding: 'SearchEmbedding',
+    EmbeddingJob: 'EmbeddingJob'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -898,7 +931,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "connection" | "layout" | "panel" | "layoutPanel" | "list" | "listItem" | "preference" | "conversationSession" | "conversationLog" | "tourInteraction" | "localStorageSync" | "migration" | "systemConfig"
+      modelProps: "user" | "connection" | "layout" | "panel" | "layoutPanel" | "list" | "listItem" | "preference" | "migration" | "systemConfig" | "videoEmbedding" | "userEmbedding" | "commentEmbedding" | "searchEmbedding" | "embeddingJob"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1494,302 +1527,6 @@ export namespace Prisma {
           }
         }
       }
-      ConversationSession: {
-        payload: Prisma.$ConversationSessionPayload<ExtArgs>
-        fields: Prisma.ConversationSessionFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.ConversationSessionFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConversationSessionPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.ConversationSessionFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConversationSessionPayload>
-          }
-          findFirst: {
-            args: Prisma.ConversationSessionFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConversationSessionPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.ConversationSessionFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConversationSessionPayload>
-          }
-          findMany: {
-            args: Prisma.ConversationSessionFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConversationSessionPayload>[]
-          }
-          create: {
-            args: Prisma.ConversationSessionCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConversationSessionPayload>
-          }
-          createMany: {
-            args: Prisma.ConversationSessionCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.ConversationSessionCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConversationSessionPayload>[]
-          }
-          delete: {
-            args: Prisma.ConversationSessionDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConversationSessionPayload>
-          }
-          update: {
-            args: Prisma.ConversationSessionUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConversationSessionPayload>
-          }
-          deleteMany: {
-            args: Prisma.ConversationSessionDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.ConversationSessionUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateManyAndReturn: {
-            args: Prisma.ConversationSessionUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConversationSessionPayload>[]
-          }
-          upsert: {
-            args: Prisma.ConversationSessionUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConversationSessionPayload>
-          }
-          aggregate: {
-            args: Prisma.ConversationSessionAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateConversationSession>
-          }
-          groupBy: {
-            args: Prisma.ConversationSessionGroupByArgs<ExtArgs>
-            result: $Utils.Optional<ConversationSessionGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.ConversationSessionCountArgs<ExtArgs>
-            result: $Utils.Optional<ConversationSessionCountAggregateOutputType> | number
-          }
-        }
-      }
-      ConversationLog: {
-        payload: Prisma.$ConversationLogPayload<ExtArgs>
-        fields: Prisma.ConversationLogFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.ConversationLogFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConversationLogPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.ConversationLogFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConversationLogPayload>
-          }
-          findFirst: {
-            args: Prisma.ConversationLogFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConversationLogPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.ConversationLogFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConversationLogPayload>
-          }
-          findMany: {
-            args: Prisma.ConversationLogFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConversationLogPayload>[]
-          }
-          create: {
-            args: Prisma.ConversationLogCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConversationLogPayload>
-          }
-          createMany: {
-            args: Prisma.ConversationLogCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.ConversationLogCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConversationLogPayload>[]
-          }
-          delete: {
-            args: Prisma.ConversationLogDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConversationLogPayload>
-          }
-          update: {
-            args: Prisma.ConversationLogUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConversationLogPayload>
-          }
-          deleteMany: {
-            args: Prisma.ConversationLogDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.ConversationLogUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateManyAndReturn: {
-            args: Prisma.ConversationLogUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConversationLogPayload>[]
-          }
-          upsert: {
-            args: Prisma.ConversationLogUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConversationLogPayload>
-          }
-          aggregate: {
-            args: Prisma.ConversationLogAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateConversationLog>
-          }
-          groupBy: {
-            args: Prisma.ConversationLogGroupByArgs<ExtArgs>
-            result: $Utils.Optional<ConversationLogGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.ConversationLogCountArgs<ExtArgs>
-            result: $Utils.Optional<ConversationLogCountAggregateOutputType> | number
-          }
-        }
-      }
-      TourInteraction: {
-        payload: Prisma.$TourInteractionPayload<ExtArgs>
-        fields: Prisma.TourInteractionFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.TourInteractionFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TourInteractionPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.TourInteractionFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TourInteractionPayload>
-          }
-          findFirst: {
-            args: Prisma.TourInteractionFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TourInteractionPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.TourInteractionFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TourInteractionPayload>
-          }
-          findMany: {
-            args: Prisma.TourInteractionFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TourInteractionPayload>[]
-          }
-          create: {
-            args: Prisma.TourInteractionCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TourInteractionPayload>
-          }
-          createMany: {
-            args: Prisma.TourInteractionCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.TourInteractionCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TourInteractionPayload>[]
-          }
-          delete: {
-            args: Prisma.TourInteractionDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TourInteractionPayload>
-          }
-          update: {
-            args: Prisma.TourInteractionUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TourInteractionPayload>
-          }
-          deleteMany: {
-            args: Prisma.TourInteractionDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.TourInteractionUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateManyAndReturn: {
-            args: Prisma.TourInteractionUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TourInteractionPayload>[]
-          }
-          upsert: {
-            args: Prisma.TourInteractionUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TourInteractionPayload>
-          }
-          aggregate: {
-            args: Prisma.TourInteractionAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateTourInteraction>
-          }
-          groupBy: {
-            args: Prisma.TourInteractionGroupByArgs<ExtArgs>
-            result: $Utils.Optional<TourInteractionGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.TourInteractionCountArgs<ExtArgs>
-            result: $Utils.Optional<TourInteractionCountAggregateOutputType> | number
-          }
-        }
-      }
-      LocalStorageSync: {
-        payload: Prisma.$LocalStorageSyncPayload<ExtArgs>
-        fields: Prisma.LocalStorageSyncFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.LocalStorageSyncFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LocalStorageSyncPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.LocalStorageSyncFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LocalStorageSyncPayload>
-          }
-          findFirst: {
-            args: Prisma.LocalStorageSyncFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LocalStorageSyncPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.LocalStorageSyncFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LocalStorageSyncPayload>
-          }
-          findMany: {
-            args: Prisma.LocalStorageSyncFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LocalStorageSyncPayload>[]
-          }
-          create: {
-            args: Prisma.LocalStorageSyncCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LocalStorageSyncPayload>
-          }
-          createMany: {
-            args: Prisma.LocalStorageSyncCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.LocalStorageSyncCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LocalStorageSyncPayload>[]
-          }
-          delete: {
-            args: Prisma.LocalStorageSyncDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LocalStorageSyncPayload>
-          }
-          update: {
-            args: Prisma.LocalStorageSyncUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LocalStorageSyncPayload>
-          }
-          deleteMany: {
-            args: Prisma.LocalStorageSyncDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.LocalStorageSyncUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateManyAndReturn: {
-            args: Prisma.LocalStorageSyncUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LocalStorageSyncPayload>[]
-          }
-          upsert: {
-            args: Prisma.LocalStorageSyncUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$LocalStorageSyncPayload>
-          }
-          aggregate: {
-            args: Prisma.LocalStorageSyncAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateLocalStorageSync>
-          }
-          groupBy: {
-            args: Prisma.LocalStorageSyncGroupByArgs<ExtArgs>
-            result: $Utils.Optional<LocalStorageSyncGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.LocalStorageSyncCountArgs<ExtArgs>
-            result: $Utils.Optional<LocalStorageSyncCountAggregateOutputType> | number
-          }
-        }
-      }
       Migration: {
         payload: Prisma.$MigrationPayload<ExtArgs>
         fields: Prisma.MigrationFieldRefs
@@ -1938,6 +1675,312 @@ export namespace Prisma {
           }
         }
       }
+      VideoEmbedding: {
+        payload: Prisma.$VideoEmbeddingPayload<ExtArgs>
+        fields: Prisma.VideoEmbeddingFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.VideoEmbeddingFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VideoEmbeddingPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.VideoEmbeddingFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VideoEmbeddingPayload>
+          }
+          findFirst: {
+            args: Prisma.VideoEmbeddingFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VideoEmbeddingPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.VideoEmbeddingFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VideoEmbeddingPayload>
+          }
+          findMany: {
+            args: Prisma.VideoEmbeddingFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VideoEmbeddingPayload>[]
+          }
+          delete: {
+            args: Prisma.VideoEmbeddingDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VideoEmbeddingPayload>
+          }
+          update: {
+            args: Prisma.VideoEmbeddingUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VideoEmbeddingPayload>
+          }
+          deleteMany: {
+            args: Prisma.VideoEmbeddingDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.VideoEmbeddingUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.VideoEmbeddingUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VideoEmbeddingPayload>[]
+          }
+          aggregate: {
+            args: Prisma.VideoEmbeddingAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateVideoEmbedding>
+          }
+          groupBy: {
+            args: Prisma.VideoEmbeddingGroupByArgs<ExtArgs>
+            result: $Utils.Optional<VideoEmbeddingGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.VideoEmbeddingCountArgs<ExtArgs>
+            result: $Utils.Optional<VideoEmbeddingCountAggregateOutputType> | number
+          }
+        }
+      }
+      UserEmbedding: {
+        payload: Prisma.$UserEmbeddingPayload<ExtArgs>
+        fields: Prisma.UserEmbeddingFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.UserEmbeddingFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserEmbeddingPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.UserEmbeddingFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserEmbeddingPayload>
+          }
+          findFirst: {
+            args: Prisma.UserEmbeddingFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserEmbeddingPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.UserEmbeddingFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserEmbeddingPayload>
+          }
+          findMany: {
+            args: Prisma.UserEmbeddingFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserEmbeddingPayload>[]
+          }
+          delete: {
+            args: Prisma.UserEmbeddingDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserEmbeddingPayload>
+          }
+          update: {
+            args: Prisma.UserEmbeddingUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserEmbeddingPayload>
+          }
+          deleteMany: {
+            args: Prisma.UserEmbeddingDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.UserEmbeddingUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.UserEmbeddingUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserEmbeddingPayload>[]
+          }
+          aggregate: {
+            args: Prisma.UserEmbeddingAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateUserEmbedding>
+          }
+          groupBy: {
+            args: Prisma.UserEmbeddingGroupByArgs<ExtArgs>
+            result: $Utils.Optional<UserEmbeddingGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.UserEmbeddingCountArgs<ExtArgs>
+            result: $Utils.Optional<UserEmbeddingCountAggregateOutputType> | number
+          }
+        }
+      }
+      CommentEmbedding: {
+        payload: Prisma.$CommentEmbeddingPayload<ExtArgs>
+        fields: Prisma.CommentEmbeddingFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.CommentEmbeddingFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CommentEmbeddingPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.CommentEmbeddingFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CommentEmbeddingPayload>
+          }
+          findFirst: {
+            args: Prisma.CommentEmbeddingFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CommentEmbeddingPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.CommentEmbeddingFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CommentEmbeddingPayload>
+          }
+          findMany: {
+            args: Prisma.CommentEmbeddingFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CommentEmbeddingPayload>[]
+          }
+          delete: {
+            args: Prisma.CommentEmbeddingDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CommentEmbeddingPayload>
+          }
+          update: {
+            args: Prisma.CommentEmbeddingUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CommentEmbeddingPayload>
+          }
+          deleteMany: {
+            args: Prisma.CommentEmbeddingDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.CommentEmbeddingUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.CommentEmbeddingUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CommentEmbeddingPayload>[]
+          }
+          aggregate: {
+            args: Prisma.CommentEmbeddingAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCommentEmbedding>
+          }
+          groupBy: {
+            args: Prisma.CommentEmbeddingGroupByArgs<ExtArgs>
+            result: $Utils.Optional<CommentEmbeddingGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.CommentEmbeddingCountArgs<ExtArgs>
+            result: $Utils.Optional<CommentEmbeddingCountAggregateOutputType> | number
+          }
+        }
+      }
+      SearchEmbedding: {
+        payload: Prisma.$SearchEmbeddingPayload<ExtArgs>
+        fields: Prisma.SearchEmbeddingFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SearchEmbeddingFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SearchEmbeddingPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SearchEmbeddingFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SearchEmbeddingPayload>
+          }
+          findFirst: {
+            args: Prisma.SearchEmbeddingFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SearchEmbeddingPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SearchEmbeddingFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SearchEmbeddingPayload>
+          }
+          findMany: {
+            args: Prisma.SearchEmbeddingFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SearchEmbeddingPayload>[]
+          }
+          delete: {
+            args: Prisma.SearchEmbeddingDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SearchEmbeddingPayload>
+          }
+          update: {
+            args: Prisma.SearchEmbeddingUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SearchEmbeddingPayload>
+          }
+          deleteMany: {
+            args: Prisma.SearchEmbeddingDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SearchEmbeddingUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.SearchEmbeddingUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SearchEmbeddingPayload>[]
+          }
+          aggregate: {
+            args: Prisma.SearchEmbeddingAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSearchEmbedding>
+          }
+          groupBy: {
+            args: Prisma.SearchEmbeddingGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SearchEmbeddingGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SearchEmbeddingCountArgs<ExtArgs>
+            result: $Utils.Optional<SearchEmbeddingCountAggregateOutputType> | number
+          }
+        }
+      }
+      EmbeddingJob: {
+        payload: Prisma.$EmbeddingJobPayload<ExtArgs>
+        fields: Prisma.EmbeddingJobFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.EmbeddingJobFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmbeddingJobPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.EmbeddingJobFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmbeddingJobPayload>
+          }
+          findFirst: {
+            args: Prisma.EmbeddingJobFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmbeddingJobPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.EmbeddingJobFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmbeddingJobPayload>
+          }
+          findMany: {
+            args: Prisma.EmbeddingJobFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmbeddingJobPayload>[]
+          }
+          create: {
+            args: Prisma.EmbeddingJobCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmbeddingJobPayload>
+          }
+          createMany: {
+            args: Prisma.EmbeddingJobCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.EmbeddingJobCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmbeddingJobPayload>[]
+          }
+          delete: {
+            args: Prisma.EmbeddingJobDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmbeddingJobPayload>
+          }
+          update: {
+            args: Prisma.EmbeddingJobUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmbeddingJobPayload>
+          }
+          deleteMany: {
+            args: Prisma.EmbeddingJobDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.EmbeddingJobUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.EmbeddingJobUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmbeddingJobPayload>[]
+          }
+          upsert: {
+            args: Prisma.EmbeddingJobUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmbeddingJobPayload>
+          }
+          aggregate: {
+            args: Prisma.EmbeddingJobAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateEmbeddingJob>
+          }
+          groupBy: {
+            args: Prisma.EmbeddingJobGroupByArgs<ExtArgs>
+            result: $Utils.Optional<EmbeddingJobGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.EmbeddingJobCountArgs<ExtArgs>
+            result: $Utils.Optional<EmbeddingJobCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -2042,12 +2085,13 @@ export namespace Prisma {
     list?: ListOmit
     listItem?: ListItemOmit
     preference?: PreferenceOmit
-    conversationSession?: ConversationSessionOmit
-    conversationLog?: ConversationLogOmit
-    tourInteraction?: TourInteractionOmit
-    localStorageSync?: LocalStorageSyncOmit
     migration?: MigrationOmit
     systemConfig?: SystemConfigOmit
+    videoEmbedding?: VideoEmbeddingOmit
+    userEmbedding?: UserEmbeddingOmit
+    commentEmbedding?: CommentEmbeddingOmit
+    searchEmbedding?: SearchEmbeddingOmit
+    embeddingJob?: EmbeddingJobOmit
   }
 
   /* Types for Logging */
@@ -2132,7 +2176,7 @@ export namespace Prisma {
     layouts: number
     lists: number
     preferences: number
-    conversationSessions: number
+    searchEmbeddings: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2140,7 +2184,7 @@ export namespace Prisma {
     layouts?: boolean | UserCountOutputTypeCountLayoutsArgs
     lists?: boolean | UserCountOutputTypeCountListsArgs
     preferences?: boolean | UserCountOutputTypeCountPreferencesArgs
-    conversationSessions?: boolean | UserCountOutputTypeCountConversationSessionsArgs
+    searchEmbeddings?: boolean | UserCountOutputTypeCountSearchEmbeddingsArgs
   }
 
   // Custom InputTypes
@@ -2185,8 +2229,8 @@ export namespace Prisma {
   /**
    * UserCountOutputType without action
    */
-  export type UserCountOutputTypeCountConversationSessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ConversationSessionWhereInput
+  export type UserCountOutputTypeCountSearchEmbeddingsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SearchEmbeddingWhereInput
   }
 
 
@@ -2280,46 +2324,6 @@ export namespace Prisma {
    */
   export type ListCountOutputTypeCountListItemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ListItemWhereInput
-  }
-
-
-  /**
-   * Count Type ConversationSessionCountOutputType
-   */
-
-  export type ConversationSessionCountOutputType = {
-    conversationLogs: number
-    tourInteractions: number
-  }
-
-  export type ConversationSessionCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    conversationLogs?: boolean | ConversationSessionCountOutputTypeCountConversationLogsArgs
-    tourInteractions?: boolean | ConversationSessionCountOutputTypeCountTourInteractionsArgs
-  }
-
-  // Custom InputTypes
-  /**
-   * ConversationSessionCountOutputType without action
-   */
-  export type ConversationSessionCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ConversationSessionCountOutputType
-     */
-    select?: ConversationSessionCountOutputTypeSelect<ExtArgs> | null
-  }
-
-  /**
-   * ConversationSessionCountOutputType without action
-   */
-  export type ConversationSessionCountOutputTypeCountConversationLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ConversationLogWhereInput
-  }
-
-  /**
-   * ConversationSessionCountOutputType without action
-   */
-  export type ConversationSessionCountOutputTypeCountTourInteractionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: TourInteractionWhereInput
   }
 
 
@@ -2547,7 +2551,8 @@ export namespace Prisma {
     layouts?: boolean | User$layoutsArgs<ExtArgs>
     lists?: boolean | User$listsArgs<ExtArgs>
     preferences?: boolean | User$preferencesArgs<ExtArgs>
-    conversationSessions?: boolean | User$conversationSessionsArgs<ExtArgs>
+    userEmbedding?: boolean | User$userEmbeddingArgs<ExtArgs>
+    searchEmbeddings?: boolean | User$searchEmbeddingsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -2602,7 +2607,8 @@ export namespace Prisma {
     layouts?: boolean | User$layoutsArgs<ExtArgs>
     lists?: boolean | User$listsArgs<ExtArgs>
     preferences?: boolean | User$preferencesArgs<ExtArgs>
-    conversationSessions?: boolean | User$conversationSessionsArgs<ExtArgs>
+    userEmbedding?: boolean | User$userEmbeddingArgs<ExtArgs>
+    searchEmbeddings?: boolean | User$searchEmbeddingsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -2615,7 +2621,8 @@ export namespace Prisma {
       layouts: Prisma.$LayoutPayload<ExtArgs>[]
       lists: Prisma.$ListPayload<ExtArgs>[]
       preferences: Prisma.$PreferencePayload<ExtArgs>[]
-      conversationSessions: Prisma.$ConversationSessionPayload<ExtArgs>[]
+      userEmbedding: Prisma.$UserEmbeddingPayload<ExtArgs> | null
+      searchEmbeddings: Prisma.$SearchEmbeddingPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -3028,7 +3035,8 @@ export namespace Prisma {
     layouts<T extends User$layoutsArgs<ExtArgs> = {}>(args?: Subset<T, User$layoutsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LayoutPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     lists<T extends User$listsArgs<ExtArgs> = {}>(args?: Subset<T, User$listsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ListPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     preferences<T extends User$preferencesArgs<ExtArgs> = {}>(args?: Subset<T, User$preferencesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PreferencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    conversationSessions<T extends User$conversationSessionsArgs<ExtArgs> = {}>(args?: Subset<T, User$conversationSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConversationSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    userEmbedding<T extends User$userEmbeddingArgs<ExtArgs> = {}>(args?: Subset<T, User$userEmbeddingArgs<ExtArgs>>): Prisma__UserEmbeddingClient<$Result.GetResult<Prisma.$UserEmbeddingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    searchEmbeddings<T extends User$searchEmbeddingsArgs<ExtArgs> = {}>(args?: Subset<T, User$searchEmbeddingsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SearchEmbeddingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3554,27 +3562,46 @@ export namespace Prisma {
   }
 
   /**
-   * User.conversationSessions
+   * User.userEmbedding
    */
-  export type User$conversationSessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type User$userEmbeddingArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ConversationSession
+     * Select specific fields to fetch from the UserEmbedding
      */
-    select?: ConversationSessionSelect<ExtArgs> | null
+    select?: UserEmbeddingSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ConversationSession
+     * Omit specific fields from the UserEmbedding
      */
-    omit?: ConversationSessionOmit<ExtArgs> | null
+    omit?: UserEmbeddingOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ConversationSessionInclude<ExtArgs> | null
-    where?: ConversationSessionWhereInput
-    orderBy?: ConversationSessionOrderByWithRelationInput | ConversationSessionOrderByWithRelationInput[]
-    cursor?: ConversationSessionWhereUniqueInput
+    include?: UserEmbeddingInclude<ExtArgs> | null
+    where?: UserEmbeddingWhereInput
+  }
+
+  /**
+   * User.searchEmbeddings
+   */
+  export type User$searchEmbeddingsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SearchEmbedding
+     */
+    select?: SearchEmbeddingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SearchEmbedding
+     */
+    omit?: SearchEmbeddingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SearchEmbeddingInclude<ExtArgs> | null
+    where?: SearchEmbeddingWhereInput
+    orderBy?: SearchEmbeddingOrderByWithRelationInput | SearchEmbeddingOrderByWithRelationInput[]
+    cursor?: SearchEmbeddingWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: ConversationSessionScalarFieldEnum | ConversationSessionScalarFieldEnum[]
+    distinct?: SearchEmbeddingScalarFieldEnum | SearchEmbeddingScalarFieldEnum[]
   }
 
   /**
@@ -11908,4691 +11935,6 @@ export namespace Prisma {
 
 
   /**
-   * Model ConversationSession
-   */
-
-  export type AggregateConversationSession = {
-    _count: ConversationSessionCountAggregateOutputType | null
-    _min: ConversationSessionMinAggregateOutputType | null
-    _max: ConversationSessionMaxAggregateOutputType | null
-  }
-
-  export type ConversationSessionMinAggregateOutputType = {
-    id: string | null
-    userId: string | null
-    sessionId: string | null
-    currentStep: $Enums.TourStep | null
-    isCompleted: boolean | null
-    isVoiceMode: boolean | null
-    llmProvider: string | null
-    llmApiKey: string | null
-    conversationId: string | null
-    createdAt: Date | null
-    updatedAt: Date | null
-    lastActiveAt: Date | null
-    completedAt: Date | null
-  }
-
-  export type ConversationSessionMaxAggregateOutputType = {
-    id: string | null
-    userId: string | null
-    sessionId: string | null
-    currentStep: $Enums.TourStep | null
-    isCompleted: boolean | null
-    isVoiceMode: boolean | null
-    llmProvider: string | null
-    llmApiKey: string | null
-    conversationId: string | null
-    createdAt: Date | null
-    updatedAt: Date | null
-    lastActiveAt: Date | null
-    completedAt: Date | null
-  }
-
-  export type ConversationSessionCountAggregateOutputType = {
-    id: number
-    userId: number
-    sessionId: number
-    currentStep: number
-    isCompleted: number
-    isVoiceMode: number
-    selectedInterests: number
-    videoRatings: number
-    layoutPreferences: number
-    llmProvider: number
-    llmApiKey: number
-    conversationId: number
-    stepProgress: number
-    completedSteps: number
-    createdAt: number
-    updatedAt: number
-    lastActiveAt: number
-    completedAt: number
-    _all: number
-  }
-
-
-  export type ConversationSessionMinAggregateInputType = {
-    id?: true
-    userId?: true
-    sessionId?: true
-    currentStep?: true
-    isCompleted?: true
-    isVoiceMode?: true
-    llmProvider?: true
-    llmApiKey?: true
-    conversationId?: true
-    createdAt?: true
-    updatedAt?: true
-    lastActiveAt?: true
-    completedAt?: true
-  }
-
-  export type ConversationSessionMaxAggregateInputType = {
-    id?: true
-    userId?: true
-    sessionId?: true
-    currentStep?: true
-    isCompleted?: true
-    isVoiceMode?: true
-    llmProvider?: true
-    llmApiKey?: true
-    conversationId?: true
-    createdAt?: true
-    updatedAt?: true
-    lastActiveAt?: true
-    completedAt?: true
-  }
-
-  export type ConversationSessionCountAggregateInputType = {
-    id?: true
-    userId?: true
-    sessionId?: true
-    currentStep?: true
-    isCompleted?: true
-    isVoiceMode?: true
-    selectedInterests?: true
-    videoRatings?: true
-    layoutPreferences?: true
-    llmProvider?: true
-    llmApiKey?: true
-    conversationId?: true
-    stepProgress?: true
-    completedSteps?: true
-    createdAt?: true
-    updatedAt?: true
-    lastActiveAt?: true
-    completedAt?: true
-    _all?: true
-  }
-
-  export type ConversationSessionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which ConversationSession to aggregate.
-     */
-    where?: ConversationSessionWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of ConversationSessions to fetch.
-     */
-    orderBy?: ConversationSessionOrderByWithRelationInput | ConversationSessionOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: ConversationSessionWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` ConversationSessions from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` ConversationSessions.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned ConversationSessions
-    **/
-    _count?: true | ConversationSessionCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: ConversationSessionMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: ConversationSessionMaxAggregateInputType
-  }
-
-  export type GetConversationSessionAggregateType<T extends ConversationSessionAggregateArgs> = {
-        [P in keyof T & keyof AggregateConversationSession]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateConversationSession[P]>
-      : GetScalarType<T[P], AggregateConversationSession[P]>
-  }
-
-
-
-
-  export type ConversationSessionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ConversationSessionWhereInput
-    orderBy?: ConversationSessionOrderByWithAggregationInput | ConversationSessionOrderByWithAggregationInput[]
-    by: ConversationSessionScalarFieldEnum[] | ConversationSessionScalarFieldEnum
-    having?: ConversationSessionScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: ConversationSessionCountAggregateInputType | true
-    _min?: ConversationSessionMinAggregateInputType
-    _max?: ConversationSessionMaxAggregateInputType
-  }
-
-  export type ConversationSessionGroupByOutputType = {
-    id: string
-    userId: string | null
-    sessionId: string
-    currentStep: $Enums.TourStep
-    isCompleted: boolean
-    isVoiceMode: boolean
-    selectedInterests: string[]
-    videoRatings: JsonValue
-    layoutPreferences: JsonValue
-    llmProvider: string | null
-    llmApiKey: string | null
-    conversationId: string | null
-    stepProgress: JsonValue
-    completedSteps: string[]
-    createdAt: Date
-    updatedAt: Date
-    lastActiveAt: Date
-    completedAt: Date | null
-    _count: ConversationSessionCountAggregateOutputType | null
-    _min: ConversationSessionMinAggregateOutputType | null
-    _max: ConversationSessionMaxAggregateOutputType | null
-  }
-
-  type GetConversationSessionGroupByPayload<T extends ConversationSessionGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<ConversationSessionGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof ConversationSessionGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], ConversationSessionGroupByOutputType[P]>
-            : GetScalarType<T[P], ConversationSessionGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type ConversationSessionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    userId?: boolean
-    sessionId?: boolean
-    currentStep?: boolean
-    isCompleted?: boolean
-    isVoiceMode?: boolean
-    selectedInterests?: boolean
-    videoRatings?: boolean
-    layoutPreferences?: boolean
-    llmProvider?: boolean
-    llmApiKey?: boolean
-    conversationId?: boolean
-    stepProgress?: boolean
-    completedSteps?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    lastActiveAt?: boolean
-    completedAt?: boolean
-    user?: boolean | ConversationSession$userArgs<ExtArgs>
-    conversationLogs?: boolean | ConversationSession$conversationLogsArgs<ExtArgs>
-    tourInteractions?: boolean | ConversationSession$tourInteractionsArgs<ExtArgs>
-    _count?: boolean | ConversationSessionCountOutputTypeDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["conversationSession"]>
-
-  export type ConversationSessionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    userId?: boolean
-    sessionId?: boolean
-    currentStep?: boolean
-    isCompleted?: boolean
-    isVoiceMode?: boolean
-    selectedInterests?: boolean
-    videoRatings?: boolean
-    layoutPreferences?: boolean
-    llmProvider?: boolean
-    llmApiKey?: boolean
-    conversationId?: boolean
-    stepProgress?: boolean
-    completedSteps?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    lastActiveAt?: boolean
-    completedAt?: boolean
-    user?: boolean | ConversationSession$userArgs<ExtArgs>
-  }, ExtArgs["result"]["conversationSession"]>
-
-  export type ConversationSessionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    userId?: boolean
-    sessionId?: boolean
-    currentStep?: boolean
-    isCompleted?: boolean
-    isVoiceMode?: boolean
-    selectedInterests?: boolean
-    videoRatings?: boolean
-    layoutPreferences?: boolean
-    llmProvider?: boolean
-    llmApiKey?: boolean
-    conversationId?: boolean
-    stepProgress?: boolean
-    completedSteps?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    lastActiveAt?: boolean
-    completedAt?: boolean
-    user?: boolean | ConversationSession$userArgs<ExtArgs>
-  }, ExtArgs["result"]["conversationSession"]>
-
-  export type ConversationSessionSelectScalar = {
-    id?: boolean
-    userId?: boolean
-    sessionId?: boolean
-    currentStep?: boolean
-    isCompleted?: boolean
-    isVoiceMode?: boolean
-    selectedInterests?: boolean
-    videoRatings?: boolean
-    layoutPreferences?: boolean
-    llmProvider?: boolean
-    llmApiKey?: boolean
-    conversationId?: boolean
-    stepProgress?: boolean
-    completedSteps?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    lastActiveAt?: boolean
-    completedAt?: boolean
-  }
-
-  export type ConversationSessionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "sessionId" | "currentStep" | "isCompleted" | "isVoiceMode" | "selectedInterests" | "videoRatings" | "layoutPreferences" | "llmProvider" | "llmApiKey" | "conversationId" | "stepProgress" | "completedSteps" | "createdAt" | "updatedAt" | "lastActiveAt" | "completedAt", ExtArgs["result"]["conversationSession"]>
-  export type ConversationSessionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    user?: boolean | ConversationSession$userArgs<ExtArgs>
-    conversationLogs?: boolean | ConversationSession$conversationLogsArgs<ExtArgs>
-    tourInteractions?: boolean | ConversationSession$tourInteractionsArgs<ExtArgs>
-    _count?: boolean | ConversationSessionCountOutputTypeDefaultArgs<ExtArgs>
-  }
-  export type ConversationSessionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    user?: boolean | ConversationSession$userArgs<ExtArgs>
-  }
-  export type ConversationSessionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    user?: boolean | ConversationSession$userArgs<ExtArgs>
-  }
-
-  export type $ConversationSessionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "ConversationSession"
-    objects: {
-      user: Prisma.$UserPayload<ExtArgs> | null
-      conversationLogs: Prisma.$ConversationLogPayload<ExtArgs>[]
-      tourInteractions: Prisma.$TourInteractionPayload<ExtArgs>[]
-    }
-    scalars: $Extensions.GetPayloadResult<{
-      id: string
-      userId: string | null
-      sessionId: string
-      currentStep: $Enums.TourStep
-      isCompleted: boolean
-      isVoiceMode: boolean
-      selectedInterests: string[]
-      videoRatings: Prisma.JsonValue
-      layoutPreferences: Prisma.JsonValue
-      llmProvider: string | null
-      llmApiKey: string | null
-      conversationId: string | null
-      stepProgress: Prisma.JsonValue
-      completedSteps: string[]
-      createdAt: Date
-      updatedAt: Date
-      lastActiveAt: Date
-      completedAt: Date | null
-    }, ExtArgs["result"]["conversationSession"]>
-    composites: {}
-  }
-
-  type ConversationSessionGetPayload<S extends boolean | null | undefined | ConversationSessionDefaultArgs> = $Result.GetResult<Prisma.$ConversationSessionPayload, S>
-
-  type ConversationSessionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<ConversationSessionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: ConversationSessionCountAggregateInputType | true
-    }
-
-  export interface ConversationSessionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ConversationSession'], meta: { name: 'ConversationSession' } }
-    /**
-     * Find zero or one ConversationSession that matches the filter.
-     * @param {ConversationSessionFindUniqueArgs} args - Arguments to find a ConversationSession
-     * @example
-     * // Get one ConversationSession
-     * const conversationSession = await prisma.conversationSession.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends ConversationSessionFindUniqueArgs>(args: SelectSubset<T, ConversationSessionFindUniqueArgs<ExtArgs>>): Prisma__ConversationSessionClient<$Result.GetResult<Prisma.$ConversationSessionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one ConversationSession that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {ConversationSessionFindUniqueOrThrowArgs} args - Arguments to find a ConversationSession
-     * @example
-     * // Get one ConversationSession
-     * const conversationSession = await prisma.conversationSession.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends ConversationSessionFindUniqueOrThrowArgs>(args: SelectSubset<T, ConversationSessionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ConversationSessionClient<$Result.GetResult<Prisma.$ConversationSessionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first ConversationSession that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ConversationSessionFindFirstArgs} args - Arguments to find a ConversationSession
-     * @example
-     * // Get one ConversationSession
-     * const conversationSession = await prisma.conversationSession.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends ConversationSessionFindFirstArgs>(args?: SelectSubset<T, ConversationSessionFindFirstArgs<ExtArgs>>): Prisma__ConversationSessionClient<$Result.GetResult<Prisma.$ConversationSessionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first ConversationSession that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ConversationSessionFindFirstOrThrowArgs} args - Arguments to find a ConversationSession
-     * @example
-     * // Get one ConversationSession
-     * const conversationSession = await prisma.conversationSession.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends ConversationSessionFindFirstOrThrowArgs>(args?: SelectSubset<T, ConversationSessionFindFirstOrThrowArgs<ExtArgs>>): Prisma__ConversationSessionClient<$Result.GetResult<Prisma.$ConversationSessionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more ConversationSessions that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ConversationSessionFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all ConversationSessions
-     * const conversationSessions = await prisma.conversationSession.findMany()
-     * 
-     * // Get first 10 ConversationSessions
-     * const conversationSessions = await prisma.conversationSession.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const conversationSessionWithIdOnly = await prisma.conversationSession.findMany({ select: { id: true } })
-     * 
-     */
-    findMany<T extends ConversationSessionFindManyArgs>(args?: SelectSubset<T, ConversationSessionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConversationSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a ConversationSession.
-     * @param {ConversationSessionCreateArgs} args - Arguments to create a ConversationSession.
-     * @example
-     * // Create one ConversationSession
-     * const ConversationSession = await prisma.conversationSession.create({
-     *   data: {
-     *     // ... data to create a ConversationSession
-     *   }
-     * })
-     * 
-     */
-    create<T extends ConversationSessionCreateArgs>(args: SelectSubset<T, ConversationSessionCreateArgs<ExtArgs>>): Prisma__ConversationSessionClient<$Result.GetResult<Prisma.$ConversationSessionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many ConversationSessions.
-     * @param {ConversationSessionCreateManyArgs} args - Arguments to create many ConversationSessions.
-     * @example
-     * // Create many ConversationSessions
-     * const conversationSession = await prisma.conversationSession.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends ConversationSessionCreateManyArgs>(args?: SelectSubset<T, ConversationSessionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many ConversationSessions and returns the data saved in the database.
-     * @param {ConversationSessionCreateManyAndReturnArgs} args - Arguments to create many ConversationSessions.
-     * @example
-     * // Create many ConversationSessions
-     * const conversationSession = await prisma.conversationSession.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many ConversationSessions and only return the `id`
-     * const conversationSessionWithIdOnly = await prisma.conversationSession.createManyAndReturn({
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends ConversationSessionCreateManyAndReturnArgs>(args?: SelectSubset<T, ConversationSessionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConversationSessionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Delete a ConversationSession.
-     * @param {ConversationSessionDeleteArgs} args - Arguments to delete one ConversationSession.
-     * @example
-     * // Delete one ConversationSession
-     * const ConversationSession = await prisma.conversationSession.delete({
-     *   where: {
-     *     // ... filter to delete one ConversationSession
-     *   }
-     * })
-     * 
-     */
-    delete<T extends ConversationSessionDeleteArgs>(args: SelectSubset<T, ConversationSessionDeleteArgs<ExtArgs>>): Prisma__ConversationSessionClient<$Result.GetResult<Prisma.$ConversationSessionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one ConversationSession.
-     * @param {ConversationSessionUpdateArgs} args - Arguments to update one ConversationSession.
-     * @example
-     * // Update one ConversationSession
-     * const conversationSession = await prisma.conversationSession.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends ConversationSessionUpdateArgs>(args: SelectSubset<T, ConversationSessionUpdateArgs<ExtArgs>>): Prisma__ConversationSessionClient<$Result.GetResult<Prisma.$ConversationSessionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more ConversationSessions.
-     * @param {ConversationSessionDeleteManyArgs} args - Arguments to filter ConversationSessions to delete.
-     * @example
-     * // Delete a few ConversationSessions
-     * const { count } = await prisma.conversationSession.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends ConversationSessionDeleteManyArgs>(args?: SelectSubset<T, ConversationSessionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more ConversationSessions.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ConversationSessionUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many ConversationSessions
-     * const conversationSession = await prisma.conversationSession.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends ConversationSessionUpdateManyArgs>(args: SelectSubset<T, ConversationSessionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more ConversationSessions and returns the data updated in the database.
-     * @param {ConversationSessionUpdateManyAndReturnArgs} args - Arguments to update many ConversationSessions.
-     * @example
-     * // Update many ConversationSessions
-     * const conversationSession = await prisma.conversationSession.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more ConversationSessions and only return the `id`
-     * const conversationSessionWithIdOnly = await prisma.conversationSession.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends ConversationSessionUpdateManyAndReturnArgs>(args: SelectSubset<T, ConversationSessionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConversationSessionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Create or update one ConversationSession.
-     * @param {ConversationSessionUpsertArgs} args - Arguments to update or create a ConversationSession.
-     * @example
-     * // Update or create a ConversationSession
-     * const conversationSession = await prisma.conversationSession.upsert({
-     *   create: {
-     *     // ... data to create a ConversationSession
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the ConversationSession we want to update
-     *   }
-     * })
-     */
-    upsert<T extends ConversationSessionUpsertArgs>(args: SelectSubset<T, ConversationSessionUpsertArgs<ExtArgs>>): Prisma__ConversationSessionClient<$Result.GetResult<Prisma.$ConversationSessionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of ConversationSessions.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ConversationSessionCountArgs} args - Arguments to filter ConversationSessions to count.
-     * @example
-     * // Count the number of ConversationSessions
-     * const count = await prisma.conversationSession.count({
-     *   where: {
-     *     // ... the filter for the ConversationSessions we want to count
-     *   }
-     * })
-    **/
-    count<T extends ConversationSessionCountArgs>(
-      args?: Subset<T, ConversationSessionCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], ConversationSessionCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a ConversationSession.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ConversationSessionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends ConversationSessionAggregateArgs>(args: Subset<T, ConversationSessionAggregateArgs>): Prisma.PrismaPromise<GetConversationSessionAggregateType<T>>
-
-    /**
-     * Group by ConversationSession.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ConversationSessionGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends ConversationSessionGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: ConversationSessionGroupByArgs['orderBy'] }
-        : { orderBy?: ConversationSessionGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, ConversationSessionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetConversationSessionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the ConversationSession model
-   */
-  readonly fields: ConversationSessionFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for ConversationSession.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__ConversationSessionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    user<T extends ConversationSession$userArgs<ExtArgs> = {}>(args?: Subset<T, ConversationSession$userArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    conversationLogs<T extends ConversationSession$conversationLogsArgs<ExtArgs> = {}>(args?: Subset<T, ConversationSession$conversationLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConversationLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    tourInteractions<T extends ConversationSession$tourInteractionsArgs<ExtArgs> = {}>(args?: Subset<T, ConversationSession$tourInteractionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TourInteractionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the ConversationSession model
-   */
-  interface ConversationSessionFieldRefs {
-    readonly id: FieldRef<"ConversationSession", 'String'>
-    readonly userId: FieldRef<"ConversationSession", 'String'>
-    readonly sessionId: FieldRef<"ConversationSession", 'String'>
-    readonly currentStep: FieldRef<"ConversationSession", 'TourStep'>
-    readonly isCompleted: FieldRef<"ConversationSession", 'Boolean'>
-    readonly isVoiceMode: FieldRef<"ConversationSession", 'Boolean'>
-    readonly selectedInterests: FieldRef<"ConversationSession", 'String[]'>
-    readonly videoRatings: FieldRef<"ConversationSession", 'Json'>
-    readonly layoutPreferences: FieldRef<"ConversationSession", 'Json'>
-    readonly llmProvider: FieldRef<"ConversationSession", 'String'>
-    readonly llmApiKey: FieldRef<"ConversationSession", 'String'>
-    readonly conversationId: FieldRef<"ConversationSession", 'String'>
-    readonly stepProgress: FieldRef<"ConversationSession", 'Json'>
-    readonly completedSteps: FieldRef<"ConversationSession", 'String[]'>
-    readonly createdAt: FieldRef<"ConversationSession", 'DateTime'>
-    readonly updatedAt: FieldRef<"ConversationSession", 'DateTime'>
-    readonly lastActiveAt: FieldRef<"ConversationSession", 'DateTime'>
-    readonly completedAt: FieldRef<"ConversationSession", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * ConversationSession findUnique
-   */
-  export type ConversationSessionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ConversationSession
-     */
-    select?: ConversationSessionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ConversationSession
-     */
-    omit?: ConversationSessionOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ConversationSessionInclude<ExtArgs> | null
-    /**
-     * Filter, which ConversationSession to fetch.
-     */
-    where: ConversationSessionWhereUniqueInput
-  }
-
-  /**
-   * ConversationSession findUniqueOrThrow
-   */
-  export type ConversationSessionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ConversationSession
-     */
-    select?: ConversationSessionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ConversationSession
-     */
-    omit?: ConversationSessionOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ConversationSessionInclude<ExtArgs> | null
-    /**
-     * Filter, which ConversationSession to fetch.
-     */
-    where: ConversationSessionWhereUniqueInput
-  }
-
-  /**
-   * ConversationSession findFirst
-   */
-  export type ConversationSessionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ConversationSession
-     */
-    select?: ConversationSessionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ConversationSession
-     */
-    omit?: ConversationSessionOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ConversationSessionInclude<ExtArgs> | null
-    /**
-     * Filter, which ConversationSession to fetch.
-     */
-    where?: ConversationSessionWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of ConversationSessions to fetch.
-     */
-    orderBy?: ConversationSessionOrderByWithRelationInput | ConversationSessionOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for ConversationSessions.
-     */
-    cursor?: ConversationSessionWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` ConversationSessions from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` ConversationSessions.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of ConversationSessions.
-     */
-    distinct?: ConversationSessionScalarFieldEnum | ConversationSessionScalarFieldEnum[]
-  }
-
-  /**
-   * ConversationSession findFirstOrThrow
-   */
-  export type ConversationSessionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ConversationSession
-     */
-    select?: ConversationSessionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ConversationSession
-     */
-    omit?: ConversationSessionOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ConversationSessionInclude<ExtArgs> | null
-    /**
-     * Filter, which ConversationSession to fetch.
-     */
-    where?: ConversationSessionWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of ConversationSessions to fetch.
-     */
-    orderBy?: ConversationSessionOrderByWithRelationInput | ConversationSessionOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for ConversationSessions.
-     */
-    cursor?: ConversationSessionWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` ConversationSessions from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` ConversationSessions.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of ConversationSessions.
-     */
-    distinct?: ConversationSessionScalarFieldEnum | ConversationSessionScalarFieldEnum[]
-  }
-
-  /**
-   * ConversationSession findMany
-   */
-  export type ConversationSessionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ConversationSession
-     */
-    select?: ConversationSessionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ConversationSession
-     */
-    omit?: ConversationSessionOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ConversationSessionInclude<ExtArgs> | null
-    /**
-     * Filter, which ConversationSessions to fetch.
-     */
-    where?: ConversationSessionWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of ConversationSessions to fetch.
-     */
-    orderBy?: ConversationSessionOrderByWithRelationInput | ConversationSessionOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing ConversationSessions.
-     */
-    cursor?: ConversationSessionWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` ConversationSessions from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` ConversationSessions.
-     */
-    skip?: number
-    distinct?: ConversationSessionScalarFieldEnum | ConversationSessionScalarFieldEnum[]
-  }
-
-  /**
-   * ConversationSession create
-   */
-  export type ConversationSessionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ConversationSession
-     */
-    select?: ConversationSessionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ConversationSession
-     */
-    omit?: ConversationSessionOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ConversationSessionInclude<ExtArgs> | null
-    /**
-     * The data needed to create a ConversationSession.
-     */
-    data: XOR<ConversationSessionCreateInput, ConversationSessionUncheckedCreateInput>
-  }
-
-  /**
-   * ConversationSession createMany
-   */
-  export type ConversationSessionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many ConversationSessions.
-     */
-    data: ConversationSessionCreateManyInput | ConversationSessionCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * ConversationSession createManyAndReturn
-   */
-  export type ConversationSessionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ConversationSession
-     */
-    select?: ConversationSessionSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the ConversationSession
-     */
-    omit?: ConversationSessionOmit<ExtArgs> | null
-    /**
-     * The data used to create many ConversationSessions.
-     */
-    data: ConversationSessionCreateManyInput | ConversationSessionCreateManyInput[]
-    skipDuplicates?: boolean
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ConversationSessionIncludeCreateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * ConversationSession update
-   */
-  export type ConversationSessionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ConversationSession
-     */
-    select?: ConversationSessionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ConversationSession
-     */
-    omit?: ConversationSessionOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ConversationSessionInclude<ExtArgs> | null
-    /**
-     * The data needed to update a ConversationSession.
-     */
-    data: XOR<ConversationSessionUpdateInput, ConversationSessionUncheckedUpdateInput>
-    /**
-     * Choose, which ConversationSession to update.
-     */
-    where: ConversationSessionWhereUniqueInput
-  }
-
-  /**
-   * ConversationSession updateMany
-   */
-  export type ConversationSessionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update ConversationSessions.
-     */
-    data: XOR<ConversationSessionUpdateManyMutationInput, ConversationSessionUncheckedUpdateManyInput>
-    /**
-     * Filter which ConversationSessions to update
-     */
-    where?: ConversationSessionWhereInput
-    /**
-     * Limit how many ConversationSessions to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * ConversationSession updateManyAndReturn
-   */
-  export type ConversationSessionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ConversationSession
-     */
-    select?: ConversationSessionSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the ConversationSession
-     */
-    omit?: ConversationSessionOmit<ExtArgs> | null
-    /**
-     * The data used to update ConversationSessions.
-     */
-    data: XOR<ConversationSessionUpdateManyMutationInput, ConversationSessionUncheckedUpdateManyInput>
-    /**
-     * Filter which ConversationSessions to update
-     */
-    where?: ConversationSessionWhereInput
-    /**
-     * Limit how many ConversationSessions to update.
-     */
-    limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ConversationSessionIncludeUpdateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * ConversationSession upsert
-   */
-  export type ConversationSessionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ConversationSession
-     */
-    select?: ConversationSessionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ConversationSession
-     */
-    omit?: ConversationSessionOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ConversationSessionInclude<ExtArgs> | null
-    /**
-     * The filter to search for the ConversationSession to update in case it exists.
-     */
-    where: ConversationSessionWhereUniqueInput
-    /**
-     * In case the ConversationSession found by the `where` argument doesn't exist, create a new ConversationSession with this data.
-     */
-    create: XOR<ConversationSessionCreateInput, ConversationSessionUncheckedCreateInput>
-    /**
-     * In case the ConversationSession was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<ConversationSessionUpdateInput, ConversationSessionUncheckedUpdateInput>
-  }
-
-  /**
-   * ConversationSession delete
-   */
-  export type ConversationSessionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ConversationSession
-     */
-    select?: ConversationSessionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ConversationSession
-     */
-    omit?: ConversationSessionOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ConversationSessionInclude<ExtArgs> | null
-    /**
-     * Filter which ConversationSession to delete.
-     */
-    where: ConversationSessionWhereUniqueInput
-  }
-
-  /**
-   * ConversationSession deleteMany
-   */
-  export type ConversationSessionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which ConversationSessions to delete
-     */
-    where?: ConversationSessionWhereInput
-    /**
-     * Limit how many ConversationSessions to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * ConversationSession.user
-   */
-  export type ConversationSession$userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the User
-     */
-    select?: UserSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the User
-     */
-    omit?: UserOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: UserInclude<ExtArgs> | null
-    where?: UserWhereInput
-  }
-
-  /**
-   * ConversationSession.conversationLogs
-   */
-  export type ConversationSession$conversationLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ConversationLog
-     */
-    select?: ConversationLogSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ConversationLog
-     */
-    omit?: ConversationLogOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ConversationLogInclude<ExtArgs> | null
-    where?: ConversationLogWhereInput
-    orderBy?: ConversationLogOrderByWithRelationInput | ConversationLogOrderByWithRelationInput[]
-    cursor?: ConversationLogWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: ConversationLogScalarFieldEnum | ConversationLogScalarFieldEnum[]
-  }
-
-  /**
-   * ConversationSession.tourInteractions
-   */
-  export type ConversationSession$tourInteractionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TourInteraction
-     */
-    select?: TourInteractionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TourInteraction
-     */
-    omit?: TourInteractionOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TourInteractionInclude<ExtArgs> | null
-    where?: TourInteractionWhereInput
-    orderBy?: TourInteractionOrderByWithRelationInput | TourInteractionOrderByWithRelationInput[]
-    cursor?: TourInteractionWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: TourInteractionScalarFieldEnum | TourInteractionScalarFieldEnum[]
-  }
-
-  /**
-   * ConversationSession without action
-   */
-  export type ConversationSessionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ConversationSession
-     */
-    select?: ConversationSessionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ConversationSession
-     */
-    omit?: ConversationSessionOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ConversationSessionInclude<ExtArgs> | null
-  }
-
-
-  /**
-   * Model ConversationLog
-   */
-
-  export type AggregateConversationLog = {
-    _count: ConversationLogCountAggregateOutputType | null
-    _avg: ConversationLogAvgAggregateOutputType | null
-    _sum: ConversationLogSumAggregateOutputType | null
-    _min: ConversationLogMinAggregateOutputType | null
-    _max: ConversationLogMaxAggregateOutputType | null
-  }
-
-  export type ConversationLogAvgAggregateOutputType = {
-    tokensUsed: number | null
-    responseTimeMs: number | null
-  }
-
-  export type ConversationLogSumAggregateOutputType = {
-    tokensUsed: number | null
-    responseTimeMs: number | null
-  }
-
-  export type ConversationLogMinAggregateOutputType = {
-    id: string | null
-    sessionId: string | null
-    role: $Enums.MessageRole | null
-    content: string | null
-    messageId: string | null
-    tourStep: $Enums.TourStep | null
-    actionType: string | null
-    tokensUsed: number | null
-    responseTimeMs: number | null
-    llmProvider: string | null
-    createdAt: Date | null
-  }
-
-  export type ConversationLogMaxAggregateOutputType = {
-    id: string | null
-    sessionId: string | null
-    role: $Enums.MessageRole | null
-    content: string | null
-    messageId: string | null
-    tourStep: $Enums.TourStep | null
-    actionType: string | null
-    tokensUsed: number | null
-    responseTimeMs: number | null
-    llmProvider: string | null
-    createdAt: Date | null
-  }
-
-  export type ConversationLogCountAggregateOutputType = {
-    id: number
-    sessionId: number
-    role: number
-    content: number
-    messageId: number
-    tourStep: number
-    actionType: number
-    metadata: number
-    tokensUsed: number
-    responseTimeMs: number
-    llmProvider: number
-    createdAt: number
-    _all: number
-  }
-
-
-  export type ConversationLogAvgAggregateInputType = {
-    tokensUsed?: true
-    responseTimeMs?: true
-  }
-
-  export type ConversationLogSumAggregateInputType = {
-    tokensUsed?: true
-    responseTimeMs?: true
-  }
-
-  export type ConversationLogMinAggregateInputType = {
-    id?: true
-    sessionId?: true
-    role?: true
-    content?: true
-    messageId?: true
-    tourStep?: true
-    actionType?: true
-    tokensUsed?: true
-    responseTimeMs?: true
-    llmProvider?: true
-    createdAt?: true
-  }
-
-  export type ConversationLogMaxAggregateInputType = {
-    id?: true
-    sessionId?: true
-    role?: true
-    content?: true
-    messageId?: true
-    tourStep?: true
-    actionType?: true
-    tokensUsed?: true
-    responseTimeMs?: true
-    llmProvider?: true
-    createdAt?: true
-  }
-
-  export type ConversationLogCountAggregateInputType = {
-    id?: true
-    sessionId?: true
-    role?: true
-    content?: true
-    messageId?: true
-    tourStep?: true
-    actionType?: true
-    metadata?: true
-    tokensUsed?: true
-    responseTimeMs?: true
-    llmProvider?: true
-    createdAt?: true
-    _all?: true
-  }
-
-  export type ConversationLogAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which ConversationLog to aggregate.
-     */
-    where?: ConversationLogWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of ConversationLogs to fetch.
-     */
-    orderBy?: ConversationLogOrderByWithRelationInput | ConversationLogOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: ConversationLogWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` ConversationLogs from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` ConversationLogs.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned ConversationLogs
-    **/
-    _count?: true | ConversationLogCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: ConversationLogAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: ConversationLogSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: ConversationLogMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: ConversationLogMaxAggregateInputType
-  }
-
-  export type GetConversationLogAggregateType<T extends ConversationLogAggregateArgs> = {
-        [P in keyof T & keyof AggregateConversationLog]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateConversationLog[P]>
-      : GetScalarType<T[P], AggregateConversationLog[P]>
-  }
-
-
-
-
-  export type ConversationLogGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ConversationLogWhereInput
-    orderBy?: ConversationLogOrderByWithAggregationInput | ConversationLogOrderByWithAggregationInput[]
-    by: ConversationLogScalarFieldEnum[] | ConversationLogScalarFieldEnum
-    having?: ConversationLogScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: ConversationLogCountAggregateInputType | true
-    _avg?: ConversationLogAvgAggregateInputType
-    _sum?: ConversationLogSumAggregateInputType
-    _min?: ConversationLogMinAggregateInputType
-    _max?: ConversationLogMaxAggregateInputType
-  }
-
-  export type ConversationLogGroupByOutputType = {
-    id: string
-    sessionId: string
-    role: $Enums.MessageRole
-    content: string
-    messageId: string | null
-    tourStep: $Enums.TourStep | null
-    actionType: string | null
-    metadata: JsonValue
-    tokensUsed: number | null
-    responseTimeMs: number | null
-    llmProvider: string | null
-    createdAt: Date
-    _count: ConversationLogCountAggregateOutputType | null
-    _avg: ConversationLogAvgAggregateOutputType | null
-    _sum: ConversationLogSumAggregateOutputType | null
-    _min: ConversationLogMinAggregateOutputType | null
-    _max: ConversationLogMaxAggregateOutputType | null
-  }
-
-  type GetConversationLogGroupByPayload<T extends ConversationLogGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<ConversationLogGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof ConversationLogGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], ConversationLogGroupByOutputType[P]>
-            : GetScalarType<T[P], ConversationLogGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type ConversationLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    sessionId?: boolean
-    role?: boolean
-    content?: boolean
-    messageId?: boolean
-    tourStep?: boolean
-    actionType?: boolean
-    metadata?: boolean
-    tokensUsed?: boolean
-    responseTimeMs?: boolean
-    llmProvider?: boolean
-    createdAt?: boolean
-    session?: boolean | ConversationSessionDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["conversationLog"]>
-
-  export type ConversationLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    sessionId?: boolean
-    role?: boolean
-    content?: boolean
-    messageId?: boolean
-    tourStep?: boolean
-    actionType?: boolean
-    metadata?: boolean
-    tokensUsed?: boolean
-    responseTimeMs?: boolean
-    llmProvider?: boolean
-    createdAt?: boolean
-    session?: boolean | ConversationSessionDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["conversationLog"]>
-
-  export type ConversationLogSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    sessionId?: boolean
-    role?: boolean
-    content?: boolean
-    messageId?: boolean
-    tourStep?: boolean
-    actionType?: boolean
-    metadata?: boolean
-    tokensUsed?: boolean
-    responseTimeMs?: boolean
-    llmProvider?: boolean
-    createdAt?: boolean
-    session?: boolean | ConversationSessionDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["conversationLog"]>
-
-  export type ConversationLogSelectScalar = {
-    id?: boolean
-    sessionId?: boolean
-    role?: boolean
-    content?: boolean
-    messageId?: boolean
-    tourStep?: boolean
-    actionType?: boolean
-    metadata?: boolean
-    tokensUsed?: boolean
-    responseTimeMs?: boolean
-    llmProvider?: boolean
-    createdAt?: boolean
-  }
-
-  export type ConversationLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "sessionId" | "role" | "content" | "messageId" | "tourStep" | "actionType" | "metadata" | "tokensUsed" | "responseTimeMs" | "llmProvider" | "createdAt", ExtArgs["result"]["conversationLog"]>
-  export type ConversationLogInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    session?: boolean | ConversationSessionDefaultArgs<ExtArgs>
-  }
-  export type ConversationLogIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    session?: boolean | ConversationSessionDefaultArgs<ExtArgs>
-  }
-  export type ConversationLogIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    session?: boolean | ConversationSessionDefaultArgs<ExtArgs>
-  }
-
-  export type $ConversationLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "ConversationLog"
-    objects: {
-      session: Prisma.$ConversationSessionPayload<ExtArgs>
-    }
-    scalars: $Extensions.GetPayloadResult<{
-      id: string
-      sessionId: string
-      role: $Enums.MessageRole
-      content: string
-      messageId: string | null
-      tourStep: $Enums.TourStep | null
-      actionType: string | null
-      metadata: Prisma.JsonValue
-      tokensUsed: number | null
-      responseTimeMs: number | null
-      llmProvider: string | null
-      createdAt: Date
-    }, ExtArgs["result"]["conversationLog"]>
-    composites: {}
-  }
-
-  type ConversationLogGetPayload<S extends boolean | null | undefined | ConversationLogDefaultArgs> = $Result.GetResult<Prisma.$ConversationLogPayload, S>
-
-  type ConversationLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<ConversationLogFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: ConversationLogCountAggregateInputType | true
-    }
-
-  export interface ConversationLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ConversationLog'], meta: { name: 'ConversationLog' } }
-    /**
-     * Find zero or one ConversationLog that matches the filter.
-     * @param {ConversationLogFindUniqueArgs} args - Arguments to find a ConversationLog
-     * @example
-     * // Get one ConversationLog
-     * const conversationLog = await prisma.conversationLog.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends ConversationLogFindUniqueArgs>(args: SelectSubset<T, ConversationLogFindUniqueArgs<ExtArgs>>): Prisma__ConversationLogClient<$Result.GetResult<Prisma.$ConversationLogPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one ConversationLog that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {ConversationLogFindUniqueOrThrowArgs} args - Arguments to find a ConversationLog
-     * @example
-     * // Get one ConversationLog
-     * const conversationLog = await prisma.conversationLog.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends ConversationLogFindUniqueOrThrowArgs>(args: SelectSubset<T, ConversationLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ConversationLogClient<$Result.GetResult<Prisma.$ConversationLogPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first ConversationLog that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ConversationLogFindFirstArgs} args - Arguments to find a ConversationLog
-     * @example
-     * // Get one ConversationLog
-     * const conversationLog = await prisma.conversationLog.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends ConversationLogFindFirstArgs>(args?: SelectSubset<T, ConversationLogFindFirstArgs<ExtArgs>>): Prisma__ConversationLogClient<$Result.GetResult<Prisma.$ConversationLogPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first ConversationLog that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ConversationLogFindFirstOrThrowArgs} args - Arguments to find a ConversationLog
-     * @example
-     * // Get one ConversationLog
-     * const conversationLog = await prisma.conversationLog.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends ConversationLogFindFirstOrThrowArgs>(args?: SelectSubset<T, ConversationLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__ConversationLogClient<$Result.GetResult<Prisma.$ConversationLogPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more ConversationLogs that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ConversationLogFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all ConversationLogs
-     * const conversationLogs = await prisma.conversationLog.findMany()
-     * 
-     * // Get first 10 ConversationLogs
-     * const conversationLogs = await prisma.conversationLog.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const conversationLogWithIdOnly = await prisma.conversationLog.findMany({ select: { id: true } })
-     * 
-     */
-    findMany<T extends ConversationLogFindManyArgs>(args?: SelectSubset<T, ConversationLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConversationLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a ConversationLog.
-     * @param {ConversationLogCreateArgs} args - Arguments to create a ConversationLog.
-     * @example
-     * // Create one ConversationLog
-     * const ConversationLog = await prisma.conversationLog.create({
-     *   data: {
-     *     // ... data to create a ConversationLog
-     *   }
-     * })
-     * 
-     */
-    create<T extends ConversationLogCreateArgs>(args: SelectSubset<T, ConversationLogCreateArgs<ExtArgs>>): Prisma__ConversationLogClient<$Result.GetResult<Prisma.$ConversationLogPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many ConversationLogs.
-     * @param {ConversationLogCreateManyArgs} args - Arguments to create many ConversationLogs.
-     * @example
-     * // Create many ConversationLogs
-     * const conversationLog = await prisma.conversationLog.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends ConversationLogCreateManyArgs>(args?: SelectSubset<T, ConversationLogCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many ConversationLogs and returns the data saved in the database.
-     * @param {ConversationLogCreateManyAndReturnArgs} args - Arguments to create many ConversationLogs.
-     * @example
-     * // Create many ConversationLogs
-     * const conversationLog = await prisma.conversationLog.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many ConversationLogs and only return the `id`
-     * const conversationLogWithIdOnly = await prisma.conversationLog.createManyAndReturn({
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends ConversationLogCreateManyAndReturnArgs>(args?: SelectSubset<T, ConversationLogCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConversationLogPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Delete a ConversationLog.
-     * @param {ConversationLogDeleteArgs} args - Arguments to delete one ConversationLog.
-     * @example
-     * // Delete one ConversationLog
-     * const ConversationLog = await prisma.conversationLog.delete({
-     *   where: {
-     *     // ... filter to delete one ConversationLog
-     *   }
-     * })
-     * 
-     */
-    delete<T extends ConversationLogDeleteArgs>(args: SelectSubset<T, ConversationLogDeleteArgs<ExtArgs>>): Prisma__ConversationLogClient<$Result.GetResult<Prisma.$ConversationLogPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one ConversationLog.
-     * @param {ConversationLogUpdateArgs} args - Arguments to update one ConversationLog.
-     * @example
-     * // Update one ConversationLog
-     * const conversationLog = await prisma.conversationLog.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends ConversationLogUpdateArgs>(args: SelectSubset<T, ConversationLogUpdateArgs<ExtArgs>>): Prisma__ConversationLogClient<$Result.GetResult<Prisma.$ConversationLogPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more ConversationLogs.
-     * @param {ConversationLogDeleteManyArgs} args - Arguments to filter ConversationLogs to delete.
-     * @example
-     * // Delete a few ConversationLogs
-     * const { count } = await prisma.conversationLog.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends ConversationLogDeleteManyArgs>(args?: SelectSubset<T, ConversationLogDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more ConversationLogs.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ConversationLogUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many ConversationLogs
-     * const conversationLog = await prisma.conversationLog.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends ConversationLogUpdateManyArgs>(args: SelectSubset<T, ConversationLogUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more ConversationLogs and returns the data updated in the database.
-     * @param {ConversationLogUpdateManyAndReturnArgs} args - Arguments to update many ConversationLogs.
-     * @example
-     * // Update many ConversationLogs
-     * const conversationLog = await prisma.conversationLog.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more ConversationLogs and only return the `id`
-     * const conversationLogWithIdOnly = await prisma.conversationLog.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends ConversationLogUpdateManyAndReturnArgs>(args: SelectSubset<T, ConversationLogUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConversationLogPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Create or update one ConversationLog.
-     * @param {ConversationLogUpsertArgs} args - Arguments to update or create a ConversationLog.
-     * @example
-     * // Update or create a ConversationLog
-     * const conversationLog = await prisma.conversationLog.upsert({
-     *   create: {
-     *     // ... data to create a ConversationLog
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the ConversationLog we want to update
-     *   }
-     * })
-     */
-    upsert<T extends ConversationLogUpsertArgs>(args: SelectSubset<T, ConversationLogUpsertArgs<ExtArgs>>): Prisma__ConversationLogClient<$Result.GetResult<Prisma.$ConversationLogPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of ConversationLogs.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ConversationLogCountArgs} args - Arguments to filter ConversationLogs to count.
-     * @example
-     * // Count the number of ConversationLogs
-     * const count = await prisma.conversationLog.count({
-     *   where: {
-     *     // ... the filter for the ConversationLogs we want to count
-     *   }
-     * })
-    **/
-    count<T extends ConversationLogCountArgs>(
-      args?: Subset<T, ConversationLogCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], ConversationLogCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a ConversationLog.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ConversationLogAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends ConversationLogAggregateArgs>(args: Subset<T, ConversationLogAggregateArgs>): Prisma.PrismaPromise<GetConversationLogAggregateType<T>>
-
-    /**
-     * Group by ConversationLog.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ConversationLogGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends ConversationLogGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: ConversationLogGroupByArgs['orderBy'] }
-        : { orderBy?: ConversationLogGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, ConversationLogGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetConversationLogGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the ConversationLog model
-   */
-  readonly fields: ConversationLogFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for ConversationLog.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__ConversationLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    session<T extends ConversationSessionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ConversationSessionDefaultArgs<ExtArgs>>): Prisma__ConversationSessionClient<$Result.GetResult<Prisma.$ConversationSessionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the ConversationLog model
-   */
-  interface ConversationLogFieldRefs {
-    readonly id: FieldRef<"ConversationLog", 'String'>
-    readonly sessionId: FieldRef<"ConversationLog", 'String'>
-    readonly role: FieldRef<"ConversationLog", 'MessageRole'>
-    readonly content: FieldRef<"ConversationLog", 'String'>
-    readonly messageId: FieldRef<"ConversationLog", 'String'>
-    readonly tourStep: FieldRef<"ConversationLog", 'TourStep'>
-    readonly actionType: FieldRef<"ConversationLog", 'String'>
-    readonly metadata: FieldRef<"ConversationLog", 'Json'>
-    readonly tokensUsed: FieldRef<"ConversationLog", 'Int'>
-    readonly responseTimeMs: FieldRef<"ConversationLog", 'Int'>
-    readonly llmProvider: FieldRef<"ConversationLog", 'String'>
-    readonly createdAt: FieldRef<"ConversationLog", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * ConversationLog findUnique
-   */
-  export type ConversationLogFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ConversationLog
-     */
-    select?: ConversationLogSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ConversationLog
-     */
-    omit?: ConversationLogOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ConversationLogInclude<ExtArgs> | null
-    /**
-     * Filter, which ConversationLog to fetch.
-     */
-    where: ConversationLogWhereUniqueInput
-  }
-
-  /**
-   * ConversationLog findUniqueOrThrow
-   */
-  export type ConversationLogFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ConversationLog
-     */
-    select?: ConversationLogSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ConversationLog
-     */
-    omit?: ConversationLogOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ConversationLogInclude<ExtArgs> | null
-    /**
-     * Filter, which ConversationLog to fetch.
-     */
-    where: ConversationLogWhereUniqueInput
-  }
-
-  /**
-   * ConversationLog findFirst
-   */
-  export type ConversationLogFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ConversationLog
-     */
-    select?: ConversationLogSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ConversationLog
-     */
-    omit?: ConversationLogOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ConversationLogInclude<ExtArgs> | null
-    /**
-     * Filter, which ConversationLog to fetch.
-     */
-    where?: ConversationLogWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of ConversationLogs to fetch.
-     */
-    orderBy?: ConversationLogOrderByWithRelationInput | ConversationLogOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for ConversationLogs.
-     */
-    cursor?: ConversationLogWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` ConversationLogs from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` ConversationLogs.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of ConversationLogs.
-     */
-    distinct?: ConversationLogScalarFieldEnum | ConversationLogScalarFieldEnum[]
-  }
-
-  /**
-   * ConversationLog findFirstOrThrow
-   */
-  export type ConversationLogFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ConversationLog
-     */
-    select?: ConversationLogSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ConversationLog
-     */
-    omit?: ConversationLogOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ConversationLogInclude<ExtArgs> | null
-    /**
-     * Filter, which ConversationLog to fetch.
-     */
-    where?: ConversationLogWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of ConversationLogs to fetch.
-     */
-    orderBy?: ConversationLogOrderByWithRelationInput | ConversationLogOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for ConversationLogs.
-     */
-    cursor?: ConversationLogWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` ConversationLogs from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` ConversationLogs.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of ConversationLogs.
-     */
-    distinct?: ConversationLogScalarFieldEnum | ConversationLogScalarFieldEnum[]
-  }
-
-  /**
-   * ConversationLog findMany
-   */
-  export type ConversationLogFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ConversationLog
-     */
-    select?: ConversationLogSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ConversationLog
-     */
-    omit?: ConversationLogOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ConversationLogInclude<ExtArgs> | null
-    /**
-     * Filter, which ConversationLogs to fetch.
-     */
-    where?: ConversationLogWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of ConversationLogs to fetch.
-     */
-    orderBy?: ConversationLogOrderByWithRelationInput | ConversationLogOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing ConversationLogs.
-     */
-    cursor?: ConversationLogWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` ConversationLogs from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` ConversationLogs.
-     */
-    skip?: number
-    distinct?: ConversationLogScalarFieldEnum | ConversationLogScalarFieldEnum[]
-  }
-
-  /**
-   * ConversationLog create
-   */
-  export type ConversationLogCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ConversationLog
-     */
-    select?: ConversationLogSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ConversationLog
-     */
-    omit?: ConversationLogOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ConversationLogInclude<ExtArgs> | null
-    /**
-     * The data needed to create a ConversationLog.
-     */
-    data: XOR<ConversationLogCreateInput, ConversationLogUncheckedCreateInput>
-  }
-
-  /**
-   * ConversationLog createMany
-   */
-  export type ConversationLogCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many ConversationLogs.
-     */
-    data: ConversationLogCreateManyInput | ConversationLogCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * ConversationLog createManyAndReturn
-   */
-  export type ConversationLogCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ConversationLog
-     */
-    select?: ConversationLogSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the ConversationLog
-     */
-    omit?: ConversationLogOmit<ExtArgs> | null
-    /**
-     * The data used to create many ConversationLogs.
-     */
-    data: ConversationLogCreateManyInput | ConversationLogCreateManyInput[]
-    skipDuplicates?: boolean
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ConversationLogIncludeCreateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * ConversationLog update
-   */
-  export type ConversationLogUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ConversationLog
-     */
-    select?: ConversationLogSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ConversationLog
-     */
-    omit?: ConversationLogOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ConversationLogInclude<ExtArgs> | null
-    /**
-     * The data needed to update a ConversationLog.
-     */
-    data: XOR<ConversationLogUpdateInput, ConversationLogUncheckedUpdateInput>
-    /**
-     * Choose, which ConversationLog to update.
-     */
-    where: ConversationLogWhereUniqueInput
-  }
-
-  /**
-   * ConversationLog updateMany
-   */
-  export type ConversationLogUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update ConversationLogs.
-     */
-    data: XOR<ConversationLogUpdateManyMutationInput, ConversationLogUncheckedUpdateManyInput>
-    /**
-     * Filter which ConversationLogs to update
-     */
-    where?: ConversationLogWhereInput
-    /**
-     * Limit how many ConversationLogs to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * ConversationLog updateManyAndReturn
-   */
-  export type ConversationLogUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ConversationLog
-     */
-    select?: ConversationLogSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the ConversationLog
-     */
-    omit?: ConversationLogOmit<ExtArgs> | null
-    /**
-     * The data used to update ConversationLogs.
-     */
-    data: XOR<ConversationLogUpdateManyMutationInput, ConversationLogUncheckedUpdateManyInput>
-    /**
-     * Filter which ConversationLogs to update
-     */
-    where?: ConversationLogWhereInput
-    /**
-     * Limit how many ConversationLogs to update.
-     */
-    limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ConversationLogIncludeUpdateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * ConversationLog upsert
-   */
-  export type ConversationLogUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ConversationLog
-     */
-    select?: ConversationLogSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ConversationLog
-     */
-    omit?: ConversationLogOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ConversationLogInclude<ExtArgs> | null
-    /**
-     * The filter to search for the ConversationLog to update in case it exists.
-     */
-    where: ConversationLogWhereUniqueInput
-    /**
-     * In case the ConversationLog found by the `where` argument doesn't exist, create a new ConversationLog with this data.
-     */
-    create: XOR<ConversationLogCreateInput, ConversationLogUncheckedCreateInput>
-    /**
-     * In case the ConversationLog was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<ConversationLogUpdateInput, ConversationLogUncheckedUpdateInput>
-  }
-
-  /**
-   * ConversationLog delete
-   */
-  export type ConversationLogDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ConversationLog
-     */
-    select?: ConversationLogSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ConversationLog
-     */
-    omit?: ConversationLogOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ConversationLogInclude<ExtArgs> | null
-    /**
-     * Filter which ConversationLog to delete.
-     */
-    where: ConversationLogWhereUniqueInput
-  }
-
-  /**
-   * ConversationLog deleteMany
-   */
-  export type ConversationLogDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which ConversationLogs to delete
-     */
-    where?: ConversationLogWhereInput
-    /**
-     * Limit how many ConversationLogs to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * ConversationLog without action
-   */
-  export type ConversationLogDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ConversationLog
-     */
-    select?: ConversationLogSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ConversationLog
-     */
-    omit?: ConversationLogOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ConversationLogInclude<ExtArgs> | null
-  }
-
-
-  /**
-   * Model TourInteraction
-   */
-
-  export type AggregateTourInteraction = {
-    _count: TourInteractionCountAggregateOutputType | null
-    _avg: TourInteractionAvgAggregateOutputType | null
-    _sum: TourInteractionSumAggregateOutputType | null
-    _min: TourInteractionMinAggregateOutputType | null
-    _max: TourInteractionMaxAggregateOutputType | null
-  }
-
-  export type TourInteractionAvgAggregateOutputType = {
-    timeSpentMs: number | null
-    satisfaction: number | null
-  }
-
-  export type TourInteractionSumAggregateOutputType = {
-    timeSpentMs: number | null
-    satisfaction: number | null
-  }
-
-  export type TourInteractionMinAggregateOutputType = {
-    id: string | null
-    sessionId: string | null
-    tourStep: $Enums.TourStep | null
-    actionType: string | null
-    timeSpentMs: number | null
-    wasSkipped: boolean | null
-    satisfaction: number | null
-    createdAt: Date | null
-  }
-
-  export type TourInteractionMaxAggregateOutputType = {
-    id: string | null
-    sessionId: string | null
-    tourStep: $Enums.TourStep | null
-    actionType: string | null
-    timeSpentMs: number | null
-    wasSkipped: boolean | null
-    satisfaction: number | null
-    createdAt: Date | null
-  }
-
-  export type TourInteractionCountAggregateOutputType = {
-    id: number
-    sessionId: number
-    tourStep: number
-    actionType: number
-    actionData: number
-    timeSpentMs: number
-    wasSkipped: number
-    satisfaction: number
-    createdAt: number
-    _all: number
-  }
-
-
-  export type TourInteractionAvgAggregateInputType = {
-    timeSpentMs?: true
-    satisfaction?: true
-  }
-
-  export type TourInteractionSumAggregateInputType = {
-    timeSpentMs?: true
-    satisfaction?: true
-  }
-
-  export type TourInteractionMinAggregateInputType = {
-    id?: true
-    sessionId?: true
-    tourStep?: true
-    actionType?: true
-    timeSpentMs?: true
-    wasSkipped?: true
-    satisfaction?: true
-    createdAt?: true
-  }
-
-  export type TourInteractionMaxAggregateInputType = {
-    id?: true
-    sessionId?: true
-    tourStep?: true
-    actionType?: true
-    timeSpentMs?: true
-    wasSkipped?: true
-    satisfaction?: true
-    createdAt?: true
-  }
-
-  export type TourInteractionCountAggregateInputType = {
-    id?: true
-    sessionId?: true
-    tourStep?: true
-    actionType?: true
-    actionData?: true
-    timeSpentMs?: true
-    wasSkipped?: true
-    satisfaction?: true
-    createdAt?: true
-    _all?: true
-  }
-
-  export type TourInteractionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which TourInteraction to aggregate.
-     */
-    where?: TourInteractionWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of TourInteractions to fetch.
-     */
-    orderBy?: TourInteractionOrderByWithRelationInput | TourInteractionOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: TourInteractionWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` TourInteractions from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` TourInteractions.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned TourInteractions
-    **/
-    _count?: true | TourInteractionCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: TourInteractionAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: TourInteractionSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: TourInteractionMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: TourInteractionMaxAggregateInputType
-  }
-
-  export type GetTourInteractionAggregateType<T extends TourInteractionAggregateArgs> = {
-        [P in keyof T & keyof AggregateTourInteraction]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateTourInteraction[P]>
-      : GetScalarType<T[P], AggregateTourInteraction[P]>
-  }
-
-
-
-
-  export type TourInteractionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: TourInteractionWhereInput
-    orderBy?: TourInteractionOrderByWithAggregationInput | TourInteractionOrderByWithAggregationInput[]
-    by: TourInteractionScalarFieldEnum[] | TourInteractionScalarFieldEnum
-    having?: TourInteractionScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: TourInteractionCountAggregateInputType | true
-    _avg?: TourInteractionAvgAggregateInputType
-    _sum?: TourInteractionSumAggregateInputType
-    _min?: TourInteractionMinAggregateInputType
-    _max?: TourInteractionMaxAggregateInputType
-  }
-
-  export type TourInteractionGroupByOutputType = {
-    id: string
-    sessionId: string
-    tourStep: $Enums.TourStep
-    actionType: string
-    actionData: JsonValue
-    timeSpentMs: number | null
-    wasSkipped: boolean
-    satisfaction: number | null
-    createdAt: Date
-    _count: TourInteractionCountAggregateOutputType | null
-    _avg: TourInteractionAvgAggregateOutputType | null
-    _sum: TourInteractionSumAggregateOutputType | null
-    _min: TourInteractionMinAggregateOutputType | null
-    _max: TourInteractionMaxAggregateOutputType | null
-  }
-
-  type GetTourInteractionGroupByPayload<T extends TourInteractionGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<TourInteractionGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof TourInteractionGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], TourInteractionGroupByOutputType[P]>
-            : GetScalarType<T[P], TourInteractionGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type TourInteractionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    sessionId?: boolean
-    tourStep?: boolean
-    actionType?: boolean
-    actionData?: boolean
-    timeSpentMs?: boolean
-    wasSkipped?: boolean
-    satisfaction?: boolean
-    createdAt?: boolean
-    session?: boolean | ConversationSessionDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["tourInteraction"]>
-
-  export type TourInteractionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    sessionId?: boolean
-    tourStep?: boolean
-    actionType?: boolean
-    actionData?: boolean
-    timeSpentMs?: boolean
-    wasSkipped?: boolean
-    satisfaction?: boolean
-    createdAt?: boolean
-    session?: boolean | ConversationSessionDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["tourInteraction"]>
-
-  export type TourInteractionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    sessionId?: boolean
-    tourStep?: boolean
-    actionType?: boolean
-    actionData?: boolean
-    timeSpentMs?: boolean
-    wasSkipped?: boolean
-    satisfaction?: boolean
-    createdAt?: boolean
-    session?: boolean | ConversationSessionDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["tourInteraction"]>
-
-  export type TourInteractionSelectScalar = {
-    id?: boolean
-    sessionId?: boolean
-    tourStep?: boolean
-    actionType?: boolean
-    actionData?: boolean
-    timeSpentMs?: boolean
-    wasSkipped?: boolean
-    satisfaction?: boolean
-    createdAt?: boolean
-  }
-
-  export type TourInteractionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "sessionId" | "tourStep" | "actionType" | "actionData" | "timeSpentMs" | "wasSkipped" | "satisfaction" | "createdAt", ExtArgs["result"]["tourInteraction"]>
-  export type TourInteractionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    session?: boolean | ConversationSessionDefaultArgs<ExtArgs>
-  }
-  export type TourInteractionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    session?: boolean | ConversationSessionDefaultArgs<ExtArgs>
-  }
-  export type TourInteractionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    session?: boolean | ConversationSessionDefaultArgs<ExtArgs>
-  }
-
-  export type $TourInteractionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "TourInteraction"
-    objects: {
-      session: Prisma.$ConversationSessionPayload<ExtArgs>
-    }
-    scalars: $Extensions.GetPayloadResult<{
-      id: string
-      sessionId: string
-      tourStep: $Enums.TourStep
-      actionType: string
-      actionData: Prisma.JsonValue
-      timeSpentMs: number | null
-      wasSkipped: boolean
-      satisfaction: number | null
-      createdAt: Date
-    }, ExtArgs["result"]["tourInteraction"]>
-    composites: {}
-  }
-
-  type TourInteractionGetPayload<S extends boolean | null | undefined | TourInteractionDefaultArgs> = $Result.GetResult<Prisma.$TourInteractionPayload, S>
-
-  type TourInteractionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<TourInteractionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: TourInteractionCountAggregateInputType | true
-    }
-
-  export interface TourInteractionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TourInteraction'], meta: { name: 'TourInteraction' } }
-    /**
-     * Find zero or one TourInteraction that matches the filter.
-     * @param {TourInteractionFindUniqueArgs} args - Arguments to find a TourInteraction
-     * @example
-     * // Get one TourInteraction
-     * const tourInteraction = await prisma.tourInteraction.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends TourInteractionFindUniqueArgs>(args: SelectSubset<T, TourInteractionFindUniqueArgs<ExtArgs>>): Prisma__TourInteractionClient<$Result.GetResult<Prisma.$TourInteractionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one TourInteraction that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {TourInteractionFindUniqueOrThrowArgs} args - Arguments to find a TourInteraction
-     * @example
-     * // Get one TourInteraction
-     * const tourInteraction = await prisma.tourInteraction.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends TourInteractionFindUniqueOrThrowArgs>(args: SelectSubset<T, TourInteractionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TourInteractionClient<$Result.GetResult<Prisma.$TourInteractionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first TourInteraction that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TourInteractionFindFirstArgs} args - Arguments to find a TourInteraction
-     * @example
-     * // Get one TourInteraction
-     * const tourInteraction = await prisma.tourInteraction.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends TourInteractionFindFirstArgs>(args?: SelectSubset<T, TourInteractionFindFirstArgs<ExtArgs>>): Prisma__TourInteractionClient<$Result.GetResult<Prisma.$TourInteractionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first TourInteraction that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TourInteractionFindFirstOrThrowArgs} args - Arguments to find a TourInteraction
-     * @example
-     * // Get one TourInteraction
-     * const tourInteraction = await prisma.tourInteraction.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends TourInteractionFindFirstOrThrowArgs>(args?: SelectSubset<T, TourInteractionFindFirstOrThrowArgs<ExtArgs>>): Prisma__TourInteractionClient<$Result.GetResult<Prisma.$TourInteractionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more TourInteractions that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TourInteractionFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all TourInteractions
-     * const tourInteractions = await prisma.tourInteraction.findMany()
-     * 
-     * // Get first 10 TourInteractions
-     * const tourInteractions = await prisma.tourInteraction.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const tourInteractionWithIdOnly = await prisma.tourInteraction.findMany({ select: { id: true } })
-     * 
-     */
-    findMany<T extends TourInteractionFindManyArgs>(args?: SelectSubset<T, TourInteractionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TourInteractionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a TourInteraction.
-     * @param {TourInteractionCreateArgs} args - Arguments to create a TourInteraction.
-     * @example
-     * // Create one TourInteraction
-     * const TourInteraction = await prisma.tourInteraction.create({
-     *   data: {
-     *     // ... data to create a TourInteraction
-     *   }
-     * })
-     * 
-     */
-    create<T extends TourInteractionCreateArgs>(args: SelectSubset<T, TourInteractionCreateArgs<ExtArgs>>): Prisma__TourInteractionClient<$Result.GetResult<Prisma.$TourInteractionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many TourInteractions.
-     * @param {TourInteractionCreateManyArgs} args - Arguments to create many TourInteractions.
-     * @example
-     * // Create many TourInteractions
-     * const tourInteraction = await prisma.tourInteraction.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends TourInteractionCreateManyArgs>(args?: SelectSubset<T, TourInteractionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many TourInteractions and returns the data saved in the database.
-     * @param {TourInteractionCreateManyAndReturnArgs} args - Arguments to create many TourInteractions.
-     * @example
-     * // Create many TourInteractions
-     * const tourInteraction = await prisma.tourInteraction.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many TourInteractions and only return the `id`
-     * const tourInteractionWithIdOnly = await prisma.tourInteraction.createManyAndReturn({
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends TourInteractionCreateManyAndReturnArgs>(args?: SelectSubset<T, TourInteractionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TourInteractionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Delete a TourInteraction.
-     * @param {TourInteractionDeleteArgs} args - Arguments to delete one TourInteraction.
-     * @example
-     * // Delete one TourInteraction
-     * const TourInteraction = await prisma.tourInteraction.delete({
-     *   where: {
-     *     // ... filter to delete one TourInteraction
-     *   }
-     * })
-     * 
-     */
-    delete<T extends TourInteractionDeleteArgs>(args: SelectSubset<T, TourInteractionDeleteArgs<ExtArgs>>): Prisma__TourInteractionClient<$Result.GetResult<Prisma.$TourInteractionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one TourInteraction.
-     * @param {TourInteractionUpdateArgs} args - Arguments to update one TourInteraction.
-     * @example
-     * // Update one TourInteraction
-     * const tourInteraction = await prisma.tourInteraction.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends TourInteractionUpdateArgs>(args: SelectSubset<T, TourInteractionUpdateArgs<ExtArgs>>): Prisma__TourInteractionClient<$Result.GetResult<Prisma.$TourInteractionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more TourInteractions.
-     * @param {TourInteractionDeleteManyArgs} args - Arguments to filter TourInteractions to delete.
-     * @example
-     * // Delete a few TourInteractions
-     * const { count } = await prisma.tourInteraction.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends TourInteractionDeleteManyArgs>(args?: SelectSubset<T, TourInteractionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more TourInteractions.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TourInteractionUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many TourInteractions
-     * const tourInteraction = await prisma.tourInteraction.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends TourInteractionUpdateManyArgs>(args: SelectSubset<T, TourInteractionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more TourInteractions and returns the data updated in the database.
-     * @param {TourInteractionUpdateManyAndReturnArgs} args - Arguments to update many TourInteractions.
-     * @example
-     * // Update many TourInteractions
-     * const tourInteraction = await prisma.tourInteraction.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more TourInteractions and only return the `id`
-     * const tourInteractionWithIdOnly = await prisma.tourInteraction.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends TourInteractionUpdateManyAndReturnArgs>(args: SelectSubset<T, TourInteractionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TourInteractionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Create or update one TourInteraction.
-     * @param {TourInteractionUpsertArgs} args - Arguments to update or create a TourInteraction.
-     * @example
-     * // Update or create a TourInteraction
-     * const tourInteraction = await prisma.tourInteraction.upsert({
-     *   create: {
-     *     // ... data to create a TourInteraction
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the TourInteraction we want to update
-     *   }
-     * })
-     */
-    upsert<T extends TourInteractionUpsertArgs>(args: SelectSubset<T, TourInteractionUpsertArgs<ExtArgs>>): Prisma__TourInteractionClient<$Result.GetResult<Prisma.$TourInteractionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of TourInteractions.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TourInteractionCountArgs} args - Arguments to filter TourInteractions to count.
-     * @example
-     * // Count the number of TourInteractions
-     * const count = await prisma.tourInteraction.count({
-     *   where: {
-     *     // ... the filter for the TourInteractions we want to count
-     *   }
-     * })
-    **/
-    count<T extends TourInteractionCountArgs>(
-      args?: Subset<T, TourInteractionCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], TourInteractionCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a TourInteraction.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TourInteractionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends TourInteractionAggregateArgs>(args: Subset<T, TourInteractionAggregateArgs>): Prisma.PrismaPromise<GetTourInteractionAggregateType<T>>
-
-    /**
-     * Group by TourInteraction.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TourInteractionGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends TourInteractionGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: TourInteractionGroupByArgs['orderBy'] }
-        : { orderBy?: TourInteractionGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, TourInteractionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTourInteractionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the TourInteraction model
-   */
-  readonly fields: TourInteractionFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for TourInteraction.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__TourInteractionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    session<T extends ConversationSessionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ConversationSessionDefaultArgs<ExtArgs>>): Prisma__ConversationSessionClient<$Result.GetResult<Prisma.$ConversationSessionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the TourInteraction model
-   */
-  interface TourInteractionFieldRefs {
-    readonly id: FieldRef<"TourInteraction", 'String'>
-    readonly sessionId: FieldRef<"TourInteraction", 'String'>
-    readonly tourStep: FieldRef<"TourInteraction", 'TourStep'>
-    readonly actionType: FieldRef<"TourInteraction", 'String'>
-    readonly actionData: FieldRef<"TourInteraction", 'Json'>
-    readonly timeSpentMs: FieldRef<"TourInteraction", 'Int'>
-    readonly wasSkipped: FieldRef<"TourInteraction", 'Boolean'>
-    readonly satisfaction: FieldRef<"TourInteraction", 'Int'>
-    readonly createdAt: FieldRef<"TourInteraction", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * TourInteraction findUnique
-   */
-  export type TourInteractionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TourInteraction
-     */
-    select?: TourInteractionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TourInteraction
-     */
-    omit?: TourInteractionOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TourInteractionInclude<ExtArgs> | null
-    /**
-     * Filter, which TourInteraction to fetch.
-     */
-    where: TourInteractionWhereUniqueInput
-  }
-
-  /**
-   * TourInteraction findUniqueOrThrow
-   */
-  export type TourInteractionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TourInteraction
-     */
-    select?: TourInteractionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TourInteraction
-     */
-    omit?: TourInteractionOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TourInteractionInclude<ExtArgs> | null
-    /**
-     * Filter, which TourInteraction to fetch.
-     */
-    where: TourInteractionWhereUniqueInput
-  }
-
-  /**
-   * TourInteraction findFirst
-   */
-  export type TourInteractionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TourInteraction
-     */
-    select?: TourInteractionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TourInteraction
-     */
-    omit?: TourInteractionOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TourInteractionInclude<ExtArgs> | null
-    /**
-     * Filter, which TourInteraction to fetch.
-     */
-    where?: TourInteractionWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of TourInteractions to fetch.
-     */
-    orderBy?: TourInteractionOrderByWithRelationInput | TourInteractionOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for TourInteractions.
-     */
-    cursor?: TourInteractionWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` TourInteractions from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` TourInteractions.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of TourInteractions.
-     */
-    distinct?: TourInteractionScalarFieldEnum | TourInteractionScalarFieldEnum[]
-  }
-
-  /**
-   * TourInteraction findFirstOrThrow
-   */
-  export type TourInteractionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TourInteraction
-     */
-    select?: TourInteractionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TourInteraction
-     */
-    omit?: TourInteractionOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TourInteractionInclude<ExtArgs> | null
-    /**
-     * Filter, which TourInteraction to fetch.
-     */
-    where?: TourInteractionWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of TourInteractions to fetch.
-     */
-    orderBy?: TourInteractionOrderByWithRelationInput | TourInteractionOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for TourInteractions.
-     */
-    cursor?: TourInteractionWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` TourInteractions from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` TourInteractions.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of TourInteractions.
-     */
-    distinct?: TourInteractionScalarFieldEnum | TourInteractionScalarFieldEnum[]
-  }
-
-  /**
-   * TourInteraction findMany
-   */
-  export type TourInteractionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TourInteraction
-     */
-    select?: TourInteractionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TourInteraction
-     */
-    omit?: TourInteractionOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TourInteractionInclude<ExtArgs> | null
-    /**
-     * Filter, which TourInteractions to fetch.
-     */
-    where?: TourInteractionWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of TourInteractions to fetch.
-     */
-    orderBy?: TourInteractionOrderByWithRelationInput | TourInteractionOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing TourInteractions.
-     */
-    cursor?: TourInteractionWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` TourInteractions from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` TourInteractions.
-     */
-    skip?: number
-    distinct?: TourInteractionScalarFieldEnum | TourInteractionScalarFieldEnum[]
-  }
-
-  /**
-   * TourInteraction create
-   */
-  export type TourInteractionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TourInteraction
-     */
-    select?: TourInteractionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TourInteraction
-     */
-    omit?: TourInteractionOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TourInteractionInclude<ExtArgs> | null
-    /**
-     * The data needed to create a TourInteraction.
-     */
-    data: XOR<TourInteractionCreateInput, TourInteractionUncheckedCreateInput>
-  }
-
-  /**
-   * TourInteraction createMany
-   */
-  export type TourInteractionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many TourInteractions.
-     */
-    data: TourInteractionCreateManyInput | TourInteractionCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * TourInteraction createManyAndReturn
-   */
-  export type TourInteractionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TourInteraction
-     */
-    select?: TourInteractionSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the TourInteraction
-     */
-    omit?: TourInteractionOmit<ExtArgs> | null
-    /**
-     * The data used to create many TourInteractions.
-     */
-    data: TourInteractionCreateManyInput | TourInteractionCreateManyInput[]
-    skipDuplicates?: boolean
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TourInteractionIncludeCreateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * TourInteraction update
-   */
-  export type TourInteractionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TourInteraction
-     */
-    select?: TourInteractionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TourInteraction
-     */
-    omit?: TourInteractionOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TourInteractionInclude<ExtArgs> | null
-    /**
-     * The data needed to update a TourInteraction.
-     */
-    data: XOR<TourInteractionUpdateInput, TourInteractionUncheckedUpdateInput>
-    /**
-     * Choose, which TourInteraction to update.
-     */
-    where: TourInteractionWhereUniqueInput
-  }
-
-  /**
-   * TourInteraction updateMany
-   */
-  export type TourInteractionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update TourInteractions.
-     */
-    data: XOR<TourInteractionUpdateManyMutationInput, TourInteractionUncheckedUpdateManyInput>
-    /**
-     * Filter which TourInteractions to update
-     */
-    where?: TourInteractionWhereInput
-    /**
-     * Limit how many TourInteractions to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * TourInteraction updateManyAndReturn
-   */
-  export type TourInteractionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TourInteraction
-     */
-    select?: TourInteractionSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the TourInteraction
-     */
-    omit?: TourInteractionOmit<ExtArgs> | null
-    /**
-     * The data used to update TourInteractions.
-     */
-    data: XOR<TourInteractionUpdateManyMutationInput, TourInteractionUncheckedUpdateManyInput>
-    /**
-     * Filter which TourInteractions to update
-     */
-    where?: TourInteractionWhereInput
-    /**
-     * Limit how many TourInteractions to update.
-     */
-    limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TourInteractionIncludeUpdateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * TourInteraction upsert
-   */
-  export type TourInteractionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TourInteraction
-     */
-    select?: TourInteractionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TourInteraction
-     */
-    omit?: TourInteractionOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TourInteractionInclude<ExtArgs> | null
-    /**
-     * The filter to search for the TourInteraction to update in case it exists.
-     */
-    where: TourInteractionWhereUniqueInput
-    /**
-     * In case the TourInteraction found by the `where` argument doesn't exist, create a new TourInteraction with this data.
-     */
-    create: XOR<TourInteractionCreateInput, TourInteractionUncheckedCreateInput>
-    /**
-     * In case the TourInteraction was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<TourInteractionUpdateInput, TourInteractionUncheckedUpdateInput>
-  }
-
-  /**
-   * TourInteraction delete
-   */
-  export type TourInteractionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TourInteraction
-     */
-    select?: TourInteractionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TourInteraction
-     */
-    omit?: TourInteractionOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TourInteractionInclude<ExtArgs> | null
-    /**
-     * Filter which TourInteraction to delete.
-     */
-    where: TourInteractionWhereUniqueInput
-  }
-
-  /**
-   * TourInteraction deleteMany
-   */
-  export type TourInteractionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which TourInteractions to delete
-     */
-    where?: TourInteractionWhereInput
-    /**
-     * Limit how many TourInteractions to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * TourInteraction without action
-   */
-  export type TourInteractionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TourInteraction
-     */
-    select?: TourInteractionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TourInteraction
-     */
-    omit?: TourInteractionOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TourInteractionInclude<ExtArgs> | null
-  }
-
-
-  /**
-   * Model LocalStorageSync
-   */
-
-  export type AggregateLocalStorageSync = {
-    _count: LocalStorageSyncCountAggregateOutputType | null
-    _min: LocalStorageSyncMinAggregateOutputType | null
-    _max: LocalStorageSyncMaxAggregateOutputType | null
-  }
-
-  export type LocalStorageSyncMinAggregateOutputType = {
-    id: string | null
-    sessionId: string | null
-    onboardingStep: string | null
-    isRegistered: boolean | null
-    userId: string | null
-    syncedAt: Date | null
-    createdAt: Date | null
-    updatedAt: Date | null
-    expiresAt: Date | null
-  }
-
-  export type LocalStorageSyncMaxAggregateOutputType = {
-    id: string | null
-    sessionId: string | null
-    onboardingStep: string | null
-    isRegistered: boolean | null
-    userId: string | null
-    syncedAt: Date | null
-    createdAt: Date | null
-    updatedAt: Date | null
-    expiresAt: Date | null
-  }
-
-  export type LocalStorageSyncCountAggregateOutputType = {
-    id: number
-    sessionId: number
-    interests: number
-    videoRatings: number
-    onboardingStep: number
-    layoutData: number
-    isRegistered: number
-    userId: number
-    syncedAt: number
-    createdAt: number
-    updatedAt: number
-    expiresAt: number
-    _all: number
-  }
-
-
-  export type LocalStorageSyncMinAggregateInputType = {
-    id?: true
-    sessionId?: true
-    onboardingStep?: true
-    isRegistered?: true
-    userId?: true
-    syncedAt?: true
-    createdAt?: true
-    updatedAt?: true
-    expiresAt?: true
-  }
-
-  export type LocalStorageSyncMaxAggregateInputType = {
-    id?: true
-    sessionId?: true
-    onboardingStep?: true
-    isRegistered?: true
-    userId?: true
-    syncedAt?: true
-    createdAt?: true
-    updatedAt?: true
-    expiresAt?: true
-  }
-
-  export type LocalStorageSyncCountAggregateInputType = {
-    id?: true
-    sessionId?: true
-    interests?: true
-    videoRatings?: true
-    onboardingStep?: true
-    layoutData?: true
-    isRegistered?: true
-    userId?: true
-    syncedAt?: true
-    createdAt?: true
-    updatedAt?: true
-    expiresAt?: true
-    _all?: true
-  }
-
-  export type LocalStorageSyncAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which LocalStorageSync to aggregate.
-     */
-    where?: LocalStorageSyncWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of LocalStorageSyncs to fetch.
-     */
-    orderBy?: LocalStorageSyncOrderByWithRelationInput | LocalStorageSyncOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: LocalStorageSyncWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` LocalStorageSyncs from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` LocalStorageSyncs.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned LocalStorageSyncs
-    **/
-    _count?: true | LocalStorageSyncCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: LocalStorageSyncMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: LocalStorageSyncMaxAggregateInputType
-  }
-
-  export type GetLocalStorageSyncAggregateType<T extends LocalStorageSyncAggregateArgs> = {
-        [P in keyof T & keyof AggregateLocalStorageSync]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateLocalStorageSync[P]>
-      : GetScalarType<T[P], AggregateLocalStorageSync[P]>
-  }
-
-
-
-
-  export type LocalStorageSyncGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: LocalStorageSyncWhereInput
-    orderBy?: LocalStorageSyncOrderByWithAggregationInput | LocalStorageSyncOrderByWithAggregationInput[]
-    by: LocalStorageSyncScalarFieldEnum[] | LocalStorageSyncScalarFieldEnum
-    having?: LocalStorageSyncScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: LocalStorageSyncCountAggregateInputType | true
-    _min?: LocalStorageSyncMinAggregateInputType
-    _max?: LocalStorageSyncMaxAggregateInputType
-  }
-
-  export type LocalStorageSyncGroupByOutputType = {
-    id: string
-    sessionId: string
-    interests: string[]
-    videoRatings: JsonValue
-    onboardingStep: string | null
-    layoutData: JsonValue
-    isRegistered: boolean
-    userId: string | null
-    syncedAt: Date | null
-    createdAt: Date
-    updatedAt: Date
-    expiresAt: Date
-    _count: LocalStorageSyncCountAggregateOutputType | null
-    _min: LocalStorageSyncMinAggregateOutputType | null
-    _max: LocalStorageSyncMaxAggregateOutputType | null
-  }
-
-  type GetLocalStorageSyncGroupByPayload<T extends LocalStorageSyncGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<LocalStorageSyncGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof LocalStorageSyncGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], LocalStorageSyncGroupByOutputType[P]>
-            : GetScalarType<T[P], LocalStorageSyncGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type LocalStorageSyncSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    sessionId?: boolean
-    interests?: boolean
-    videoRatings?: boolean
-    onboardingStep?: boolean
-    layoutData?: boolean
-    isRegistered?: boolean
-    userId?: boolean
-    syncedAt?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    expiresAt?: boolean
-  }, ExtArgs["result"]["localStorageSync"]>
-
-  export type LocalStorageSyncSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    sessionId?: boolean
-    interests?: boolean
-    videoRatings?: boolean
-    onboardingStep?: boolean
-    layoutData?: boolean
-    isRegistered?: boolean
-    userId?: boolean
-    syncedAt?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    expiresAt?: boolean
-  }, ExtArgs["result"]["localStorageSync"]>
-
-  export type LocalStorageSyncSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    sessionId?: boolean
-    interests?: boolean
-    videoRatings?: boolean
-    onboardingStep?: boolean
-    layoutData?: boolean
-    isRegistered?: boolean
-    userId?: boolean
-    syncedAt?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    expiresAt?: boolean
-  }, ExtArgs["result"]["localStorageSync"]>
-
-  export type LocalStorageSyncSelectScalar = {
-    id?: boolean
-    sessionId?: boolean
-    interests?: boolean
-    videoRatings?: boolean
-    onboardingStep?: boolean
-    layoutData?: boolean
-    isRegistered?: boolean
-    userId?: boolean
-    syncedAt?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    expiresAt?: boolean
-  }
-
-  export type LocalStorageSyncOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "sessionId" | "interests" | "videoRatings" | "onboardingStep" | "layoutData" | "isRegistered" | "userId" | "syncedAt" | "createdAt" | "updatedAt" | "expiresAt", ExtArgs["result"]["localStorageSync"]>
-
-  export type $LocalStorageSyncPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "LocalStorageSync"
-    objects: {}
-    scalars: $Extensions.GetPayloadResult<{
-      id: string
-      sessionId: string
-      interests: string[]
-      videoRatings: Prisma.JsonValue
-      onboardingStep: string | null
-      layoutData: Prisma.JsonValue
-      isRegistered: boolean
-      userId: string | null
-      syncedAt: Date | null
-      createdAt: Date
-      updatedAt: Date
-      expiresAt: Date
-    }, ExtArgs["result"]["localStorageSync"]>
-    composites: {}
-  }
-
-  type LocalStorageSyncGetPayload<S extends boolean | null | undefined | LocalStorageSyncDefaultArgs> = $Result.GetResult<Prisma.$LocalStorageSyncPayload, S>
-
-  type LocalStorageSyncCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<LocalStorageSyncFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: LocalStorageSyncCountAggregateInputType | true
-    }
-
-  export interface LocalStorageSyncDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['LocalStorageSync'], meta: { name: 'LocalStorageSync' } }
-    /**
-     * Find zero or one LocalStorageSync that matches the filter.
-     * @param {LocalStorageSyncFindUniqueArgs} args - Arguments to find a LocalStorageSync
-     * @example
-     * // Get one LocalStorageSync
-     * const localStorageSync = await prisma.localStorageSync.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends LocalStorageSyncFindUniqueArgs>(args: SelectSubset<T, LocalStorageSyncFindUniqueArgs<ExtArgs>>): Prisma__LocalStorageSyncClient<$Result.GetResult<Prisma.$LocalStorageSyncPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one LocalStorageSync that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {LocalStorageSyncFindUniqueOrThrowArgs} args - Arguments to find a LocalStorageSync
-     * @example
-     * // Get one LocalStorageSync
-     * const localStorageSync = await prisma.localStorageSync.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends LocalStorageSyncFindUniqueOrThrowArgs>(args: SelectSubset<T, LocalStorageSyncFindUniqueOrThrowArgs<ExtArgs>>): Prisma__LocalStorageSyncClient<$Result.GetResult<Prisma.$LocalStorageSyncPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first LocalStorageSync that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {LocalStorageSyncFindFirstArgs} args - Arguments to find a LocalStorageSync
-     * @example
-     * // Get one LocalStorageSync
-     * const localStorageSync = await prisma.localStorageSync.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends LocalStorageSyncFindFirstArgs>(args?: SelectSubset<T, LocalStorageSyncFindFirstArgs<ExtArgs>>): Prisma__LocalStorageSyncClient<$Result.GetResult<Prisma.$LocalStorageSyncPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first LocalStorageSync that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {LocalStorageSyncFindFirstOrThrowArgs} args - Arguments to find a LocalStorageSync
-     * @example
-     * // Get one LocalStorageSync
-     * const localStorageSync = await prisma.localStorageSync.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends LocalStorageSyncFindFirstOrThrowArgs>(args?: SelectSubset<T, LocalStorageSyncFindFirstOrThrowArgs<ExtArgs>>): Prisma__LocalStorageSyncClient<$Result.GetResult<Prisma.$LocalStorageSyncPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more LocalStorageSyncs that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {LocalStorageSyncFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all LocalStorageSyncs
-     * const localStorageSyncs = await prisma.localStorageSync.findMany()
-     * 
-     * // Get first 10 LocalStorageSyncs
-     * const localStorageSyncs = await prisma.localStorageSync.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const localStorageSyncWithIdOnly = await prisma.localStorageSync.findMany({ select: { id: true } })
-     * 
-     */
-    findMany<T extends LocalStorageSyncFindManyArgs>(args?: SelectSubset<T, LocalStorageSyncFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LocalStorageSyncPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a LocalStorageSync.
-     * @param {LocalStorageSyncCreateArgs} args - Arguments to create a LocalStorageSync.
-     * @example
-     * // Create one LocalStorageSync
-     * const LocalStorageSync = await prisma.localStorageSync.create({
-     *   data: {
-     *     // ... data to create a LocalStorageSync
-     *   }
-     * })
-     * 
-     */
-    create<T extends LocalStorageSyncCreateArgs>(args: SelectSubset<T, LocalStorageSyncCreateArgs<ExtArgs>>): Prisma__LocalStorageSyncClient<$Result.GetResult<Prisma.$LocalStorageSyncPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many LocalStorageSyncs.
-     * @param {LocalStorageSyncCreateManyArgs} args - Arguments to create many LocalStorageSyncs.
-     * @example
-     * // Create many LocalStorageSyncs
-     * const localStorageSync = await prisma.localStorageSync.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends LocalStorageSyncCreateManyArgs>(args?: SelectSubset<T, LocalStorageSyncCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many LocalStorageSyncs and returns the data saved in the database.
-     * @param {LocalStorageSyncCreateManyAndReturnArgs} args - Arguments to create many LocalStorageSyncs.
-     * @example
-     * // Create many LocalStorageSyncs
-     * const localStorageSync = await prisma.localStorageSync.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many LocalStorageSyncs and only return the `id`
-     * const localStorageSyncWithIdOnly = await prisma.localStorageSync.createManyAndReturn({
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends LocalStorageSyncCreateManyAndReturnArgs>(args?: SelectSubset<T, LocalStorageSyncCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LocalStorageSyncPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Delete a LocalStorageSync.
-     * @param {LocalStorageSyncDeleteArgs} args - Arguments to delete one LocalStorageSync.
-     * @example
-     * // Delete one LocalStorageSync
-     * const LocalStorageSync = await prisma.localStorageSync.delete({
-     *   where: {
-     *     // ... filter to delete one LocalStorageSync
-     *   }
-     * })
-     * 
-     */
-    delete<T extends LocalStorageSyncDeleteArgs>(args: SelectSubset<T, LocalStorageSyncDeleteArgs<ExtArgs>>): Prisma__LocalStorageSyncClient<$Result.GetResult<Prisma.$LocalStorageSyncPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one LocalStorageSync.
-     * @param {LocalStorageSyncUpdateArgs} args - Arguments to update one LocalStorageSync.
-     * @example
-     * // Update one LocalStorageSync
-     * const localStorageSync = await prisma.localStorageSync.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends LocalStorageSyncUpdateArgs>(args: SelectSubset<T, LocalStorageSyncUpdateArgs<ExtArgs>>): Prisma__LocalStorageSyncClient<$Result.GetResult<Prisma.$LocalStorageSyncPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more LocalStorageSyncs.
-     * @param {LocalStorageSyncDeleteManyArgs} args - Arguments to filter LocalStorageSyncs to delete.
-     * @example
-     * // Delete a few LocalStorageSyncs
-     * const { count } = await prisma.localStorageSync.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends LocalStorageSyncDeleteManyArgs>(args?: SelectSubset<T, LocalStorageSyncDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more LocalStorageSyncs.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {LocalStorageSyncUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many LocalStorageSyncs
-     * const localStorageSync = await prisma.localStorageSync.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends LocalStorageSyncUpdateManyArgs>(args: SelectSubset<T, LocalStorageSyncUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more LocalStorageSyncs and returns the data updated in the database.
-     * @param {LocalStorageSyncUpdateManyAndReturnArgs} args - Arguments to update many LocalStorageSyncs.
-     * @example
-     * // Update many LocalStorageSyncs
-     * const localStorageSync = await prisma.localStorageSync.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more LocalStorageSyncs and only return the `id`
-     * const localStorageSyncWithIdOnly = await prisma.localStorageSync.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends LocalStorageSyncUpdateManyAndReturnArgs>(args: SelectSubset<T, LocalStorageSyncUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LocalStorageSyncPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Create or update one LocalStorageSync.
-     * @param {LocalStorageSyncUpsertArgs} args - Arguments to update or create a LocalStorageSync.
-     * @example
-     * // Update or create a LocalStorageSync
-     * const localStorageSync = await prisma.localStorageSync.upsert({
-     *   create: {
-     *     // ... data to create a LocalStorageSync
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the LocalStorageSync we want to update
-     *   }
-     * })
-     */
-    upsert<T extends LocalStorageSyncUpsertArgs>(args: SelectSubset<T, LocalStorageSyncUpsertArgs<ExtArgs>>): Prisma__LocalStorageSyncClient<$Result.GetResult<Prisma.$LocalStorageSyncPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of LocalStorageSyncs.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {LocalStorageSyncCountArgs} args - Arguments to filter LocalStorageSyncs to count.
-     * @example
-     * // Count the number of LocalStorageSyncs
-     * const count = await prisma.localStorageSync.count({
-     *   where: {
-     *     // ... the filter for the LocalStorageSyncs we want to count
-     *   }
-     * })
-    **/
-    count<T extends LocalStorageSyncCountArgs>(
-      args?: Subset<T, LocalStorageSyncCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], LocalStorageSyncCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a LocalStorageSync.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {LocalStorageSyncAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends LocalStorageSyncAggregateArgs>(args: Subset<T, LocalStorageSyncAggregateArgs>): Prisma.PrismaPromise<GetLocalStorageSyncAggregateType<T>>
-
-    /**
-     * Group by LocalStorageSync.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {LocalStorageSyncGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends LocalStorageSyncGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: LocalStorageSyncGroupByArgs['orderBy'] }
-        : { orderBy?: LocalStorageSyncGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, LocalStorageSyncGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetLocalStorageSyncGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the LocalStorageSync model
-   */
-  readonly fields: LocalStorageSyncFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for LocalStorageSync.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__LocalStorageSyncClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the LocalStorageSync model
-   */
-  interface LocalStorageSyncFieldRefs {
-    readonly id: FieldRef<"LocalStorageSync", 'String'>
-    readonly sessionId: FieldRef<"LocalStorageSync", 'String'>
-    readonly interests: FieldRef<"LocalStorageSync", 'String[]'>
-    readonly videoRatings: FieldRef<"LocalStorageSync", 'Json'>
-    readonly onboardingStep: FieldRef<"LocalStorageSync", 'String'>
-    readonly layoutData: FieldRef<"LocalStorageSync", 'Json'>
-    readonly isRegistered: FieldRef<"LocalStorageSync", 'Boolean'>
-    readonly userId: FieldRef<"LocalStorageSync", 'String'>
-    readonly syncedAt: FieldRef<"LocalStorageSync", 'DateTime'>
-    readonly createdAt: FieldRef<"LocalStorageSync", 'DateTime'>
-    readonly updatedAt: FieldRef<"LocalStorageSync", 'DateTime'>
-    readonly expiresAt: FieldRef<"LocalStorageSync", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * LocalStorageSync findUnique
-   */
-  export type LocalStorageSyncFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the LocalStorageSync
-     */
-    select?: LocalStorageSyncSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the LocalStorageSync
-     */
-    omit?: LocalStorageSyncOmit<ExtArgs> | null
-    /**
-     * Filter, which LocalStorageSync to fetch.
-     */
-    where: LocalStorageSyncWhereUniqueInput
-  }
-
-  /**
-   * LocalStorageSync findUniqueOrThrow
-   */
-  export type LocalStorageSyncFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the LocalStorageSync
-     */
-    select?: LocalStorageSyncSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the LocalStorageSync
-     */
-    omit?: LocalStorageSyncOmit<ExtArgs> | null
-    /**
-     * Filter, which LocalStorageSync to fetch.
-     */
-    where: LocalStorageSyncWhereUniqueInput
-  }
-
-  /**
-   * LocalStorageSync findFirst
-   */
-  export type LocalStorageSyncFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the LocalStorageSync
-     */
-    select?: LocalStorageSyncSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the LocalStorageSync
-     */
-    omit?: LocalStorageSyncOmit<ExtArgs> | null
-    /**
-     * Filter, which LocalStorageSync to fetch.
-     */
-    where?: LocalStorageSyncWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of LocalStorageSyncs to fetch.
-     */
-    orderBy?: LocalStorageSyncOrderByWithRelationInput | LocalStorageSyncOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for LocalStorageSyncs.
-     */
-    cursor?: LocalStorageSyncWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` LocalStorageSyncs from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` LocalStorageSyncs.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of LocalStorageSyncs.
-     */
-    distinct?: LocalStorageSyncScalarFieldEnum | LocalStorageSyncScalarFieldEnum[]
-  }
-
-  /**
-   * LocalStorageSync findFirstOrThrow
-   */
-  export type LocalStorageSyncFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the LocalStorageSync
-     */
-    select?: LocalStorageSyncSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the LocalStorageSync
-     */
-    omit?: LocalStorageSyncOmit<ExtArgs> | null
-    /**
-     * Filter, which LocalStorageSync to fetch.
-     */
-    where?: LocalStorageSyncWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of LocalStorageSyncs to fetch.
-     */
-    orderBy?: LocalStorageSyncOrderByWithRelationInput | LocalStorageSyncOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for LocalStorageSyncs.
-     */
-    cursor?: LocalStorageSyncWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` LocalStorageSyncs from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` LocalStorageSyncs.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of LocalStorageSyncs.
-     */
-    distinct?: LocalStorageSyncScalarFieldEnum | LocalStorageSyncScalarFieldEnum[]
-  }
-
-  /**
-   * LocalStorageSync findMany
-   */
-  export type LocalStorageSyncFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the LocalStorageSync
-     */
-    select?: LocalStorageSyncSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the LocalStorageSync
-     */
-    omit?: LocalStorageSyncOmit<ExtArgs> | null
-    /**
-     * Filter, which LocalStorageSyncs to fetch.
-     */
-    where?: LocalStorageSyncWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of LocalStorageSyncs to fetch.
-     */
-    orderBy?: LocalStorageSyncOrderByWithRelationInput | LocalStorageSyncOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing LocalStorageSyncs.
-     */
-    cursor?: LocalStorageSyncWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` LocalStorageSyncs from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` LocalStorageSyncs.
-     */
-    skip?: number
-    distinct?: LocalStorageSyncScalarFieldEnum | LocalStorageSyncScalarFieldEnum[]
-  }
-
-  /**
-   * LocalStorageSync create
-   */
-  export type LocalStorageSyncCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the LocalStorageSync
-     */
-    select?: LocalStorageSyncSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the LocalStorageSync
-     */
-    omit?: LocalStorageSyncOmit<ExtArgs> | null
-    /**
-     * The data needed to create a LocalStorageSync.
-     */
-    data: XOR<LocalStorageSyncCreateInput, LocalStorageSyncUncheckedCreateInput>
-  }
-
-  /**
-   * LocalStorageSync createMany
-   */
-  export type LocalStorageSyncCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many LocalStorageSyncs.
-     */
-    data: LocalStorageSyncCreateManyInput | LocalStorageSyncCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * LocalStorageSync createManyAndReturn
-   */
-  export type LocalStorageSyncCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the LocalStorageSync
-     */
-    select?: LocalStorageSyncSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the LocalStorageSync
-     */
-    omit?: LocalStorageSyncOmit<ExtArgs> | null
-    /**
-     * The data used to create many LocalStorageSyncs.
-     */
-    data: LocalStorageSyncCreateManyInput | LocalStorageSyncCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * LocalStorageSync update
-   */
-  export type LocalStorageSyncUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the LocalStorageSync
-     */
-    select?: LocalStorageSyncSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the LocalStorageSync
-     */
-    omit?: LocalStorageSyncOmit<ExtArgs> | null
-    /**
-     * The data needed to update a LocalStorageSync.
-     */
-    data: XOR<LocalStorageSyncUpdateInput, LocalStorageSyncUncheckedUpdateInput>
-    /**
-     * Choose, which LocalStorageSync to update.
-     */
-    where: LocalStorageSyncWhereUniqueInput
-  }
-
-  /**
-   * LocalStorageSync updateMany
-   */
-  export type LocalStorageSyncUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update LocalStorageSyncs.
-     */
-    data: XOR<LocalStorageSyncUpdateManyMutationInput, LocalStorageSyncUncheckedUpdateManyInput>
-    /**
-     * Filter which LocalStorageSyncs to update
-     */
-    where?: LocalStorageSyncWhereInput
-    /**
-     * Limit how many LocalStorageSyncs to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * LocalStorageSync updateManyAndReturn
-   */
-  export type LocalStorageSyncUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the LocalStorageSync
-     */
-    select?: LocalStorageSyncSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the LocalStorageSync
-     */
-    omit?: LocalStorageSyncOmit<ExtArgs> | null
-    /**
-     * The data used to update LocalStorageSyncs.
-     */
-    data: XOR<LocalStorageSyncUpdateManyMutationInput, LocalStorageSyncUncheckedUpdateManyInput>
-    /**
-     * Filter which LocalStorageSyncs to update
-     */
-    where?: LocalStorageSyncWhereInput
-    /**
-     * Limit how many LocalStorageSyncs to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * LocalStorageSync upsert
-   */
-  export type LocalStorageSyncUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the LocalStorageSync
-     */
-    select?: LocalStorageSyncSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the LocalStorageSync
-     */
-    omit?: LocalStorageSyncOmit<ExtArgs> | null
-    /**
-     * The filter to search for the LocalStorageSync to update in case it exists.
-     */
-    where: LocalStorageSyncWhereUniqueInput
-    /**
-     * In case the LocalStorageSync found by the `where` argument doesn't exist, create a new LocalStorageSync with this data.
-     */
-    create: XOR<LocalStorageSyncCreateInput, LocalStorageSyncUncheckedCreateInput>
-    /**
-     * In case the LocalStorageSync was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<LocalStorageSyncUpdateInput, LocalStorageSyncUncheckedUpdateInput>
-  }
-
-  /**
-   * LocalStorageSync delete
-   */
-  export type LocalStorageSyncDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the LocalStorageSync
-     */
-    select?: LocalStorageSyncSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the LocalStorageSync
-     */
-    omit?: LocalStorageSyncOmit<ExtArgs> | null
-    /**
-     * Filter which LocalStorageSync to delete.
-     */
-    where: LocalStorageSyncWhereUniqueInput
-  }
-
-  /**
-   * LocalStorageSync deleteMany
-   */
-  export type LocalStorageSyncDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which LocalStorageSyncs to delete
-     */
-    where?: LocalStorageSyncWhereInput
-    /**
-     * Limit how many LocalStorageSyncs to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * LocalStorageSync without action
-   */
-  export type LocalStorageSyncDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the LocalStorageSync
-     */
-    select?: LocalStorageSyncSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the LocalStorageSync
-     */
-    omit?: LocalStorageSyncOmit<ExtArgs> | null
-  }
-
-
-  /**
    * Model Migration
    */
 
@@ -18605,6 +13947,5317 @@ export namespace Prisma {
 
 
   /**
+   * Model VideoEmbedding
+   */
+
+  export type AggregateVideoEmbedding = {
+    _count: VideoEmbeddingCountAggregateOutputType | null
+    _avg: VideoEmbeddingAvgAggregateOutputType | null
+    _sum: VideoEmbeddingSumAggregateOutputType | null
+    _min: VideoEmbeddingMinAggregateOutputType | null
+    _max: VideoEmbeddingMaxAggregateOutputType | null
+  }
+
+  export type VideoEmbeddingAvgAggregateOutputType = {
+    duration: number | null
+    qualityScore: number | null
+  }
+
+  export type VideoEmbeddingSumAggregateOutputType = {
+    duration: number | null
+    qualityScore: number | null
+  }
+
+  export type VideoEmbeddingMinAggregateOutputType = {
+    id: string | null
+    platformId: string | null
+    platform: string | null
+    title: string | null
+    description: string | null
+    category: string | null
+    duration: number | null
+    publishedAt: Date | null
+    channelId: string | null
+    channelName: string | null
+    embeddingModel: string | null
+    embeddingVersion: string | null
+    processingStatus: $Enums.EmbeddingStatus | null
+    qualityScore: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    lastProcessedAt: Date | null
+  }
+
+  export type VideoEmbeddingMaxAggregateOutputType = {
+    id: string | null
+    platformId: string | null
+    platform: string | null
+    title: string | null
+    description: string | null
+    category: string | null
+    duration: number | null
+    publishedAt: Date | null
+    channelId: string | null
+    channelName: string | null
+    embeddingModel: string | null
+    embeddingVersion: string | null
+    processingStatus: $Enums.EmbeddingStatus | null
+    qualityScore: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    lastProcessedAt: Date | null
+  }
+
+  export type VideoEmbeddingCountAggregateOutputType = {
+    id: number
+    platformId: number
+    platform: number
+    title: number
+    description: number
+    tags: number
+    category: number
+    duration: number
+    publishedAt: number
+    channelId: number
+    channelName: number
+    embeddingModel: number
+    embeddingVersion: number
+    processingStatus: number
+    qualityScore: number
+    createdAt: number
+    updatedAt: number
+    lastProcessedAt: number
+    _all: number
+  }
+
+
+  export type VideoEmbeddingAvgAggregateInputType = {
+    duration?: true
+    qualityScore?: true
+  }
+
+  export type VideoEmbeddingSumAggregateInputType = {
+    duration?: true
+    qualityScore?: true
+  }
+
+  export type VideoEmbeddingMinAggregateInputType = {
+    id?: true
+    platformId?: true
+    platform?: true
+    title?: true
+    description?: true
+    category?: true
+    duration?: true
+    publishedAt?: true
+    channelId?: true
+    channelName?: true
+    embeddingModel?: true
+    embeddingVersion?: true
+    processingStatus?: true
+    qualityScore?: true
+    createdAt?: true
+    updatedAt?: true
+    lastProcessedAt?: true
+  }
+
+  export type VideoEmbeddingMaxAggregateInputType = {
+    id?: true
+    platformId?: true
+    platform?: true
+    title?: true
+    description?: true
+    category?: true
+    duration?: true
+    publishedAt?: true
+    channelId?: true
+    channelName?: true
+    embeddingModel?: true
+    embeddingVersion?: true
+    processingStatus?: true
+    qualityScore?: true
+    createdAt?: true
+    updatedAt?: true
+    lastProcessedAt?: true
+  }
+
+  export type VideoEmbeddingCountAggregateInputType = {
+    id?: true
+    platformId?: true
+    platform?: true
+    title?: true
+    description?: true
+    tags?: true
+    category?: true
+    duration?: true
+    publishedAt?: true
+    channelId?: true
+    channelName?: true
+    embeddingModel?: true
+    embeddingVersion?: true
+    processingStatus?: true
+    qualityScore?: true
+    createdAt?: true
+    updatedAt?: true
+    lastProcessedAt?: true
+    _all?: true
+  }
+
+  export type VideoEmbeddingAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which VideoEmbedding to aggregate.
+     */
+    where?: VideoEmbeddingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of VideoEmbeddings to fetch.
+     */
+    orderBy?: VideoEmbeddingOrderByWithRelationInput | VideoEmbeddingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: VideoEmbeddingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` VideoEmbeddings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` VideoEmbeddings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned VideoEmbeddings
+    **/
+    _count?: true | VideoEmbeddingCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: VideoEmbeddingAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: VideoEmbeddingSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: VideoEmbeddingMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: VideoEmbeddingMaxAggregateInputType
+  }
+
+  export type GetVideoEmbeddingAggregateType<T extends VideoEmbeddingAggregateArgs> = {
+        [P in keyof T & keyof AggregateVideoEmbedding]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateVideoEmbedding[P]>
+      : GetScalarType<T[P], AggregateVideoEmbedding[P]>
+  }
+
+
+
+
+  export type VideoEmbeddingGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: VideoEmbeddingWhereInput
+    orderBy?: VideoEmbeddingOrderByWithAggregationInput | VideoEmbeddingOrderByWithAggregationInput[]
+    by: VideoEmbeddingScalarFieldEnum[] | VideoEmbeddingScalarFieldEnum
+    having?: VideoEmbeddingScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: VideoEmbeddingCountAggregateInputType | true
+    _avg?: VideoEmbeddingAvgAggregateInputType
+    _sum?: VideoEmbeddingSumAggregateInputType
+    _min?: VideoEmbeddingMinAggregateInputType
+    _max?: VideoEmbeddingMaxAggregateInputType
+  }
+
+  export type VideoEmbeddingGroupByOutputType = {
+    id: string
+    platformId: string
+    platform: string
+    title: string | null
+    description: string | null
+    tags: string[]
+    category: string | null
+    duration: number | null
+    publishedAt: Date | null
+    channelId: string | null
+    channelName: string | null
+    embeddingModel: string
+    embeddingVersion: string
+    processingStatus: $Enums.EmbeddingStatus
+    qualityScore: number | null
+    createdAt: Date
+    updatedAt: Date
+    lastProcessedAt: Date | null
+    _count: VideoEmbeddingCountAggregateOutputType | null
+    _avg: VideoEmbeddingAvgAggregateOutputType | null
+    _sum: VideoEmbeddingSumAggregateOutputType | null
+    _min: VideoEmbeddingMinAggregateOutputType | null
+    _max: VideoEmbeddingMaxAggregateOutputType | null
+  }
+
+  type GetVideoEmbeddingGroupByPayload<T extends VideoEmbeddingGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<VideoEmbeddingGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof VideoEmbeddingGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], VideoEmbeddingGroupByOutputType[P]>
+            : GetScalarType<T[P], VideoEmbeddingGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type VideoEmbeddingSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    platformId?: boolean
+    platform?: boolean
+    title?: boolean
+    description?: boolean
+    tags?: boolean
+    category?: boolean
+    duration?: boolean
+    publishedAt?: boolean
+    channelId?: boolean
+    channelName?: boolean
+    embeddingModel?: boolean
+    embeddingVersion?: boolean
+    processingStatus?: boolean
+    qualityScore?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    lastProcessedAt?: boolean
+  }, ExtArgs["result"]["videoEmbedding"]>
+
+
+  export type VideoEmbeddingSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    platformId?: boolean
+    platform?: boolean
+    title?: boolean
+    description?: boolean
+    tags?: boolean
+    category?: boolean
+    duration?: boolean
+    publishedAt?: boolean
+    channelId?: boolean
+    channelName?: boolean
+    embeddingModel?: boolean
+    embeddingVersion?: boolean
+    processingStatus?: boolean
+    qualityScore?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    lastProcessedAt?: boolean
+  }, ExtArgs["result"]["videoEmbedding"]>
+
+  export type VideoEmbeddingSelectScalar = {
+    id?: boolean
+    platformId?: boolean
+    platform?: boolean
+    title?: boolean
+    description?: boolean
+    tags?: boolean
+    category?: boolean
+    duration?: boolean
+    publishedAt?: boolean
+    channelId?: boolean
+    channelName?: boolean
+    embeddingModel?: boolean
+    embeddingVersion?: boolean
+    processingStatus?: boolean
+    qualityScore?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    lastProcessedAt?: boolean
+  }
+
+  export type VideoEmbeddingOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "platformId" | "platform" | "title" | "description" | "tags" | "category" | "duration" | "publishedAt" | "channelId" | "channelName" | "embeddingModel" | "embeddingVersion" | "processingStatus" | "qualityScore" | "createdAt" | "updatedAt" | "lastProcessedAt", ExtArgs["result"]["videoEmbedding"]>
+
+  export type $VideoEmbeddingPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "VideoEmbedding"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      platformId: string
+      platform: string
+      title: string | null
+      description: string | null
+      tags: string[]
+      category: string | null
+      duration: number | null
+      publishedAt: Date | null
+      channelId: string | null
+      channelName: string | null
+      embeddingModel: string
+      embeddingVersion: string
+      processingStatus: $Enums.EmbeddingStatus
+      qualityScore: number | null
+      createdAt: Date
+      updatedAt: Date
+      lastProcessedAt: Date | null
+    }, ExtArgs["result"]["videoEmbedding"]>
+    composites: {}
+  }
+
+  type VideoEmbeddingGetPayload<S extends boolean | null | undefined | VideoEmbeddingDefaultArgs> = $Result.GetResult<Prisma.$VideoEmbeddingPayload, S>
+
+  type VideoEmbeddingCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<VideoEmbeddingFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: VideoEmbeddingCountAggregateInputType | true
+    }
+
+  export interface VideoEmbeddingDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['VideoEmbedding'], meta: { name: 'VideoEmbedding' } }
+    /**
+     * Find zero or one VideoEmbedding that matches the filter.
+     * @param {VideoEmbeddingFindUniqueArgs} args - Arguments to find a VideoEmbedding
+     * @example
+     * // Get one VideoEmbedding
+     * const videoEmbedding = await prisma.videoEmbedding.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends VideoEmbeddingFindUniqueArgs>(args: SelectSubset<T, VideoEmbeddingFindUniqueArgs<ExtArgs>>): Prisma__VideoEmbeddingClient<$Result.GetResult<Prisma.$VideoEmbeddingPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one VideoEmbedding that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {VideoEmbeddingFindUniqueOrThrowArgs} args - Arguments to find a VideoEmbedding
+     * @example
+     * // Get one VideoEmbedding
+     * const videoEmbedding = await prisma.videoEmbedding.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends VideoEmbeddingFindUniqueOrThrowArgs>(args: SelectSubset<T, VideoEmbeddingFindUniqueOrThrowArgs<ExtArgs>>): Prisma__VideoEmbeddingClient<$Result.GetResult<Prisma.$VideoEmbeddingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first VideoEmbedding that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VideoEmbeddingFindFirstArgs} args - Arguments to find a VideoEmbedding
+     * @example
+     * // Get one VideoEmbedding
+     * const videoEmbedding = await prisma.videoEmbedding.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends VideoEmbeddingFindFirstArgs>(args?: SelectSubset<T, VideoEmbeddingFindFirstArgs<ExtArgs>>): Prisma__VideoEmbeddingClient<$Result.GetResult<Prisma.$VideoEmbeddingPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first VideoEmbedding that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VideoEmbeddingFindFirstOrThrowArgs} args - Arguments to find a VideoEmbedding
+     * @example
+     * // Get one VideoEmbedding
+     * const videoEmbedding = await prisma.videoEmbedding.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends VideoEmbeddingFindFirstOrThrowArgs>(args?: SelectSubset<T, VideoEmbeddingFindFirstOrThrowArgs<ExtArgs>>): Prisma__VideoEmbeddingClient<$Result.GetResult<Prisma.$VideoEmbeddingPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more VideoEmbeddings that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VideoEmbeddingFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all VideoEmbeddings
+     * const videoEmbeddings = await prisma.videoEmbedding.findMany()
+     * 
+     * // Get first 10 VideoEmbeddings
+     * const videoEmbeddings = await prisma.videoEmbedding.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const videoEmbeddingWithIdOnly = await prisma.videoEmbedding.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends VideoEmbeddingFindManyArgs>(args?: SelectSubset<T, VideoEmbeddingFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VideoEmbeddingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Delete a VideoEmbedding.
+     * @param {VideoEmbeddingDeleteArgs} args - Arguments to delete one VideoEmbedding.
+     * @example
+     * // Delete one VideoEmbedding
+     * const VideoEmbedding = await prisma.videoEmbedding.delete({
+     *   where: {
+     *     // ... filter to delete one VideoEmbedding
+     *   }
+     * })
+     * 
+     */
+    delete<T extends VideoEmbeddingDeleteArgs>(args: SelectSubset<T, VideoEmbeddingDeleteArgs<ExtArgs>>): Prisma__VideoEmbeddingClient<$Result.GetResult<Prisma.$VideoEmbeddingPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one VideoEmbedding.
+     * @param {VideoEmbeddingUpdateArgs} args - Arguments to update one VideoEmbedding.
+     * @example
+     * // Update one VideoEmbedding
+     * const videoEmbedding = await prisma.videoEmbedding.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends VideoEmbeddingUpdateArgs>(args: SelectSubset<T, VideoEmbeddingUpdateArgs<ExtArgs>>): Prisma__VideoEmbeddingClient<$Result.GetResult<Prisma.$VideoEmbeddingPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more VideoEmbeddings.
+     * @param {VideoEmbeddingDeleteManyArgs} args - Arguments to filter VideoEmbeddings to delete.
+     * @example
+     * // Delete a few VideoEmbeddings
+     * const { count } = await prisma.videoEmbedding.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends VideoEmbeddingDeleteManyArgs>(args?: SelectSubset<T, VideoEmbeddingDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more VideoEmbeddings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VideoEmbeddingUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many VideoEmbeddings
+     * const videoEmbedding = await prisma.videoEmbedding.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends VideoEmbeddingUpdateManyArgs>(args: SelectSubset<T, VideoEmbeddingUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more VideoEmbeddings and returns the data updated in the database.
+     * @param {VideoEmbeddingUpdateManyAndReturnArgs} args - Arguments to update many VideoEmbeddings.
+     * @example
+     * // Update many VideoEmbeddings
+     * const videoEmbedding = await prisma.videoEmbedding.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more VideoEmbeddings and only return the `id`
+     * const videoEmbeddingWithIdOnly = await prisma.videoEmbedding.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends VideoEmbeddingUpdateManyAndReturnArgs>(args: SelectSubset<T, VideoEmbeddingUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VideoEmbeddingPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+
+    /**
+     * Count the number of VideoEmbeddings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VideoEmbeddingCountArgs} args - Arguments to filter VideoEmbeddings to count.
+     * @example
+     * // Count the number of VideoEmbeddings
+     * const count = await prisma.videoEmbedding.count({
+     *   where: {
+     *     // ... the filter for the VideoEmbeddings we want to count
+     *   }
+     * })
+    **/
+    count<T extends VideoEmbeddingCountArgs>(
+      args?: Subset<T, VideoEmbeddingCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], VideoEmbeddingCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a VideoEmbedding.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VideoEmbeddingAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends VideoEmbeddingAggregateArgs>(args: Subset<T, VideoEmbeddingAggregateArgs>): Prisma.PrismaPromise<GetVideoEmbeddingAggregateType<T>>
+
+    /**
+     * Group by VideoEmbedding.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VideoEmbeddingGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends VideoEmbeddingGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: VideoEmbeddingGroupByArgs['orderBy'] }
+        : { orderBy?: VideoEmbeddingGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, VideoEmbeddingGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetVideoEmbeddingGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the VideoEmbedding model
+   */
+  readonly fields: VideoEmbeddingFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for VideoEmbedding.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__VideoEmbeddingClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the VideoEmbedding model
+   */
+  interface VideoEmbeddingFieldRefs {
+    readonly id: FieldRef<"VideoEmbedding", 'String'>
+    readonly platformId: FieldRef<"VideoEmbedding", 'String'>
+    readonly platform: FieldRef<"VideoEmbedding", 'String'>
+    readonly title: FieldRef<"VideoEmbedding", 'String'>
+    readonly description: FieldRef<"VideoEmbedding", 'String'>
+    readonly tags: FieldRef<"VideoEmbedding", 'String[]'>
+    readonly category: FieldRef<"VideoEmbedding", 'String'>
+    readonly duration: FieldRef<"VideoEmbedding", 'Int'>
+    readonly publishedAt: FieldRef<"VideoEmbedding", 'DateTime'>
+    readonly channelId: FieldRef<"VideoEmbedding", 'String'>
+    readonly channelName: FieldRef<"VideoEmbedding", 'String'>
+    readonly embeddingModel: FieldRef<"VideoEmbedding", 'String'>
+    readonly embeddingVersion: FieldRef<"VideoEmbedding", 'String'>
+    readonly processingStatus: FieldRef<"VideoEmbedding", 'EmbeddingStatus'>
+    readonly qualityScore: FieldRef<"VideoEmbedding", 'Float'>
+    readonly createdAt: FieldRef<"VideoEmbedding", 'DateTime'>
+    readonly updatedAt: FieldRef<"VideoEmbedding", 'DateTime'>
+    readonly lastProcessedAt: FieldRef<"VideoEmbedding", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * VideoEmbedding findUnique
+   */
+  export type VideoEmbeddingFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VideoEmbedding
+     */
+    select?: VideoEmbeddingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VideoEmbedding
+     */
+    omit?: VideoEmbeddingOmit<ExtArgs> | null
+    /**
+     * Filter, which VideoEmbedding to fetch.
+     */
+    where: VideoEmbeddingWhereUniqueInput
+  }
+
+  /**
+   * VideoEmbedding findUniqueOrThrow
+   */
+  export type VideoEmbeddingFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VideoEmbedding
+     */
+    select?: VideoEmbeddingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VideoEmbedding
+     */
+    omit?: VideoEmbeddingOmit<ExtArgs> | null
+    /**
+     * Filter, which VideoEmbedding to fetch.
+     */
+    where: VideoEmbeddingWhereUniqueInput
+  }
+
+  /**
+   * VideoEmbedding findFirst
+   */
+  export type VideoEmbeddingFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VideoEmbedding
+     */
+    select?: VideoEmbeddingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VideoEmbedding
+     */
+    omit?: VideoEmbeddingOmit<ExtArgs> | null
+    /**
+     * Filter, which VideoEmbedding to fetch.
+     */
+    where?: VideoEmbeddingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of VideoEmbeddings to fetch.
+     */
+    orderBy?: VideoEmbeddingOrderByWithRelationInput | VideoEmbeddingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for VideoEmbeddings.
+     */
+    cursor?: VideoEmbeddingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` VideoEmbeddings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` VideoEmbeddings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of VideoEmbeddings.
+     */
+    distinct?: VideoEmbeddingScalarFieldEnum | VideoEmbeddingScalarFieldEnum[]
+  }
+
+  /**
+   * VideoEmbedding findFirstOrThrow
+   */
+  export type VideoEmbeddingFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VideoEmbedding
+     */
+    select?: VideoEmbeddingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VideoEmbedding
+     */
+    omit?: VideoEmbeddingOmit<ExtArgs> | null
+    /**
+     * Filter, which VideoEmbedding to fetch.
+     */
+    where?: VideoEmbeddingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of VideoEmbeddings to fetch.
+     */
+    orderBy?: VideoEmbeddingOrderByWithRelationInput | VideoEmbeddingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for VideoEmbeddings.
+     */
+    cursor?: VideoEmbeddingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` VideoEmbeddings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` VideoEmbeddings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of VideoEmbeddings.
+     */
+    distinct?: VideoEmbeddingScalarFieldEnum | VideoEmbeddingScalarFieldEnum[]
+  }
+
+  /**
+   * VideoEmbedding findMany
+   */
+  export type VideoEmbeddingFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VideoEmbedding
+     */
+    select?: VideoEmbeddingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VideoEmbedding
+     */
+    omit?: VideoEmbeddingOmit<ExtArgs> | null
+    /**
+     * Filter, which VideoEmbeddings to fetch.
+     */
+    where?: VideoEmbeddingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of VideoEmbeddings to fetch.
+     */
+    orderBy?: VideoEmbeddingOrderByWithRelationInput | VideoEmbeddingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing VideoEmbeddings.
+     */
+    cursor?: VideoEmbeddingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` VideoEmbeddings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` VideoEmbeddings.
+     */
+    skip?: number
+    distinct?: VideoEmbeddingScalarFieldEnum | VideoEmbeddingScalarFieldEnum[]
+  }
+
+  /**
+   * VideoEmbedding update
+   */
+  export type VideoEmbeddingUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VideoEmbedding
+     */
+    select?: VideoEmbeddingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VideoEmbedding
+     */
+    omit?: VideoEmbeddingOmit<ExtArgs> | null
+    /**
+     * The data needed to update a VideoEmbedding.
+     */
+    data: XOR<VideoEmbeddingUpdateInput, VideoEmbeddingUncheckedUpdateInput>
+    /**
+     * Choose, which VideoEmbedding to update.
+     */
+    where: VideoEmbeddingWhereUniqueInput
+  }
+
+  /**
+   * VideoEmbedding updateMany
+   */
+  export type VideoEmbeddingUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update VideoEmbeddings.
+     */
+    data: XOR<VideoEmbeddingUpdateManyMutationInput, VideoEmbeddingUncheckedUpdateManyInput>
+    /**
+     * Filter which VideoEmbeddings to update
+     */
+    where?: VideoEmbeddingWhereInput
+    /**
+     * Limit how many VideoEmbeddings to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * VideoEmbedding updateManyAndReturn
+   */
+  export type VideoEmbeddingUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VideoEmbedding
+     */
+    select?: VideoEmbeddingSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the VideoEmbedding
+     */
+    omit?: VideoEmbeddingOmit<ExtArgs> | null
+    /**
+     * The data used to update VideoEmbeddings.
+     */
+    data: XOR<VideoEmbeddingUpdateManyMutationInput, VideoEmbeddingUncheckedUpdateManyInput>
+    /**
+     * Filter which VideoEmbeddings to update
+     */
+    where?: VideoEmbeddingWhereInput
+    /**
+     * Limit how many VideoEmbeddings to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * VideoEmbedding delete
+   */
+  export type VideoEmbeddingDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VideoEmbedding
+     */
+    select?: VideoEmbeddingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VideoEmbedding
+     */
+    omit?: VideoEmbeddingOmit<ExtArgs> | null
+    /**
+     * Filter which VideoEmbedding to delete.
+     */
+    where: VideoEmbeddingWhereUniqueInput
+  }
+
+  /**
+   * VideoEmbedding deleteMany
+   */
+  export type VideoEmbeddingDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which VideoEmbeddings to delete
+     */
+    where?: VideoEmbeddingWhereInput
+    /**
+     * Limit how many VideoEmbeddings to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * VideoEmbedding without action
+   */
+  export type VideoEmbeddingDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VideoEmbedding
+     */
+    select?: VideoEmbeddingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VideoEmbedding
+     */
+    omit?: VideoEmbeddingOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model UserEmbedding
+   */
+
+  export type AggregateUserEmbedding = {
+    _count: UserEmbeddingCountAggregateOutputType | null
+    _avg: UserEmbeddingAvgAggregateOutputType | null
+    _sum: UserEmbeddingSumAggregateOutputType | null
+    _min: UserEmbeddingMinAggregateOutputType | null
+    _max: UserEmbeddingMaxAggregateOutputType | null
+  }
+
+  export type UserEmbeddingAvgAggregateOutputType = {
+    confidenceScore: number | null
+    interactionCount: number | null
+    lastUpdateThreshold: number | null
+  }
+
+  export type UserEmbeddingSumAggregateOutputType = {
+    confidenceScore: number | null
+    interactionCount: number | null
+    lastUpdateThreshold: number | null
+  }
+
+  export type UserEmbeddingMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    confidenceScore: number | null
+    interactionCount: number | null
+    lastUpdateThreshold: number | null
+    embeddingModel: string | null
+    embeddingVersion: string | null
+    processingStatus: $Enums.EmbeddingStatus | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    lastCalculatedAt: Date | null
+  }
+
+  export type UserEmbeddingMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    confidenceScore: number | null
+    interactionCount: number | null
+    lastUpdateThreshold: number | null
+    embeddingModel: string | null
+    embeddingVersion: string | null
+    processingStatus: $Enums.EmbeddingStatus | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    lastCalculatedAt: Date | null
+  }
+
+  export type UserEmbeddingCountAggregateOutputType = {
+    id: number
+    userId: number
+    confidenceScore: number
+    interactionCount: number
+    lastUpdateThreshold: number
+    embeddingModel: number
+    embeddingVersion: number
+    processingStatus: number
+    createdAt: number
+    updatedAt: number
+    lastCalculatedAt: number
+    _all: number
+  }
+
+
+  export type UserEmbeddingAvgAggregateInputType = {
+    confidenceScore?: true
+    interactionCount?: true
+    lastUpdateThreshold?: true
+  }
+
+  export type UserEmbeddingSumAggregateInputType = {
+    confidenceScore?: true
+    interactionCount?: true
+    lastUpdateThreshold?: true
+  }
+
+  export type UserEmbeddingMinAggregateInputType = {
+    id?: true
+    userId?: true
+    confidenceScore?: true
+    interactionCount?: true
+    lastUpdateThreshold?: true
+    embeddingModel?: true
+    embeddingVersion?: true
+    processingStatus?: true
+    createdAt?: true
+    updatedAt?: true
+    lastCalculatedAt?: true
+  }
+
+  export type UserEmbeddingMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    confidenceScore?: true
+    interactionCount?: true
+    lastUpdateThreshold?: true
+    embeddingModel?: true
+    embeddingVersion?: true
+    processingStatus?: true
+    createdAt?: true
+    updatedAt?: true
+    lastCalculatedAt?: true
+  }
+
+  export type UserEmbeddingCountAggregateInputType = {
+    id?: true
+    userId?: true
+    confidenceScore?: true
+    interactionCount?: true
+    lastUpdateThreshold?: true
+    embeddingModel?: true
+    embeddingVersion?: true
+    processingStatus?: true
+    createdAt?: true
+    updatedAt?: true
+    lastCalculatedAt?: true
+    _all?: true
+  }
+
+  export type UserEmbeddingAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UserEmbedding to aggregate.
+     */
+    where?: UserEmbeddingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserEmbeddings to fetch.
+     */
+    orderBy?: UserEmbeddingOrderByWithRelationInput | UserEmbeddingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: UserEmbeddingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserEmbeddings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserEmbeddings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned UserEmbeddings
+    **/
+    _count?: true | UserEmbeddingCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: UserEmbeddingAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: UserEmbeddingSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: UserEmbeddingMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: UserEmbeddingMaxAggregateInputType
+  }
+
+  export type GetUserEmbeddingAggregateType<T extends UserEmbeddingAggregateArgs> = {
+        [P in keyof T & keyof AggregateUserEmbedding]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateUserEmbedding[P]>
+      : GetScalarType<T[P], AggregateUserEmbedding[P]>
+  }
+
+
+
+
+  export type UserEmbeddingGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserEmbeddingWhereInput
+    orderBy?: UserEmbeddingOrderByWithAggregationInput | UserEmbeddingOrderByWithAggregationInput[]
+    by: UserEmbeddingScalarFieldEnum[] | UserEmbeddingScalarFieldEnum
+    having?: UserEmbeddingScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: UserEmbeddingCountAggregateInputType | true
+    _avg?: UserEmbeddingAvgAggregateInputType
+    _sum?: UserEmbeddingSumAggregateInputType
+    _min?: UserEmbeddingMinAggregateInputType
+    _max?: UserEmbeddingMaxAggregateInputType
+  }
+
+  export type UserEmbeddingGroupByOutputType = {
+    id: string
+    userId: string
+    confidenceScore: number
+    interactionCount: number
+    lastUpdateThreshold: number
+    embeddingModel: string
+    embeddingVersion: string
+    processingStatus: $Enums.EmbeddingStatus
+    createdAt: Date
+    updatedAt: Date
+    lastCalculatedAt: Date | null
+    _count: UserEmbeddingCountAggregateOutputType | null
+    _avg: UserEmbeddingAvgAggregateOutputType | null
+    _sum: UserEmbeddingSumAggregateOutputType | null
+    _min: UserEmbeddingMinAggregateOutputType | null
+    _max: UserEmbeddingMaxAggregateOutputType | null
+  }
+
+  type GetUserEmbeddingGroupByPayload<T extends UserEmbeddingGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<UserEmbeddingGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof UserEmbeddingGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], UserEmbeddingGroupByOutputType[P]>
+            : GetScalarType<T[P], UserEmbeddingGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type UserEmbeddingSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    confidenceScore?: boolean
+    interactionCount?: boolean
+    lastUpdateThreshold?: boolean
+    embeddingModel?: boolean
+    embeddingVersion?: boolean
+    processingStatus?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    lastCalculatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["userEmbedding"]>
+
+
+  export type UserEmbeddingSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    confidenceScore?: boolean
+    interactionCount?: boolean
+    lastUpdateThreshold?: boolean
+    embeddingModel?: boolean
+    embeddingVersion?: boolean
+    processingStatus?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    lastCalculatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["userEmbedding"]>
+
+  export type UserEmbeddingSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    confidenceScore?: boolean
+    interactionCount?: boolean
+    lastUpdateThreshold?: boolean
+    embeddingModel?: boolean
+    embeddingVersion?: boolean
+    processingStatus?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    lastCalculatedAt?: boolean
+  }
+
+  export type UserEmbeddingOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "confidenceScore" | "interactionCount" | "lastUpdateThreshold" | "embeddingModel" | "embeddingVersion" | "processingStatus" | "createdAt" | "updatedAt" | "lastCalculatedAt", ExtArgs["result"]["userEmbedding"]>
+  export type UserEmbeddingInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type UserEmbeddingIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $UserEmbeddingPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "UserEmbedding"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      confidenceScore: number
+      interactionCount: number
+      lastUpdateThreshold: number
+      embeddingModel: string
+      embeddingVersion: string
+      processingStatus: $Enums.EmbeddingStatus
+      createdAt: Date
+      updatedAt: Date
+      lastCalculatedAt: Date | null
+    }, ExtArgs["result"]["userEmbedding"]>
+    composites: {}
+  }
+
+  type UserEmbeddingGetPayload<S extends boolean | null | undefined | UserEmbeddingDefaultArgs> = $Result.GetResult<Prisma.$UserEmbeddingPayload, S>
+
+  type UserEmbeddingCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<UserEmbeddingFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: UserEmbeddingCountAggregateInputType | true
+    }
+
+  export interface UserEmbeddingDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['UserEmbedding'], meta: { name: 'UserEmbedding' } }
+    /**
+     * Find zero or one UserEmbedding that matches the filter.
+     * @param {UserEmbeddingFindUniqueArgs} args - Arguments to find a UserEmbedding
+     * @example
+     * // Get one UserEmbedding
+     * const userEmbedding = await prisma.userEmbedding.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends UserEmbeddingFindUniqueArgs>(args: SelectSubset<T, UserEmbeddingFindUniqueArgs<ExtArgs>>): Prisma__UserEmbeddingClient<$Result.GetResult<Prisma.$UserEmbeddingPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one UserEmbedding that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {UserEmbeddingFindUniqueOrThrowArgs} args - Arguments to find a UserEmbedding
+     * @example
+     * // Get one UserEmbedding
+     * const userEmbedding = await prisma.userEmbedding.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends UserEmbeddingFindUniqueOrThrowArgs>(args: SelectSubset<T, UserEmbeddingFindUniqueOrThrowArgs<ExtArgs>>): Prisma__UserEmbeddingClient<$Result.GetResult<Prisma.$UserEmbeddingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UserEmbedding that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserEmbeddingFindFirstArgs} args - Arguments to find a UserEmbedding
+     * @example
+     * // Get one UserEmbedding
+     * const userEmbedding = await prisma.userEmbedding.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends UserEmbeddingFindFirstArgs>(args?: SelectSubset<T, UserEmbeddingFindFirstArgs<ExtArgs>>): Prisma__UserEmbeddingClient<$Result.GetResult<Prisma.$UserEmbeddingPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UserEmbedding that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserEmbeddingFindFirstOrThrowArgs} args - Arguments to find a UserEmbedding
+     * @example
+     * // Get one UserEmbedding
+     * const userEmbedding = await prisma.userEmbedding.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends UserEmbeddingFindFirstOrThrowArgs>(args?: SelectSubset<T, UserEmbeddingFindFirstOrThrowArgs<ExtArgs>>): Prisma__UserEmbeddingClient<$Result.GetResult<Prisma.$UserEmbeddingPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more UserEmbeddings that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserEmbeddingFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all UserEmbeddings
+     * const userEmbeddings = await prisma.userEmbedding.findMany()
+     * 
+     * // Get first 10 UserEmbeddings
+     * const userEmbeddings = await prisma.userEmbedding.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const userEmbeddingWithIdOnly = await prisma.userEmbedding.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends UserEmbeddingFindManyArgs>(args?: SelectSubset<T, UserEmbeddingFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserEmbeddingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Delete a UserEmbedding.
+     * @param {UserEmbeddingDeleteArgs} args - Arguments to delete one UserEmbedding.
+     * @example
+     * // Delete one UserEmbedding
+     * const UserEmbedding = await prisma.userEmbedding.delete({
+     *   where: {
+     *     // ... filter to delete one UserEmbedding
+     *   }
+     * })
+     * 
+     */
+    delete<T extends UserEmbeddingDeleteArgs>(args: SelectSubset<T, UserEmbeddingDeleteArgs<ExtArgs>>): Prisma__UserEmbeddingClient<$Result.GetResult<Prisma.$UserEmbeddingPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one UserEmbedding.
+     * @param {UserEmbeddingUpdateArgs} args - Arguments to update one UserEmbedding.
+     * @example
+     * // Update one UserEmbedding
+     * const userEmbedding = await prisma.userEmbedding.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends UserEmbeddingUpdateArgs>(args: SelectSubset<T, UserEmbeddingUpdateArgs<ExtArgs>>): Prisma__UserEmbeddingClient<$Result.GetResult<Prisma.$UserEmbeddingPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more UserEmbeddings.
+     * @param {UserEmbeddingDeleteManyArgs} args - Arguments to filter UserEmbeddings to delete.
+     * @example
+     * // Delete a few UserEmbeddings
+     * const { count } = await prisma.userEmbedding.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends UserEmbeddingDeleteManyArgs>(args?: SelectSubset<T, UserEmbeddingDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UserEmbeddings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserEmbeddingUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many UserEmbeddings
+     * const userEmbedding = await prisma.userEmbedding.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends UserEmbeddingUpdateManyArgs>(args: SelectSubset<T, UserEmbeddingUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UserEmbeddings and returns the data updated in the database.
+     * @param {UserEmbeddingUpdateManyAndReturnArgs} args - Arguments to update many UserEmbeddings.
+     * @example
+     * // Update many UserEmbeddings
+     * const userEmbedding = await prisma.userEmbedding.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more UserEmbeddings and only return the `id`
+     * const userEmbeddingWithIdOnly = await prisma.userEmbedding.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends UserEmbeddingUpdateManyAndReturnArgs>(args: SelectSubset<T, UserEmbeddingUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserEmbeddingPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+
+    /**
+     * Count the number of UserEmbeddings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserEmbeddingCountArgs} args - Arguments to filter UserEmbeddings to count.
+     * @example
+     * // Count the number of UserEmbeddings
+     * const count = await prisma.userEmbedding.count({
+     *   where: {
+     *     // ... the filter for the UserEmbeddings we want to count
+     *   }
+     * })
+    **/
+    count<T extends UserEmbeddingCountArgs>(
+      args?: Subset<T, UserEmbeddingCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], UserEmbeddingCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a UserEmbedding.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserEmbeddingAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends UserEmbeddingAggregateArgs>(args: Subset<T, UserEmbeddingAggregateArgs>): Prisma.PrismaPromise<GetUserEmbeddingAggregateType<T>>
+
+    /**
+     * Group by UserEmbedding.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserEmbeddingGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends UserEmbeddingGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: UserEmbeddingGroupByArgs['orderBy'] }
+        : { orderBy?: UserEmbeddingGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, UserEmbeddingGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetUserEmbeddingGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the UserEmbedding model
+   */
+  readonly fields: UserEmbeddingFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for UserEmbedding.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__UserEmbeddingClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the UserEmbedding model
+   */
+  interface UserEmbeddingFieldRefs {
+    readonly id: FieldRef<"UserEmbedding", 'String'>
+    readonly userId: FieldRef<"UserEmbedding", 'String'>
+    readonly confidenceScore: FieldRef<"UserEmbedding", 'Float'>
+    readonly interactionCount: FieldRef<"UserEmbedding", 'Int'>
+    readonly lastUpdateThreshold: FieldRef<"UserEmbedding", 'Int'>
+    readonly embeddingModel: FieldRef<"UserEmbedding", 'String'>
+    readonly embeddingVersion: FieldRef<"UserEmbedding", 'String'>
+    readonly processingStatus: FieldRef<"UserEmbedding", 'EmbeddingStatus'>
+    readonly createdAt: FieldRef<"UserEmbedding", 'DateTime'>
+    readonly updatedAt: FieldRef<"UserEmbedding", 'DateTime'>
+    readonly lastCalculatedAt: FieldRef<"UserEmbedding", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * UserEmbedding findUnique
+   */
+  export type UserEmbeddingFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserEmbedding
+     */
+    select?: UserEmbeddingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserEmbedding
+     */
+    omit?: UserEmbeddingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserEmbeddingInclude<ExtArgs> | null
+    /**
+     * Filter, which UserEmbedding to fetch.
+     */
+    where: UserEmbeddingWhereUniqueInput
+  }
+
+  /**
+   * UserEmbedding findUniqueOrThrow
+   */
+  export type UserEmbeddingFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserEmbedding
+     */
+    select?: UserEmbeddingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserEmbedding
+     */
+    omit?: UserEmbeddingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserEmbeddingInclude<ExtArgs> | null
+    /**
+     * Filter, which UserEmbedding to fetch.
+     */
+    where: UserEmbeddingWhereUniqueInput
+  }
+
+  /**
+   * UserEmbedding findFirst
+   */
+  export type UserEmbeddingFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserEmbedding
+     */
+    select?: UserEmbeddingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserEmbedding
+     */
+    omit?: UserEmbeddingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserEmbeddingInclude<ExtArgs> | null
+    /**
+     * Filter, which UserEmbedding to fetch.
+     */
+    where?: UserEmbeddingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserEmbeddings to fetch.
+     */
+    orderBy?: UserEmbeddingOrderByWithRelationInput | UserEmbeddingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UserEmbeddings.
+     */
+    cursor?: UserEmbeddingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserEmbeddings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserEmbeddings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UserEmbeddings.
+     */
+    distinct?: UserEmbeddingScalarFieldEnum | UserEmbeddingScalarFieldEnum[]
+  }
+
+  /**
+   * UserEmbedding findFirstOrThrow
+   */
+  export type UserEmbeddingFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserEmbedding
+     */
+    select?: UserEmbeddingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserEmbedding
+     */
+    omit?: UserEmbeddingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserEmbeddingInclude<ExtArgs> | null
+    /**
+     * Filter, which UserEmbedding to fetch.
+     */
+    where?: UserEmbeddingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserEmbeddings to fetch.
+     */
+    orderBy?: UserEmbeddingOrderByWithRelationInput | UserEmbeddingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UserEmbeddings.
+     */
+    cursor?: UserEmbeddingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserEmbeddings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserEmbeddings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UserEmbeddings.
+     */
+    distinct?: UserEmbeddingScalarFieldEnum | UserEmbeddingScalarFieldEnum[]
+  }
+
+  /**
+   * UserEmbedding findMany
+   */
+  export type UserEmbeddingFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserEmbedding
+     */
+    select?: UserEmbeddingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserEmbedding
+     */
+    omit?: UserEmbeddingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserEmbeddingInclude<ExtArgs> | null
+    /**
+     * Filter, which UserEmbeddings to fetch.
+     */
+    where?: UserEmbeddingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserEmbeddings to fetch.
+     */
+    orderBy?: UserEmbeddingOrderByWithRelationInput | UserEmbeddingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing UserEmbeddings.
+     */
+    cursor?: UserEmbeddingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserEmbeddings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserEmbeddings.
+     */
+    skip?: number
+    distinct?: UserEmbeddingScalarFieldEnum | UserEmbeddingScalarFieldEnum[]
+  }
+
+  /**
+   * UserEmbedding update
+   */
+  export type UserEmbeddingUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserEmbedding
+     */
+    select?: UserEmbeddingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserEmbedding
+     */
+    omit?: UserEmbeddingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserEmbeddingInclude<ExtArgs> | null
+    /**
+     * The data needed to update a UserEmbedding.
+     */
+    data: XOR<UserEmbeddingUpdateInput, UserEmbeddingUncheckedUpdateInput>
+    /**
+     * Choose, which UserEmbedding to update.
+     */
+    where: UserEmbeddingWhereUniqueInput
+  }
+
+  /**
+   * UserEmbedding updateMany
+   */
+  export type UserEmbeddingUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update UserEmbeddings.
+     */
+    data: XOR<UserEmbeddingUpdateManyMutationInput, UserEmbeddingUncheckedUpdateManyInput>
+    /**
+     * Filter which UserEmbeddings to update
+     */
+    where?: UserEmbeddingWhereInput
+    /**
+     * Limit how many UserEmbeddings to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * UserEmbedding updateManyAndReturn
+   */
+  export type UserEmbeddingUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserEmbedding
+     */
+    select?: UserEmbeddingSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserEmbedding
+     */
+    omit?: UserEmbeddingOmit<ExtArgs> | null
+    /**
+     * The data used to update UserEmbeddings.
+     */
+    data: XOR<UserEmbeddingUpdateManyMutationInput, UserEmbeddingUncheckedUpdateManyInput>
+    /**
+     * Filter which UserEmbeddings to update
+     */
+    where?: UserEmbeddingWhereInput
+    /**
+     * Limit how many UserEmbeddings to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserEmbeddingIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * UserEmbedding delete
+   */
+  export type UserEmbeddingDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserEmbedding
+     */
+    select?: UserEmbeddingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserEmbedding
+     */
+    omit?: UserEmbeddingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserEmbeddingInclude<ExtArgs> | null
+    /**
+     * Filter which UserEmbedding to delete.
+     */
+    where: UserEmbeddingWhereUniqueInput
+  }
+
+  /**
+   * UserEmbedding deleteMany
+   */
+  export type UserEmbeddingDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UserEmbeddings to delete
+     */
+    where?: UserEmbeddingWhereInput
+    /**
+     * Limit how many UserEmbeddings to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * UserEmbedding without action
+   */
+  export type UserEmbeddingDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserEmbedding
+     */
+    select?: UserEmbeddingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserEmbedding
+     */
+    omit?: UserEmbeddingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserEmbeddingInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model CommentEmbedding
+   */
+
+  export type AggregateCommentEmbedding = {
+    _count: CommentEmbeddingCountAggregateOutputType | null
+    _avg: CommentEmbeddingAvgAggregateOutputType | null
+    _sum: CommentEmbeddingSumAggregateOutputType | null
+    _min: CommentEmbeddingMinAggregateOutputType | null
+    _max: CommentEmbeddingMaxAggregateOutputType | null
+  }
+
+  export type CommentEmbeddingAvgAggregateOutputType = {
+    toxicityScore: number | null
+    relevanceScore: number | null
+    sentimentScore: number | null
+  }
+
+  export type CommentEmbeddingSumAggregateOutputType = {
+    toxicityScore: number | null
+    relevanceScore: number | null
+    sentimentScore: number | null
+  }
+
+  export type CommentEmbeddingMinAggregateOutputType = {
+    id: string | null
+    platformId: string | null
+    platform: string | null
+    videoId: string | null
+    content: string | null
+    authorName: string | null
+    publishedAt: Date | null
+    toxicityScore: number | null
+    relevanceScore: number | null
+    sentimentScore: number | null
+    embeddingModel: string | null
+    embeddingVersion: string | null
+    processingStatus: $Enums.EmbeddingStatus | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type CommentEmbeddingMaxAggregateOutputType = {
+    id: string | null
+    platformId: string | null
+    platform: string | null
+    videoId: string | null
+    content: string | null
+    authorName: string | null
+    publishedAt: Date | null
+    toxicityScore: number | null
+    relevanceScore: number | null
+    sentimentScore: number | null
+    embeddingModel: string | null
+    embeddingVersion: string | null
+    processingStatus: $Enums.EmbeddingStatus | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type CommentEmbeddingCountAggregateOutputType = {
+    id: number
+    platformId: number
+    platform: number
+    videoId: number
+    content: number
+    authorName: number
+    publishedAt: number
+    toxicityScore: number
+    relevanceScore: number
+    sentimentScore: number
+    embeddingModel: number
+    embeddingVersion: number
+    processingStatus: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type CommentEmbeddingAvgAggregateInputType = {
+    toxicityScore?: true
+    relevanceScore?: true
+    sentimentScore?: true
+  }
+
+  export type CommentEmbeddingSumAggregateInputType = {
+    toxicityScore?: true
+    relevanceScore?: true
+    sentimentScore?: true
+  }
+
+  export type CommentEmbeddingMinAggregateInputType = {
+    id?: true
+    platformId?: true
+    platform?: true
+    videoId?: true
+    content?: true
+    authorName?: true
+    publishedAt?: true
+    toxicityScore?: true
+    relevanceScore?: true
+    sentimentScore?: true
+    embeddingModel?: true
+    embeddingVersion?: true
+    processingStatus?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type CommentEmbeddingMaxAggregateInputType = {
+    id?: true
+    platformId?: true
+    platform?: true
+    videoId?: true
+    content?: true
+    authorName?: true
+    publishedAt?: true
+    toxicityScore?: true
+    relevanceScore?: true
+    sentimentScore?: true
+    embeddingModel?: true
+    embeddingVersion?: true
+    processingStatus?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type CommentEmbeddingCountAggregateInputType = {
+    id?: true
+    platformId?: true
+    platform?: true
+    videoId?: true
+    content?: true
+    authorName?: true
+    publishedAt?: true
+    toxicityScore?: true
+    relevanceScore?: true
+    sentimentScore?: true
+    embeddingModel?: true
+    embeddingVersion?: true
+    processingStatus?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type CommentEmbeddingAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CommentEmbedding to aggregate.
+     */
+    where?: CommentEmbeddingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CommentEmbeddings to fetch.
+     */
+    orderBy?: CommentEmbeddingOrderByWithRelationInput | CommentEmbeddingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: CommentEmbeddingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CommentEmbeddings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CommentEmbeddings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned CommentEmbeddings
+    **/
+    _count?: true | CommentEmbeddingCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: CommentEmbeddingAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: CommentEmbeddingSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: CommentEmbeddingMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: CommentEmbeddingMaxAggregateInputType
+  }
+
+  export type GetCommentEmbeddingAggregateType<T extends CommentEmbeddingAggregateArgs> = {
+        [P in keyof T & keyof AggregateCommentEmbedding]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCommentEmbedding[P]>
+      : GetScalarType<T[P], AggregateCommentEmbedding[P]>
+  }
+
+
+
+
+  export type CommentEmbeddingGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CommentEmbeddingWhereInput
+    orderBy?: CommentEmbeddingOrderByWithAggregationInput | CommentEmbeddingOrderByWithAggregationInput[]
+    by: CommentEmbeddingScalarFieldEnum[] | CommentEmbeddingScalarFieldEnum
+    having?: CommentEmbeddingScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: CommentEmbeddingCountAggregateInputType | true
+    _avg?: CommentEmbeddingAvgAggregateInputType
+    _sum?: CommentEmbeddingSumAggregateInputType
+    _min?: CommentEmbeddingMinAggregateInputType
+    _max?: CommentEmbeddingMaxAggregateInputType
+  }
+
+  export type CommentEmbeddingGroupByOutputType = {
+    id: string
+    platformId: string
+    platform: string
+    videoId: string
+    content: string
+    authorName: string | null
+    publishedAt: Date | null
+    toxicityScore: number | null
+    relevanceScore: number | null
+    sentimentScore: number | null
+    embeddingModel: string
+    embeddingVersion: string
+    processingStatus: $Enums.EmbeddingStatus
+    createdAt: Date
+    updatedAt: Date
+    _count: CommentEmbeddingCountAggregateOutputType | null
+    _avg: CommentEmbeddingAvgAggregateOutputType | null
+    _sum: CommentEmbeddingSumAggregateOutputType | null
+    _min: CommentEmbeddingMinAggregateOutputType | null
+    _max: CommentEmbeddingMaxAggregateOutputType | null
+  }
+
+  type GetCommentEmbeddingGroupByPayload<T extends CommentEmbeddingGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<CommentEmbeddingGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof CommentEmbeddingGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], CommentEmbeddingGroupByOutputType[P]>
+            : GetScalarType<T[P], CommentEmbeddingGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type CommentEmbeddingSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    platformId?: boolean
+    platform?: boolean
+    videoId?: boolean
+    content?: boolean
+    authorName?: boolean
+    publishedAt?: boolean
+    toxicityScore?: boolean
+    relevanceScore?: boolean
+    sentimentScore?: boolean
+    embeddingModel?: boolean
+    embeddingVersion?: boolean
+    processingStatus?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["commentEmbedding"]>
+
+
+  export type CommentEmbeddingSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    platformId?: boolean
+    platform?: boolean
+    videoId?: boolean
+    content?: boolean
+    authorName?: boolean
+    publishedAt?: boolean
+    toxicityScore?: boolean
+    relevanceScore?: boolean
+    sentimentScore?: boolean
+    embeddingModel?: boolean
+    embeddingVersion?: boolean
+    processingStatus?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["commentEmbedding"]>
+
+  export type CommentEmbeddingSelectScalar = {
+    id?: boolean
+    platformId?: boolean
+    platform?: boolean
+    videoId?: boolean
+    content?: boolean
+    authorName?: boolean
+    publishedAt?: boolean
+    toxicityScore?: boolean
+    relevanceScore?: boolean
+    sentimentScore?: boolean
+    embeddingModel?: boolean
+    embeddingVersion?: boolean
+    processingStatus?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type CommentEmbeddingOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "platformId" | "platform" | "videoId" | "content" | "authorName" | "publishedAt" | "toxicityScore" | "relevanceScore" | "sentimentScore" | "embeddingModel" | "embeddingVersion" | "processingStatus" | "createdAt" | "updatedAt", ExtArgs["result"]["commentEmbedding"]>
+
+  export type $CommentEmbeddingPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "CommentEmbedding"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      platformId: string
+      platform: string
+      videoId: string
+      content: string
+      authorName: string | null
+      publishedAt: Date | null
+      toxicityScore: number | null
+      relevanceScore: number | null
+      sentimentScore: number | null
+      embeddingModel: string
+      embeddingVersion: string
+      processingStatus: $Enums.EmbeddingStatus
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["commentEmbedding"]>
+    composites: {}
+  }
+
+  type CommentEmbeddingGetPayload<S extends boolean | null | undefined | CommentEmbeddingDefaultArgs> = $Result.GetResult<Prisma.$CommentEmbeddingPayload, S>
+
+  type CommentEmbeddingCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<CommentEmbeddingFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: CommentEmbeddingCountAggregateInputType | true
+    }
+
+  export interface CommentEmbeddingDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['CommentEmbedding'], meta: { name: 'CommentEmbedding' } }
+    /**
+     * Find zero or one CommentEmbedding that matches the filter.
+     * @param {CommentEmbeddingFindUniqueArgs} args - Arguments to find a CommentEmbedding
+     * @example
+     * // Get one CommentEmbedding
+     * const commentEmbedding = await prisma.commentEmbedding.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends CommentEmbeddingFindUniqueArgs>(args: SelectSubset<T, CommentEmbeddingFindUniqueArgs<ExtArgs>>): Prisma__CommentEmbeddingClient<$Result.GetResult<Prisma.$CommentEmbeddingPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one CommentEmbedding that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {CommentEmbeddingFindUniqueOrThrowArgs} args - Arguments to find a CommentEmbedding
+     * @example
+     * // Get one CommentEmbedding
+     * const commentEmbedding = await prisma.commentEmbedding.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends CommentEmbeddingFindUniqueOrThrowArgs>(args: SelectSubset<T, CommentEmbeddingFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CommentEmbeddingClient<$Result.GetResult<Prisma.$CommentEmbeddingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CommentEmbedding that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CommentEmbeddingFindFirstArgs} args - Arguments to find a CommentEmbedding
+     * @example
+     * // Get one CommentEmbedding
+     * const commentEmbedding = await prisma.commentEmbedding.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends CommentEmbeddingFindFirstArgs>(args?: SelectSubset<T, CommentEmbeddingFindFirstArgs<ExtArgs>>): Prisma__CommentEmbeddingClient<$Result.GetResult<Prisma.$CommentEmbeddingPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CommentEmbedding that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CommentEmbeddingFindFirstOrThrowArgs} args - Arguments to find a CommentEmbedding
+     * @example
+     * // Get one CommentEmbedding
+     * const commentEmbedding = await prisma.commentEmbedding.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends CommentEmbeddingFindFirstOrThrowArgs>(args?: SelectSubset<T, CommentEmbeddingFindFirstOrThrowArgs<ExtArgs>>): Prisma__CommentEmbeddingClient<$Result.GetResult<Prisma.$CommentEmbeddingPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more CommentEmbeddings that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CommentEmbeddingFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all CommentEmbeddings
+     * const commentEmbeddings = await prisma.commentEmbedding.findMany()
+     * 
+     * // Get first 10 CommentEmbeddings
+     * const commentEmbeddings = await prisma.commentEmbedding.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const commentEmbeddingWithIdOnly = await prisma.commentEmbedding.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends CommentEmbeddingFindManyArgs>(args?: SelectSubset<T, CommentEmbeddingFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CommentEmbeddingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Delete a CommentEmbedding.
+     * @param {CommentEmbeddingDeleteArgs} args - Arguments to delete one CommentEmbedding.
+     * @example
+     * // Delete one CommentEmbedding
+     * const CommentEmbedding = await prisma.commentEmbedding.delete({
+     *   where: {
+     *     // ... filter to delete one CommentEmbedding
+     *   }
+     * })
+     * 
+     */
+    delete<T extends CommentEmbeddingDeleteArgs>(args: SelectSubset<T, CommentEmbeddingDeleteArgs<ExtArgs>>): Prisma__CommentEmbeddingClient<$Result.GetResult<Prisma.$CommentEmbeddingPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one CommentEmbedding.
+     * @param {CommentEmbeddingUpdateArgs} args - Arguments to update one CommentEmbedding.
+     * @example
+     * // Update one CommentEmbedding
+     * const commentEmbedding = await prisma.commentEmbedding.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends CommentEmbeddingUpdateArgs>(args: SelectSubset<T, CommentEmbeddingUpdateArgs<ExtArgs>>): Prisma__CommentEmbeddingClient<$Result.GetResult<Prisma.$CommentEmbeddingPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more CommentEmbeddings.
+     * @param {CommentEmbeddingDeleteManyArgs} args - Arguments to filter CommentEmbeddings to delete.
+     * @example
+     * // Delete a few CommentEmbeddings
+     * const { count } = await prisma.commentEmbedding.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends CommentEmbeddingDeleteManyArgs>(args?: SelectSubset<T, CommentEmbeddingDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CommentEmbeddings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CommentEmbeddingUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many CommentEmbeddings
+     * const commentEmbedding = await prisma.commentEmbedding.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends CommentEmbeddingUpdateManyArgs>(args: SelectSubset<T, CommentEmbeddingUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CommentEmbeddings and returns the data updated in the database.
+     * @param {CommentEmbeddingUpdateManyAndReturnArgs} args - Arguments to update many CommentEmbeddings.
+     * @example
+     * // Update many CommentEmbeddings
+     * const commentEmbedding = await prisma.commentEmbedding.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more CommentEmbeddings and only return the `id`
+     * const commentEmbeddingWithIdOnly = await prisma.commentEmbedding.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends CommentEmbeddingUpdateManyAndReturnArgs>(args: SelectSubset<T, CommentEmbeddingUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CommentEmbeddingPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+
+    /**
+     * Count the number of CommentEmbeddings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CommentEmbeddingCountArgs} args - Arguments to filter CommentEmbeddings to count.
+     * @example
+     * // Count the number of CommentEmbeddings
+     * const count = await prisma.commentEmbedding.count({
+     *   where: {
+     *     // ... the filter for the CommentEmbeddings we want to count
+     *   }
+     * })
+    **/
+    count<T extends CommentEmbeddingCountArgs>(
+      args?: Subset<T, CommentEmbeddingCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], CommentEmbeddingCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a CommentEmbedding.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CommentEmbeddingAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends CommentEmbeddingAggregateArgs>(args: Subset<T, CommentEmbeddingAggregateArgs>): Prisma.PrismaPromise<GetCommentEmbeddingAggregateType<T>>
+
+    /**
+     * Group by CommentEmbedding.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CommentEmbeddingGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends CommentEmbeddingGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: CommentEmbeddingGroupByArgs['orderBy'] }
+        : { orderBy?: CommentEmbeddingGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, CommentEmbeddingGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCommentEmbeddingGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the CommentEmbedding model
+   */
+  readonly fields: CommentEmbeddingFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for CommentEmbedding.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__CommentEmbeddingClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the CommentEmbedding model
+   */
+  interface CommentEmbeddingFieldRefs {
+    readonly id: FieldRef<"CommentEmbedding", 'String'>
+    readonly platformId: FieldRef<"CommentEmbedding", 'String'>
+    readonly platform: FieldRef<"CommentEmbedding", 'String'>
+    readonly videoId: FieldRef<"CommentEmbedding", 'String'>
+    readonly content: FieldRef<"CommentEmbedding", 'String'>
+    readonly authorName: FieldRef<"CommentEmbedding", 'String'>
+    readonly publishedAt: FieldRef<"CommentEmbedding", 'DateTime'>
+    readonly toxicityScore: FieldRef<"CommentEmbedding", 'Float'>
+    readonly relevanceScore: FieldRef<"CommentEmbedding", 'Float'>
+    readonly sentimentScore: FieldRef<"CommentEmbedding", 'Float'>
+    readonly embeddingModel: FieldRef<"CommentEmbedding", 'String'>
+    readonly embeddingVersion: FieldRef<"CommentEmbedding", 'String'>
+    readonly processingStatus: FieldRef<"CommentEmbedding", 'EmbeddingStatus'>
+    readonly createdAt: FieldRef<"CommentEmbedding", 'DateTime'>
+    readonly updatedAt: FieldRef<"CommentEmbedding", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * CommentEmbedding findUnique
+   */
+  export type CommentEmbeddingFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CommentEmbedding
+     */
+    select?: CommentEmbeddingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CommentEmbedding
+     */
+    omit?: CommentEmbeddingOmit<ExtArgs> | null
+    /**
+     * Filter, which CommentEmbedding to fetch.
+     */
+    where: CommentEmbeddingWhereUniqueInput
+  }
+
+  /**
+   * CommentEmbedding findUniqueOrThrow
+   */
+  export type CommentEmbeddingFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CommentEmbedding
+     */
+    select?: CommentEmbeddingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CommentEmbedding
+     */
+    omit?: CommentEmbeddingOmit<ExtArgs> | null
+    /**
+     * Filter, which CommentEmbedding to fetch.
+     */
+    where: CommentEmbeddingWhereUniqueInput
+  }
+
+  /**
+   * CommentEmbedding findFirst
+   */
+  export type CommentEmbeddingFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CommentEmbedding
+     */
+    select?: CommentEmbeddingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CommentEmbedding
+     */
+    omit?: CommentEmbeddingOmit<ExtArgs> | null
+    /**
+     * Filter, which CommentEmbedding to fetch.
+     */
+    where?: CommentEmbeddingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CommentEmbeddings to fetch.
+     */
+    orderBy?: CommentEmbeddingOrderByWithRelationInput | CommentEmbeddingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CommentEmbeddings.
+     */
+    cursor?: CommentEmbeddingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CommentEmbeddings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CommentEmbeddings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CommentEmbeddings.
+     */
+    distinct?: CommentEmbeddingScalarFieldEnum | CommentEmbeddingScalarFieldEnum[]
+  }
+
+  /**
+   * CommentEmbedding findFirstOrThrow
+   */
+  export type CommentEmbeddingFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CommentEmbedding
+     */
+    select?: CommentEmbeddingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CommentEmbedding
+     */
+    omit?: CommentEmbeddingOmit<ExtArgs> | null
+    /**
+     * Filter, which CommentEmbedding to fetch.
+     */
+    where?: CommentEmbeddingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CommentEmbeddings to fetch.
+     */
+    orderBy?: CommentEmbeddingOrderByWithRelationInput | CommentEmbeddingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CommentEmbeddings.
+     */
+    cursor?: CommentEmbeddingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CommentEmbeddings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CommentEmbeddings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CommentEmbeddings.
+     */
+    distinct?: CommentEmbeddingScalarFieldEnum | CommentEmbeddingScalarFieldEnum[]
+  }
+
+  /**
+   * CommentEmbedding findMany
+   */
+  export type CommentEmbeddingFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CommentEmbedding
+     */
+    select?: CommentEmbeddingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CommentEmbedding
+     */
+    omit?: CommentEmbeddingOmit<ExtArgs> | null
+    /**
+     * Filter, which CommentEmbeddings to fetch.
+     */
+    where?: CommentEmbeddingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CommentEmbeddings to fetch.
+     */
+    orderBy?: CommentEmbeddingOrderByWithRelationInput | CommentEmbeddingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing CommentEmbeddings.
+     */
+    cursor?: CommentEmbeddingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CommentEmbeddings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CommentEmbeddings.
+     */
+    skip?: number
+    distinct?: CommentEmbeddingScalarFieldEnum | CommentEmbeddingScalarFieldEnum[]
+  }
+
+  /**
+   * CommentEmbedding update
+   */
+  export type CommentEmbeddingUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CommentEmbedding
+     */
+    select?: CommentEmbeddingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CommentEmbedding
+     */
+    omit?: CommentEmbeddingOmit<ExtArgs> | null
+    /**
+     * The data needed to update a CommentEmbedding.
+     */
+    data: XOR<CommentEmbeddingUpdateInput, CommentEmbeddingUncheckedUpdateInput>
+    /**
+     * Choose, which CommentEmbedding to update.
+     */
+    where: CommentEmbeddingWhereUniqueInput
+  }
+
+  /**
+   * CommentEmbedding updateMany
+   */
+  export type CommentEmbeddingUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update CommentEmbeddings.
+     */
+    data: XOR<CommentEmbeddingUpdateManyMutationInput, CommentEmbeddingUncheckedUpdateManyInput>
+    /**
+     * Filter which CommentEmbeddings to update
+     */
+    where?: CommentEmbeddingWhereInput
+    /**
+     * Limit how many CommentEmbeddings to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * CommentEmbedding updateManyAndReturn
+   */
+  export type CommentEmbeddingUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CommentEmbedding
+     */
+    select?: CommentEmbeddingSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CommentEmbedding
+     */
+    omit?: CommentEmbeddingOmit<ExtArgs> | null
+    /**
+     * The data used to update CommentEmbeddings.
+     */
+    data: XOR<CommentEmbeddingUpdateManyMutationInput, CommentEmbeddingUncheckedUpdateManyInput>
+    /**
+     * Filter which CommentEmbeddings to update
+     */
+    where?: CommentEmbeddingWhereInput
+    /**
+     * Limit how many CommentEmbeddings to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * CommentEmbedding delete
+   */
+  export type CommentEmbeddingDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CommentEmbedding
+     */
+    select?: CommentEmbeddingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CommentEmbedding
+     */
+    omit?: CommentEmbeddingOmit<ExtArgs> | null
+    /**
+     * Filter which CommentEmbedding to delete.
+     */
+    where: CommentEmbeddingWhereUniqueInput
+  }
+
+  /**
+   * CommentEmbedding deleteMany
+   */
+  export type CommentEmbeddingDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CommentEmbeddings to delete
+     */
+    where?: CommentEmbeddingWhereInput
+    /**
+     * Limit how many CommentEmbeddings to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * CommentEmbedding without action
+   */
+  export type CommentEmbeddingDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CommentEmbedding
+     */
+    select?: CommentEmbeddingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CommentEmbedding
+     */
+    omit?: CommentEmbeddingOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model SearchEmbedding
+   */
+
+  export type AggregateSearchEmbedding = {
+    _count: SearchEmbeddingCountAggregateOutputType | null
+    _avg: SearchEmbeddingAvgAggregateOutputType | null
+    _sum: SearchEmbeddingSumAggregateOutputType | null
+    _min: SearchEmbeddingMinAggregateOutputType | null
+    _max: SearchEmbeddingMaxAggregateOutputType | null
+  }
+
+  export type SearchEmbeddingAvgAggregateOutputType = {
+    searchCount: number | null
+    clickThrough: number | null
+    avgWatchTime: number | null
+  }
+
+  export type SearchEmbeddingSumAggregateOutputType = {
+    searchCount: number | null
+    clickThrough: number | null
+    avgWatchTime: number | null
+  }
+
+  export type SearchEmbeddingMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    query: string | null
+    intent: string | null
+    searchCount: number | null
+    clickThrough: number | null
+    avgWatchTime: number | null
+    embeddingModel: string | null
+    embeddingVersion: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    lastSearchedAt: Date | null
+  }
+
+  export type SearchEmbeddingMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    query: string | null
+    intent: string | null
+    searchCount: number | null
+    clickThrough: number | null
+    avgWatchTime: number | null
+    embeddingModel: string | null
+    embeddingVersion: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    lastSearchedAt: Date | null
+  }
+
+  export type SearchEmbeddingCountAggregateOutputType = {
+    id: number
+    userId: number
+    query: number
+    intent: number
+    entities: number
+    searchCount: number
+    clickThrough: number
+    avgWatchTime: number
+    embeddingModel: number
+    embeddingVersion: number
+    createdAt: number
+    updatedAt: number
+    lastSearchedAt: number
+    _all: number
+  }
+
+
+  export type SearchEmbeddingAvgAggregateInputType = {
+    searchCount?: true
+    clickThrough?: true
+    avgWatchTime?: true
+  }
+
+  export type SearchEmbeddingSumAggregateInputType = {
+    searchCount?: true
+    clickThrough?: true
+    avgWatchTime?: true
+  }
+
+  export type SearchEmbeddingMinAggregateInputType = {
+    id?: true
+    userId?: true
+    query?: true
+    intent?: true
+    searchCount?: true
+    clickThrough?: true
+    avgWatchTime?: true
+    embeddingModel?: true
+    embeddingVersion?: true
+    createdAt?: true
+    updatedAt?: true
+    lastSearchedAt?: true
+  }
+
+  export type SearchEmbeddingMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    query?: true
+    intent?: true
+    searchCount?: true
+    clickThrough?: true
+    avgWatchTime?: true
+    embeddingModel?: true
+    embeddingVersion?: true
+    createdAt?: true
+    updatedAt?: true
+    lastSearchedAt?: true
+  }
+
+  export type SearchEmbeddingCountAggregateInputType = {
+    id?: true
+    userId?: true
+    query?: true
+    intent?: true
+    entities?: true
+    searchCount?: true
+    clickThrough?: true
+    avgWatchTime?: true
+    embeddingModel?: true
+    embeddingVersion?: true
+    createdAt?: true
+    updatedAt?: true
+    lastSearchedAt?: true
+    _all?: true
+  }
+
+  export type SearchEmbeddingAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SearchEmbedding to aggregate.
+     */
+    where?: SearchEmbeddingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SearchEmbeddings to fetch.
+     */
+    orderBy?: SearchEmbeddingOrderByWithRelationInput | SearchEmbeddingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SearchEmbeddingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SearchEmbeddings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SearchEmbeddings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned SearchEmbeddings
+    **/
+    _count?: true | SearchEmbeddingCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: SearchEmbeddingAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: SearchEmbeddingSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SearchEmbeddingMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SearchEmbeddingMaxAggregateInputType
+  }
+
+  export type GetSearchEmbeddingAggregateType<T extends SearchEmbeddingAggregateArgs> = {
+        [P in keyof T & keyof AggregateSearchEmbedding]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSearchEmbedding[P]>
+      : GetScalarType<T[P], AggregateSearchEmbedding[P]>
+  }
+
+
+
+
+  export type SearchEmbeddingGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SearchEmbeddingWhereInput
+    orderBy?: SearchEmbeddingOrderByWithAggregationInput | SearchEmbeddingOrderByWithAggregationInput[]
+    by: SearchEmbeddingScalarFieldEnum[] | SearchEmbeddingScalarFieldEnum
+    having?: SearchEmbeddingScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SearchEmbeddingCountAggregateInputType | true
+    _avg?: SearchEmbeddingAvgAggregateInputType
+    _sum?: SearchEmbeddingSumAggregateInputType
+    _min?: SearchEmbeddingMinAggregateInputType
+    _max?: SearchEmbeddingMaxAggregateInputType
+  }
+
+  export type SearchEmbeddingGroupByOutputType = {
+    id: string
+    userId: string | null
+    query: string
+    intent: string | null
+    entities: string[]
+    searchCount: number
+    clickThrough: number
+    avgWatchTime: number | null
+    embeddingModel: string
+    embeddingVersion: string
+    createdAt: Date
+    updatedAt: Date
+    lastSearchedAt: Date
+    _count: SearchEmbeddingCountAggregateOutputType | null
+    _avg: SearchEmbeddingAvgAggregateOutputType | null
+    _sum: SearchEmbeddingSumAggregateOutputType | null
+    _min: SearchEmbeddingMinAggregateOutputType | null
+    _max: SearchEmbeddingMaxAggregateOutputType | null
+  }
+
+  type GetSearchEmbeddingGroupByPayload<T extends SearchEmbeddingGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SearchEmbeddingGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SearchEmbeddingGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SearchEmbeddingGroupByOutputType[P]>
+            : GetScalarType<T[P], SearchEmbeddingGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SearchEmbeddingSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    query?: boolean
+    intent?: boolean
+    entities?: boolean
+    searchCount?: boolean
+    clickThrough?: boolean
+    avgWatchTime?: boolean
+    embeddingModel?: boolean
+    embeddingVersion?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    lastSearchedAt?: boolean
+    user?: boolean | SearchEmbedding$userArgs<ExtArgs>
+  }, ExtArgs["result"]["searchEmbedding"]>
+
+
+  export type SearchEmbeddingSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    query?: boolean
+    intent?: boolean
+    entities?: boolean
+    searchCount?: boolean
+    clickThrough?: boolean
+    avgWatchTime?: boolean
+    embeddingModel?: boolean
+    embeddingVersion?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    lastSearchedAt?: boolean
+    user?: boolean | SearchEmbedding$userArgs<ExtArgs>
+  }, ExtArgs["result"]["searchEmbedding"]>
+
+  export type SearchEmbeddingSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    query?: boolean
+    intent?: boolean
+    entities?: boolean
+    searchCount?: boolean
+    clickThrough?: boolean
+    avgWatchTime?: boolean
+    embeddingModel?: boolean
+    embeddingVersion?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    lastSearchedAt?: boolean
+  }
+
+  export type SearchEmbeddingOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "query" | "intent" | "entities" | "searchCount" | "clickThrough" | "avgWatchTime" | "embeddingModel" | "embeddingVersion" | "createdAt" | "updatedAt" | "lastSearchedAt", ExtArgs["result"]["searchEmbedding"]>
+  export type SearchEmbeddingInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | SearchEmbedding$userArgs<ExtArgs>
+  }
+  export type SearchEmbeddingIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | SearchEmbedding$userArgs<ExtArgs>
+  }
+
+  export type $SearchEmbeddingPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SearchEmbedding"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string | null
+      query: string
+      intent: string | null
+      entities: string[]
+      searchCount: number
+      clickThrough: number
+      avgWatchTime: number | null
+      embeddingModel: string
+      embeddingVersion: string
+      createdAt: Date
+      updatedAt: Date
+      lastSearchedAt: Date
+    }, ExtArgs["result"]["searchEmbedding"]>
+    composites: {}
+  }
+
+  type SearchEmbeddingGetPayload<S extends boolean | null | undefined | SearchEmbeddingDefaultArgs> = $Result.GetResult<Prisma.$SearchEmbeddingPayload, S>
+
+  type SearchEmbeddingCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SearchEmbeddingFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SearchEmbeddingCountAggregateInputType | true
+    }
+
+  export interface SearchEmbeddingDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SearchEmbedding'], meta: { name: 'SearchEmbedding' } }
+    /**
+     * Find zero or one SearchEmbedding that matches the filter.
+     * @param {SearchEmbeddingFindUniqueArgs} args - Arguments to find a SearchEmbedding
+     * @example
+     * // Get one SearchEmbedding
+     * const searchEmbedding = await prisma.searchEmbedding.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SearchEmbeddingFindUniqueArgs>(args: SelectSubset<T, SearchEmbeddingFindUniqueArgs<ExtArgs>>): Prisma__SearchEmbeddingClient<$Result.GetResult<Prisma.$SearchEmbeddingPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one SearchEmbedding that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SearchEmbeddingFindUniqueOrThrowArgs} args - Arguments to find a SearchEmbedding
+     * @example
+     * // Get one SearchEmbedding
+     * const searchEmbedding = await prisma.searchEmbedding.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SearchEmbeddingFindUniqueOrThrowArgs>(args: SelectSubset<T, SearchEmbeddingFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SearchEmbeddingClient<$Result.GetResult<Prisma.$SearchEmbeddingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SearchEmbedding that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SearchEmbeddingFindFirstArgs} args - Arguments to find a SearchEmbedding
+     * @example
+     * // Get one SearchEmbedding
+     * const searchEmbedding = await prisma.searchEmbedding.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SearchEmbeddingFindFirstArgs>(args?: SelectSubset<T, SearchEmbeddingFindFirstArgs<ExtArgs>>): Prisma__SearchEmbeddingClient<$Result.GetResult<Prisma.$SearchEmbeddingPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SearchEmbedding that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SearchEmbeddingFindFirstOrThrowArgs} args - Arguments to find a SearchEmbedding
+     * @example
+     * // Get one SearchEmbedding
+     * const searchEmbedding = await prisma.searchEmbedding.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SearchEmbeddingFindFirstOrThrowArgs>(args?: SelectSubset<T, SearchEmbeddingFindFirstOrThrowArgs<ExtArgs>>): Prisma__SearchEmbeddingClient<$Result.GetResult<Prisma.$SearchEmbeddingPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SearchEmbeddings that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SearchEmbeddingFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all SearchEmbeddings
+     * const searchEmbeddings = await prisma.searchEmbedding.findMany()
+     * 
+     * // Get first 10 SearchEmbeddings
+     * const searchEmbeddings = await prisma.searchEmbedding.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const searchEmbeddingWithIdOnly = await prisma.searchEmbedding.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SearchEmbeddingFindManyArgs>(args?: SelectSubset<T, SearchEmbeddingFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SearchEmbeddingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Delete a SearchEmbedding.
+     * @param {SearchEmbeddingDeleteArgs} args - Arguments to delete one SearchEmbedding.
+     * @example
+     * // Delete one SearchEmbedding
+     * const SearchEmbedding = await prisma.searchEmbedding.delete({
+     *   where: {
+     *     // ... filter to delete one SearchEmbedding
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SearchEmbeddingDeleteArgs>(args: SelectSubset<T, SearchEmbeddingDeleteArgs<ExtArgs>>): Prisma__SearchEmbeddingClient<$Result.GetResult<Prisma.$SearchEmbeddingPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one SearchEmbedding.
+     * @param {SearchEmbeddingUpdateArgs} args - Arguments to update one SearchEmbedding.
+     * @example
+     * // Update one SearchEmbedding
+     * const searchEmbedding = await prisma.searchEmbedding.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SearchEmbeddingUpdateArgs>(args: SelectSubset<T, SearchEmbeddingUpdateArgs<ExtArgs>>): Prisma__SearchEmbeddingClient<$Result.GetResult<Prisma.$SearchEmbeddingPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more SearchEmbeddings.
+     * @param {SearchEmbeddingDeleteManyArgs} args - Arguments to filter SearchEmbeddings to delete.
+     * @example
+     * // Delete a few SearchEmbeddings
+     * const { count } = await prisma.searchEmbedding.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SearchEmbeddingDeleteManyArgs>(args?: SelectSubset<T, SearchEmbeddingDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SearchEmbeddings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SearchEmbeddingUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many SearchEmbeddings
+     * const searchEmbedding = await prisma.searchEmbedding.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SearchEmbeddingUpdateManyArgs>(args: SelectSubset<T, SearchEmbeddingUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SearchEmbeddings and returns the data updated in the database.
+     * @param {SearchEmbeddingUpdateManyAndReturnArgs} args - Arguments to update many SearchEmbeddings.
+     * @example
+     * // Update many SearchEmbeddings
+     * const searchEmbedding = await prisma.searchEmbedding.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more SearchEmbeddings and only return the `id`
+     * const searchEmbeddingWithIdOnly = await prisma.searchEmbedding.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends SearchEmbeddingUpdateManyAndReturnArgs>(args: SelectSubset<T, SearchEmbeddingUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SearchEmbeddingPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+
+    /**
+     * Count the number of SearchEmbeddings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SearchEmbeddingCountArgs} args - Arguments to filter SearchEmbeddings to count.
+     * @example
+     * // Count the number of SearchEmbeddings
+     * const count = await prisma.searchEmbedding.count({
+     *   where: {
+     *     // ... the filter for the SearchEmbeddings we want to count
+     *   }
+     * })
+    **/
+    count<T extends SearchEmbeddingCountArgs>(
+      args?: Subset<T, SearchEmbeddingCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SearchEmbeddingCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a SearchEmbedding.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SearchEmbeddingAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SearchEmbeddingAggregateArgs>(args: Subset<T, SearchEmbeddingAggregateArgs>): Prisma.PrismaPromise<GetSearchEmbeddingAggregateType<T>>
+
+    /**
+     * Group by SearchEmbedding.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SearchEmbeddingGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SearchEmbeddingGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SearchEmbeddingGroupByArgs['orderBy'] }
+        : { orderBy?: SearchEmbeddingGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SearchEmbeddingGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSearchEmbeddingGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the SearchEmbedding model
+   */
+  readonly fields: SearchEmbeddingFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for SearchEmbedding.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SearchEmbeddingClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends SearchEmbedding$userArgs<ExtArgs> = {}>(args?: Subset<T, SearchEmbedding$userArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the SearchEmbedding model
+   */
+  interface SearchEmbeddingFieldRefs {
+    readonly id: FieldRef<"SearchEmbedding", 'String'>
+    readonly userId: FieldRef<"SearchEmbedding", 'String'>
+    readonly query: FieldRef<"SearchEmbedding", 'String'>
+    readonly intent: FieldRef<"SearchEmbedding", 'String'>
+    readonly entities: FieldRef<"SearchEmbedding", 'String[]'>
+    readonly searchCount: FieldRef<"SearchEmbedding", 'Int'>
+    readonly clickThrough: FieldRef<"SearchEmbedding", 'Float'>
+    readonly avgWatchTime: FieldRef<"SearchEmbedding", 'Float'>
+    readonly embeddingModel: FieldRef<"SearchEmbedding", 'String'>
+    readonly embeddingVersion: FieldRef<"SearchEmbedding", 'String'>
+    readonly createdAt: FieldRef<"SearchEmbedding", 'DateTime'>
+    readonly updatedAt: FieldRef<"SearchEmbedding", 'DateTime'>
+    readonly lastSearchedAt: FieldRef<"SearchEmbedding", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * SearchEmbedding findUnique
+   */
+  export type SearchEmbeddingFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SearchEmbedding
+     */
+    select?: SearchEmbeddingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SearchEmbedding
+     */
+    omit?: SearchEmbeddingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SearchEmbeddingInclude<ExtArgs> | null
+    /**
+     * Filter, which SearchEmbedding to fetch.
+     */
+    where: SearchEmbeddingWhereUniqueInput
+  }
+
+  /**
+   * SearchEmbedding findUniqueOrThrow
+   */
+  export type SearchEmbeddingFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SearchEmbedding
+     */
+    select?: SearchEmbeddingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SearchEmbedding
+     */
+    omit?: SearchEmbeddingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SearchEmbeddingInclude<ExtArgs> | null
+    /**
+     * Filter, which SearchEmbedding to fetch.
+     */
+    where: SearchEmbeddingWhereUniqueInput
+  }
+
+  /**
+   * SearchEmbedding findFirst
+   */
+  export type SearchEmbeddingFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SearchEmbedding
+     */
+    select?: SearchEmbeddingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SearchEmbedding
+     */
+    omit?: SearchEmbeddingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SearchEmbeddingInclude<ExtArgs> | null
+    /**
+     * Filter, which SearchEmbedding to fetch.
+     */
+    where?: SearchEmbeddingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SearchEmbeddings to fetch.
+     */
+    orderBy?: SearchEmbeddingOrderByWithRelationInput | SearchEmbeddingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SearchEmbeddings.
+     */
+    cursor?: SearchEmbeddingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SearchEmbeddings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SearchEmbeddings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SearchEmbeddings.
+     */
+    distinct?: SearchEmbeddingScalarFieldEnum | SearchEmbeddingScalarFieldEnum[]
+  }
+
+  /**
+   * SearchEmbedding findFirstOrThrow
+   */
+  export type SearchEmbeddingFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SearchEmbedding
+     */
+    select?: SearchEmbeddingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SearchEmbedding
+     */
+    omit?: SearchEmbeddingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SearchEmbeddingInclude<ExtArgs> | null
+    /**
+     * Filter, which SearchEmbedding to fetch.
+     */
+    where?: SearchEmbeddingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SearchEmbeddings to fetch.
+     */
+    orderBy?: SearchEmbeddingOrderByWithRelationInput | SearchEmbeddingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SearchEmbeddings.
+     */
+    cursor?: SearchEmbeddingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SearchEmbeddings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SearchEmbeddings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SearchEmbeddings.
+     */
+    distinct?: SearchEmbeddingScalarFieldEnum | SearchEmbeddingScalarFieldEnum[]
+  }
+
+  /**
+   * SearchEmbedding findMany
+   */
+  export type SearchEmbeddingFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SearchEmbedding
+     */
+    select?: SearchEmbeddingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SearchEmbedding
+     */
+    omit?: SearchEmbeddingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SearchEmbeddingInclude<ExtArgs> | null
+    /**
+     * Filter, which SearchEmbeddings to fetch.
+     */
+    where?: SearchEmbeddingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SearchEmbeddings to fetch.
+     */
+    orderBy?: SearchEmbeddingOrderByWithRelationInput | SearchEmbeddingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing SearchEmbeddings.
+     */
+    cursor?: SearchEmbeddingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SearchEmbeddings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SearchEmbeddings.
+     */
+    skip?: number
+    distinct?: SearchEmbeddingScalarFieldEnum | SearchEmbeddingScalarFieldEnum[]
+  }
+
+  /**
+   * SearchEmbedding update
+   */
+  export type SearchEmbeddingUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SearchEmbedding
+     */
+    select?: SearchEmbeddingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SearchEmbedding
+     */
+    omit?: SearchEmbeddingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SearchEmbeddingInclude<ExtArgs> | null
+    /**
+     * The data needed to update a SearchEmbedding.
+     */
+    data: XOR<SearchEmbeddingUpdateInput, SearchEmbeddingUncheckedUpdateInput>
+    /**
+     * Choose, which SearchEmbedding to update.
+     */
+    where: SearchEmbeddingWhereUniqueInput
+  }
+
+  /**
+   * SearchEmbedding updateMany
+   */
+  export type SearchEmbeddingUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update SearchEmbeddings.
+     */
+    data: XOR<SearchEmbeddingUpdateManyMutationInput, SearchEmbeddingUncheckedUpdateManyInput>
+    /**
+     * Filter which SearchEmbeddings to update
+     */
+    where?: SearchEmbeddingWhereInput
+    /**
+     * Limit how many SearchEmbeddings to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SearchEmbedding updateManyAndReturn
+   */
+  export type SearchEmbeddingUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SearchEmbedding
+     */
+    select?: SearchEmbeddingSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SearchEmbedding
+     */
+    omit?: SearchEmbeddingOmit<ExtArgs> | null
+    /**
+     * The data used to update SearchEmbeddings.
+     */
+    data: XOR<SearchEmbeddingUpdateManyMutationInput, SearchEmbeddingUncheckedUpdateManyInput>
+    /**
+     * Filter which SearchEmbeddings to update
+     */
+    where?: SearchEmbeddingWhereInput
+    /**
+     * Limit how many SearchEmbeddings to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SearchEmbeddingIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * SearchEmbedding delete
+   */
+  export type SearchEmbeddingDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SearchEmbedding
+     */
+    select?: SearchEmbeddingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SearchEmbedding
+     */
+    omit?: SearchEmbeddingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SearchEmbeddingInclude<ExtArgs> | null
+    /**
+     * Filter which SearchEmbedding to delete.
+     */
+    where: SearchEmbeddingWhereUniqueInput
+  }
+
+  /**
+   * SearchEmbedding deleteMany
+   */
+  export type SearchEmbeddingDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SearchEmbeddings to delete
+     */
+    where?: SearchEmbeddingWhereInput
+    /**
+     * Limit how many SearchEmbeddings to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * SearchEmbedding.user
+   */
+  export type SearchEmbedding$userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * SearchEmbedding without action
+   */
+  export type SearchEmbeddingDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SearchEmbedding
+     */
+    select?: SearchEmbeddingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SearchEmbedding
+     */
+    omit?: SearchEmbeddingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SearchEmbeddingInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model EmbeddingJob
+   */
+
+  export type AggregateEmbeddingJob = {
+    _count: EmbeddingJobCountAggregateOutputType | null
+    _avg: EmbeddingJobAvgAggregateOutputType | null
+    _sum: EmbeddingJobSumAggregateOutputType | null
+    _min: EmbeddingJobMinAggregateOutputType | null
+    _max: EmbeddingJobMaxAggregateOutputType | null
+  }
+
+  export type EmbeddingJobAvgAggregateOutputType = {
+    batchSize: number | null
+    priority: number | null
+    totalItems: number | null
+    processedItems: number | null
+    failedItems: number | null
+    successItems: number | null
+    retryCount: number | null
+    maxRetries: number | null
+    avgProcessingTime: number | null
+  }
+
+  export type EmbeddingJobSumAggregateOutputType = {
+    batchSize: number | null
+    priority: number | null
+    totalItems: number | null
+    processedItems: number | null
+    failedItems: number | null
+    successItems: number | null
+    retryCount: number | null
+    maxRetries: number | null
+    avgProcessingTime: number | null
+  }
+
+  export type EmbeddingJobMinAggregateOutputType = {
+    id: string | null
+    type: $Enums.JobType | null
+    status: $Enums.JobStatus | null
+    batchSize: number | null
+    priority: number | null
+    totalItems: number | null
+    processedItems: number | null
+    failedItems: number | null
+    successItems: number | null
+    errorMessage: string | null
+    retryCount: number | null
+    maxRetries: number | null
+    startedAt: Date | null
+    completedAt: Date | null
+    avgProcessingTime: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type EmbeddingJobMaxAggregateOutputType = {
+    id: string | null
+    type: $Enums.JobType | null
+    status: $Enums.JobStatus | null
+    batchSize: number | null
+    priority: number | null
+    totalItems: number | null
+    processedItems: number | null
+    failedItems: number | null
+    successItems: number | null
+    errorMessage: string | null
+    retryCount: number | null
+    maxRetries: number | null
+    startedAt: Date | null
+    completedAt: Date | null
+    avgProcessingTime: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type EmbeddingJobCountAggregateOutputType = {
+    id: number
+    type: number
+    status: number
+    batchSize: number
+    priority: number
+    configJson: number
+    totalItems: number
+    processedItems: number
+    failedItems: number
+    successItems: number
+    errorMessage: number
+    retryCount: number
+    maxRetries: number
+    startedAt: number
+    completedAt: number
+    avgProcessingTime: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type EmbeddingJobAvgAggregateInputType = {
+    batchSize?: true
+    priority?: true
+    totalItems?: true
+    processedItems?: true
+    failedItems?: true
+    successItems?: true
+    retryCount?: true
+    maxRetries?: true
+    avgProcessingTime?: true
+  }
+
+  export type EmbeddingJobSumAggregateInputType = {
+    batchSize?: true
+    priority?: true
+    totalItems?: true
+    processedItems?: true
+    failedItems?: true
+    successItems?: true
+    retryCount?: true
+    maxRetries?: true
+    avgProcessingTime?: true
+  }
+
+  export type EmbeddingJobMinAggregateInputType = {
+    id?: true
+    type?: true
+    status?: true
+    batchSize?: true
+    priority?: true
+    totalItems?: true
+    processedItems?: true
+    failedItems?: true
+    successItems?: true
+    errorMessage?: true
+    retryCount?: true
+    maxRetries?: true
+    startedAt?: true
+    completedAt?: true
+    avgProcessingTime?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type EmbeddingJobMaxAggregateInputType = {
+    id?: true
+    type?: true
+    status?: true
+    batchSize?: true
+    priority?: true
+    totalItems?: true
+    processedItems?: true
+    failedItems?: true
+    successItems?: true
+    errorMessage?: true
+    retryCount?: true
+    maxRetries?: true
+    startedAt?: true
+    completedAt?: true
+    avgProcessingTime?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type EmbeddingJobCountAggregateInputType = {
+    id?: true
+    type?: true
+    status?: true
+    batchSize?: true
+    priority?: true
+    configJson?: true
+    totalItems?: true
+    processedItems?: true
+    failedItems?: true
+    successItems?: true
+    errorMessage?: true
+    retryCount?: true
+    maxRetries?: true
+    startedAt?: true
+    completedAt?: true
+    avgProcessingTime?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type EmbeddingJobAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EmbeddingJob to aggregate.
+     */
+    where?: EmbeddingJobWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmbeddingJobs to fetch.
+     */
+    orderBy?: EmbeddingJobOrderByWithRelationInput | EmbeddingJobOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: EmbeddingJobWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmbeddingJobs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmbeddingJobs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned EmbeddingJobs
+    **/
+    _count?: true | EmbeddingJobCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: EmbeddingJobAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: EmbeddingJobSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: EmbeddingJobMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: EmbeddingJobMaxAggregateInputType
+  }
+
+  export type GetEmbeddingJobAggregateType<T extends EmbeddingJobAggregateArgs> = {
+        [P in keyof T & keyof AggregateEmbeddingJob]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateEmbeddingJob[P]>
+      : GetScalarType<T[P], AggregateEmbeddingJob[P]>
+  }
+
+
+
+
+  export type EmbeddingJobGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EmbeddingJobWhereInput
+    orderBy?: EmbeddingJobOrderByWithAggregationInput | EmbeddingJobOrderByWithAggregationInput[]
+    by: EmbeddingJobScalarFieldEnum[] | EmbeddingJobScalarFieldEnum
+    having?: EmbeddingJobScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: EmbeddingJobCountAggregateInputType | true
+    _avg?: EmbeddingJobAvgAggregateInputType
+    _sum?: EmbeddingJobSumAggregateInputType
+    _min?: EmbeddingJobMinAggregateInputType
+    _max?: EmbeddingJobMaxAggregateInputType
+  }
+
+  export type EmbeddingJobGroupByOutputType = {
+    id: string
+    type: $Enums.JobType
+    status: $Enums.JobStatus
+    batchSize: number
+    priority: number
+    configJson: JsonValue
+    totalItems: number
+    processedItems: number
+    failedItems: number
+    successItems: number
+    errorMessage: string | null
+    retryCount: number
+    maxRetries: number
+    startedAt: Date | null
+    completedAt: Date | null
+    avgProcessingTime: number | null
+    createdAt: Date
+    updatedAt: Date
+    _count: EmbeddingJobCountAggregateOutputType | null
+    _avg: EmbeddingJobAvgAggregateOutputType | null
+    _sum: EmbeddingJobSumAggregateOutputType | null
+    _min: EmbeddingJobMinAggregateOutputType | null
+    _max: EmbeddingJobMaxAggregateOutputType | null
+  }
+
+  type GetEmbeddingJobGroupByPayload<T extends EmbeddingJobGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<EmbeddingJobGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof EmbeddingJobGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], EmbeddingJobGroupByOutputType[P]>
+            : GetScalarType<T[P], EmbeddingJobGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type EmbeddingJobSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    type?: boolean
+    status?: boolean
+    batchSize?: boolean
+    priority?: boolean
+    configJson?: boolean
+    totalItems?: boolean
+    processedItems?: boolean
+    failedItems?: boolean
+    successItems?: boolean
+    errorMessage?: boolean
+    retryCount?: boolean
+    maxRetries?: boolean
+    startedAt?: boolean
+    completedAt?: boolean
+    avgProcessingTime?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["embeddingJob"]>
+
+  export type EmbeddingJobSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    type?: boolean
+    status?: boolean
+    batchSize?: boolean
+    priority?: boolean
+    configJson?: boolean
+    totalItems?: boolean
+    processedItems?: boolean
+    failedItems?: boolean
+    successItems?: boolean
+    errorMessage?: boolean
+    retryCount?: boolean
+    maxRetries?: boolean
+    startedAt?: boolean
+    completedAt?: boolean
+    avgProcessingTime?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["embeddingJob"]>
+
+  export type EmbeddingJobSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    type?: boolean
+    status?: boolean
+    batchSize?: boolean
+    priority?: boolean
+    configJson?: boolean
+    totalItems?: boolean
+    processedItems?: boolean
+    failedItems?: boolean
+    successItems?: boolean
+    errorMessage?: boolean
+    retryCount?: boolean
+    maxRetries?: boolean
+    startedAt?: boolean
+    completedAt?: boolean
+    avgProcessingTime?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["embeddingJob"]>
+
+  export type EmbeddingJobSelectScalar = {
+    id?: boolean
+    type?: boolean
+    status?: boolean
+    batchSize?: boolean
+    priority?: boolean
+    configJson?: boolean
+    totalItems?: boolean
+    processedItems?: boolean
+    failedItems?: boolean
+    successItems?: boolean
+    errorMessage?: boolean
+    retryCount?: boolean
+    maxRetries?: boolean
+    startedAt?: boolean
+    completedAt?: boolean
+    avgProcessingTime?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type EmbeddingJobOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "type" | "status" | "batchSize" | "priority" | "configJson" | "totalItems" | "processedItems" | "failedItems" | "successItems" | "errorMessage" | "retryCount" | "maxRetries" | "startedAt" | "completedAt" | "avgProcessingTime" | "createdAt" | "updatedAt", ExtArgs["result"]["embeddingJob"]>
+
+  export type $EmbeddingJobPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "EmbeddingJob"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      type: $Enums.JobType
+      status: $Enums.JobStatus
+      batchSize: number
+      priority: number
+      configJson: Prisma.JsonValue
+      totalItems: number
+      processedItems: number
+      failedItems: number
+      successItems: number
+      errorMessage: string | null
+      retryCount: number
+      maxRetries: number
+      startedAt: Date | null
+      completedAt: Date | null
+      avgProcessingTime: number | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["embeddingJob"]>
+    composites: {}
+  }
+
+  type EmbeddingJobGetPayload<S extends boolean | null | undefined | EmbeddingJobDefaultArgs> = $Result.GetResult<Prisma.$EmbeddingJobPayload, S>
+
+  type EmbeddingJobCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<EmbeddingJobFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: EmbeddingJobCountAggregateInputType | true
+    }
+
+  export interface EmbeddingJobDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['EmbeddingJob'], meta: { name: 'EmbeddingJob' } }
+    /**
+     * Find zero or one EmbeddingJob that matches the filter.
+     * @param {EmbeddingJobFindUniqueArgs} args - Arguments to find a EmbeddingJob
+     * @example
+     * // Get one EmbeddingJob
+     * const embeddingJob = await prisma.embeddingJob.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends EmbeddingJobFindUniqueArgs>(args: SelectSubset<T, EmbeddingJobFindUniqueArgs<ExtArgs>>): Prisma__EmbeddingJobClient<$Result.GetResult<Prisma.$EmbeddingJobPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one EmbeddingJob that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {EmbeddingJobFindUniqueOrThrowArgs} args - Arguments to find a EmbeddingJob
+     * @example
+     * // Get one EmbeddingJob
+     * const embeddingJob = await prisma.embeddingJob.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends EmbeddingJobFindUniqueOrThrowArgs>(args: SelectSubset<T, EmbeddingJobFindUniqueOrThrowArgs<ExtArgs>>): Prisma__EmbeddingJobClient<$Result.GetResult<Prisma.$EmbeddingJobPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EmbeddingJob that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmbeddingJobFindFirstArgs} args - Arguments to find a EmbeddingJob
+     * @example
+     * // Get one EmbeddingJob
+     * const embeddingJob = await prisma.embeddingJob.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends EmbeddingJobFindFirstArgs>(args?: SelectSubset<T, EmbeddingJobFindFirstArgs<ExtArgs>>): Prisma__EmbeddingJobClient<$Result.GetResult<Prisma.$EmbeddingJobPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EmbeddingJob that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmbeddingJobFindFirstOrThrowArgs} args - Arguments to find a EmbeddingJob
+     * @example
+     * // Get one EmbeddingJob
+     * const embeddingJob = await prisma.embeddingJob.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends EmbeddingJobFindFirstOrThrowArgs>(args?: SelectSubset<T, EmbeddingJobFindFirstOrThrowArgs<ExtArgs>>): Prisma__EmbeddingJobClient<$Result.GetResult<Prisma.$EmbeddingJobPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more EmbeddingJobs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmbeddingJobFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all EmbeddingJobs
+     * const embeddingJobs = await prisma.embeddingJob.findMany()
+     * 
+     * // Get first 10 EmbeddingJobs
+     * const embeddingJobs = await prisma.embeddingJob.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const embeddingJobWithIdOnly = await prisma.embeddingJob.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends EmbeddingJobFindManyArgs>(args?: SelectSubset<T, EmbeddingJobFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmbeddingJobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a EmbeddingJob.
+     * @param {EmbeddingJobCreateArgs} args - Arguments to create a EmbeddingJob.
+     * @example
+     * // Create one EmbeddingJob
+     * const EmbeddingJob = await prisma.embeddingJob.create({
+     *   data: {
+     *     // ... data to create a EmbeddingJob
+     *   }
+     * })
+     * 
+     */
+    create<T extends EmbeddingJobCreateArgs>(args: SelectSubset<T, EmbeddingJobCreateArgs<ExtArgs>>): Prisma__EmbeddingJobClient<$Result.GetResult<Prisma.$EmbeddingJobPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many EmbeddingJobs.
+     * @param {EmbeddingJobCreateManyArgs} args - Arguments to create many EmbeddingJobs.
+     * @example
+     * // Create many EmbeddingJobs
+     * const embeddingJob = await prisma.embeddingJob.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends EmbeddingJobCreateManyArgs>(args?: SelectSubset<T, EmbeddingJobCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many EmbeddingJobs and returns the data saved in the database.
+     * @param {EmbeddingJobCreateManyAndReturnArgs} args - Arguments to create many EmbeddingJobs.
+     * @example
+     * // Create many EmbeddingJobs
+     * const embeddingJob = await prisma.embeddingJob.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many EmbeddingJobs and only return the `id`
+     * const embeddingJobWithIdOnly = await prisma.embeddingJob.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends EmbeddingJobCreateManyAndReturnArgs>(args?: SelectSubset<T, EmbeddingJobCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmbeddingJobPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a EmbeddingJob.
+     * @param {EmbeddingJobDeleteArgs} args - Arguments to delete one EmbeddingJob.
+     * @example
+     * // Delete one EmbeddingJob
+     * const EmbeddingJob = await prisma.embeddingJob.delete({
+     *   where: {
+     *     // ... filter to delete one EmbeddingJob
+     *   }
+     * })
+     * 
+     */
+    delete<T extends EmbeddingJobDeleteArgs>(args: SelectSubset<T, EmbeddingJobDeleteArgs<ExtArgs>>): Prisma__EmbeddingJobClient<$Result.GetResult<Prisma.$EmbeddingJobPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one EmbeddingJob.
+     * @param {EmbeddingJobUpdateArgs} args - Arguments to update one EmbeddingJob.
+     * @example
+     * // Update one EmbeddingJob
+     * const embeddingJob = await prisma.embeddingJob.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends EmbeddingJobUpdateArgs>(args: SelectSubset<T, EmbeddingJobUpdateArgs<ExtArgs>>): Prisma__EmbeddingJobClient<$Result.GetResult<Prisma.$EmbeddingJobPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more EmbeddingJobs.
+     * @param {EmbeddingJobDeleteManyArgs} args - Arguments to filter EmbeddingJobs to delete.
+     * @example
+     * // Delete a few EmbeddingJobs
+     * const { count } = await prisma.embeddingJob.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends EmbeddingJobDeleteManyArgs>(args?: SelectSubset<T, EmbeddingJobDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EmbeddingJobs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmbeddingJobUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many EmbeddingJobs
+     * const embeddingJob = await prisma.embeddingJob.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends EmbeddingJobUpdateManyArgs>(args: SelectSubset<T, EmbeddingJobUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EmbeddingJobs and returns the data updated in the database.
+     * @param {EmbeddingJobUpdateManyAndReturnArgs} args - Arguments to update many EmbeddingJobs.
+     * @example
+     * // Update many EmbeddingJobs
+     * const embeddingJob = await prisma.embeddingJob.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more EmbeddingJobs and only return the `id`
+     * const embeddingJobWithIdOnly = await prisma.embeddingJob.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends EmbeddingJobUpdateManyAndReturnArgs>(args: SelectSubset<T, EmbeddingJobUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmbeddingJobPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one EmbeddingJob.
+     * @param {EmbeddingJobUpsertArgs} args - Arguments to update or create a EmbeddingJob.
+     * @example
+     * // Update or create a EmbeddingJob
+     * const embeddingJob = await prisma.embeddingJob.upsert({
+     *   create: {
+     *     // ... data to create a EmbeddingJob
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the EmbeddingJob we want to update
+     *   }
+     * })
+     */
+    upsert<T extends EmbeddingJobUpsertArgs>(args: SelectSubset<T, EmbeddingJobUpsertArgs<ExtArgs>>): Prisma__EmbeddingJobClient<$Result.GetResult<Prisma.$EmbeddingJobPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of EmbeddingJobs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmbeddingJobCountArgs} args - Arguments to filter EmbeddingJobs to count.
+     * @example
+     * // Count the number of EmbeddingJobs
+     * const count = await prisma.embeddingJob.count({
+     *   where: {
+     *     // ... the filter for the EmbeddingJobs we want to count
+     *   }
+     * })
+    **/
+    count<T extends EmbeddingJobCountArgs>(
+      args?: Subset<T, EmbeddingJobCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], EmbeddingJobCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a EmbeddingJob.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmbeddingJobAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends EmbeddingJobAggregateArgs>(args: Subset<T, EmbeddingJobAggregateArgs>): Prisma.PrismaPromise<GetEmbeddingJobAggregateType<T>>
+
+    /**
+     * Group by EmbeddingJob.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmbeddingJobGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends EmbeddingJobGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: EmbeddingJobGroupByArgs['orderBy'] }
+        : { orderBy?: EmbeddingJobGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, EmbeddingJobGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEmbeddingJobGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the EmbeddingJob model
+   */
+  readonly fields: EmbeddingJobFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for EmbeddingJob.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__EmbeddingJobClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the EmbeddingJob model
+   */
+  interface EmbeddingJobFieldRefs {
+    readonly id: FieldRef<"EmbeddingJob", 'String'>
+    readonly type: FieldRef<"EmbeddingJob", 'JobType'>
+    readonly status: FieldRef<"EmbeddingJob", 'JobStatus'>
+    readonly batchSize: FieldRef<"EmbeddingJob", 'Int'>
+    readonly priority: FieldRef<"EmbeddingJob", 'Int'>
+    readonly configJson: FieldRef<"EmbeddingJob", 'Json'>
+    readonly totalItems: FieldRef<"EmbeddingJob", 'Int'>
+    readonly processedItems: FieldRef<"EmbeddingJob", 'Int'>
+    readonly failedItems: FieldRef<"EmbeddingJob", 'Int'>
+    readonly successItems: FieldRef<"EmbeddingJob", 'Int'>
+    readonly errorMessage: FieldRef<"EmbeddingJob", 'String'>
+    readonly retryCount: FieldRef<"EmbeddingJob", 'Int'>
+    readonly maxRetries: FieldRef<"EmbeddingJob", 'Int'>
+    readonly startedAt: FieldRef<"EmbeddingJob", 'DateTime'>
+    readonly completedAt: FieldRef<"EmbeddingJob", 'DateTime'>
+    readonly avgProcessingTime: FieldRef<"EmbeddingJob", 'Float'>
+    readonly createdAt: FieldRef<"EmbeddingJob", 'DateTime'>
+    readonly updatedAt: FieldRef<"EmbeddingJob", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * EmbeddingJob findUnique
+   */
+  export type EmbeddingJobFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmbeddingJob
+     */
+    select?: EmbeddingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmbeddingJob
+     */
+    omit?: EmbeddingJobOmit<ExtArgs> | null
+    /**
+     * Filter, which EmbeddingJob to fetch.
+     */
+    where: EmbeddingJobWhereUniqueInput
+  }
+
+  /**
+   * EmbeddingJob findUniqueOrThrow
+   */
+  export type EmbeddingJobFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmbeddingJob
+     */
+    select?: EmbeddingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmbeddingJob
+     */
+    omit?: EmbeddingJobOmit<ExtArgs> | null
+    /**
+     * Filter, which EmbeddingJob to fetch.
+     */
+    where: EmbeddingJobWhereUniqueInput
+  }
+
+  /**
+   * EmbeddingJob findFirst
+   */
+  export type EmbeddingJobFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmbeddingJob
+     */
+    select?: EmbeddingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmbeddingJob
+     */
+    omit?: EmbeddingJobOmit<ExtArgs> | null
+    /**
+     * Filter, which EmbeddingJob to fetch.
+     */
+    where?: EmbeddingJobWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmbeddingJobs to fetch.
+     */
+    orderBy?: EmbeddingJobOrderByWithRelationInput | EmbeddingJobOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EmbeddingJobs.
+     */
+    cursor?: EmbeddingJobWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmbeddingJobs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmbeddingJobs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EmbeddingJobs.
+     */
+    distinct?: EmbeddingJobScalarFieldEnum | EmbeddingJobScalarFieldEnum[]
+  }
+
+  /**
+   * EmbeddingJob findFirstOrThrow
+   */
+  export type EmbeddingJobFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmbeddingJob
+     */
+    select?: EmbeddingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmbeddingJob
+     */
+    omit?: EmbeddingJobOmit<ExtArgs> | null
+    /**
+     * Filter, which EmbeddingJob to fetch.
+     */
+    where?: EmbeddingJobWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmbeddingJobs to fetch.
+     */
+    orderBy?: EmbeddingJobOrderByWithRelationInput | EmbeddingJobOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EmbeddingJobs.
+     */
+    cursor?: EmbeddingJobWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmbeddingJobs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmbeddingJobs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EmbeddingJobs.
+     */
+    distinct?: EmbeddingJobScalarFieldEnum | EmbeddingJobScalarFieldEnum[]
+  }
+
+  /**
+   * EmbeddingJob findMany
+   */
+  export type EmbeddingJobFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmbeddingJob
+     */
+    select?: EmbeddingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmbeddingJob
+     */
+    omit?: EmbeddingJobOmit<ExtArgs> | null
+    /**
+     * Filter, which EmbeddingJobs to fetch.
+     */
+    where?: EmbeddingJobWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmbeddingJobs to fetch.
+     */
+    orderBy?: EmbeddingJobOrderByWithRelationInput | EmbeddingJobOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing EmbeddingJobs.
+     */
+    cursor?: EmbeddingJobWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmbeddingJobs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmbeddingJobs.
+     */
+    skip?: number
+    distinct?: EmbeddingJobScalarFieldEnum | EmbeddingJobScalarFieldEnum[]
+  }
+
+  /**
+   * EmbeddingJob create
+   */
+  export type EmbeddingJobCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmbeddingJob
+     */
+    select?: EmbeddingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmbeddingJob
+     */
+    omit?: EmbeddingJobOmit<ExtArgs> | null
+    /**
+     * The data needed to create a EmbeddingJob.
+     */
+    data: XOR<EmbeddingJobCreateInput, EmbeddingJobUncheckedCreateInput>
+  }
+
+  /**
+   * EmbeddingJob createMany
+   */
+  export type EmbeddingJobCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many EmbeddingJobs.
+     */
+    data: EmbeddingJobCreateManyInput | EmbeddingJobCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * EmbeddingJob createManyAndReturn
+   */
+  export type EmbeddingJobCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmbeddingJob
+     */
+    select?: EmbeddingJobSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmbeddingJob
+     */
+    omit?: EmbeddingJobOmit<ExtArgs> | null
+    /**
+     * The data used to create many EmbeddingJobs.
+     */
+    data: EmbeddingJobCreateManyInput | EmbeddingJobCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * EmbeddingJob update
+   */
+  export type EmbeddingJobUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmbeddingJob
+     */
+    select?: EmbeddingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmbeddingJob
+     */
+    omit?: EmbeddingJobOmit<ExtArgs> | null
+    /**
+     * The data needed to update a EmbeddingJob.
+     */
+    data: XOR<EmbeddingJobUpdateInput, EmbeddingJobUncheckedUpdateInput>
+    /**
+     * Choose, which EmbeddingJob to update.
+     */
+    where: EmbeddingJobWhereUniqueInput
+  }
+
+  /**
+   * EmbeddingJob updateMany
+   */
+  export type EmbeddingJobUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update EmbeddingJobs.
+     */
+    data: XOR<EmbeddingJobUpdateManyMutationInput, EmbeddingJobUncheckedUpdateManyInput>
+    /**
+     * Filter which EmbeddingJobs to update
+     */
+    where?: EmbeddingJobWhereInput
+    /**
+     * Limit how many EmbeddingJobs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * EmbeddingJob updateManyAndReturn
+   */
+  export type EmbeddingJobUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmbeddingJob
+     */
+    select?: EmbeddingJobSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmbeddingJob
+     */
+    omit?: EmbeddingJobOmit<ExtArgs> | null
+    /**
+     * The data used to update EmbeddingJobs.
+     */
+    data: XOR<EmbeddingJobUpdateManyMutationInput, EmbeddingJobUncheckedUpdateManyInput>
+    /**
+     * Filter which EmbeddingJobs to update
+     */
+    where?: EmbeddingJobWhereInput
+    /**
+     * Limit how many EmbeddingJobs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * EmbeddingJob upsert
+   */
+  export type EmbeddingJobUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmbeddingJob
+     */
+    select?: EmbeddingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmbeddingJob
+     */
+    omit?: EmbeddingJobOmit<ExtArgs> | null
+    /**
+     * The filter to search for the EmbeddingJob to update in case it exists.
+     */
+    where: EmbeddingJobWhereUniqueInput
+    /**
+     * In case the EmbeddingJob found by the `where` argument doesn't exist, create a new EmbeddingJob with this data.
+     */
+    create: XOR<EmbeddingJobCreateInput, EmbeddingJobUncheckedCreateInput>
+    /**
+     * In case the EmbeddingJob was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<EmbeddingJobUpdateInput, EmbeddingJobUncheckedUpdateInput>
+  }
+
+  /**
+   * EmbeddingJob delete
+   */
+  export type EmbeddingJobDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmbeddingJob
+     */
+    select?: EmbeddingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmbeddingJob
+     */
+    omit?: EmbeddingJobOmit<ExtArgs> | null
+    /**
+     * Filter which EmbeddingJob to delete.
+     */
+    where: EmbeddingJobWhereUniqueInput
+  }
+
+  /**
+   * EmbeddingJob deleteMany
+   */
+  export type EmbeddingJobDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EmbeddingJobs to delete
+     */
+    where?: EmbeddingJobWhereInput
+    /**
+     * Limit how many EmbeddingJobs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * EmbeddingJob without action
+   */
+  export type EmbeddingJobDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmbeddingJob
+     */
+    select?: EmbeddingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmbeddingJob
+     */
+    omit?: EmbeddingJobOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -18764,81 +19417,6 @@ export namespace Prisma {
   export type PreferenceScalarFieldEnum = (typeof PreferenceScalarFieldEnum)[keyof typeof PreferenceScalarFieldEnum]
 
 
-  export const ConversationSessionScalarFieldEnum: {
-    id: 'id',
-    userId: 'userId',
-    sessionId: 'sessionId',
-    currentStep: 'currentStep',
-    isCompleted: 'isCompleted',
-    isVoiceMode: 'isVoiceMode',
-    selectedInterests: 'selectedInterests',
-    videoRatings: 'videoRatings',
-    layoutPreferences: 'layoutPreferences',
-    llmProvider: 'llmProvider',
-    llmApiKey: 'llmApiKey',
-    conversationId: 'conversationId',
-    stepProgress: 'stepProgress',
-    completedSteps: 'completedSteps',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt',
-    lastActiveAt: 'lastActiveAt',
-    completedAt: 'completedAt'
-  };
-
-  export type ConversationSessionScalarFieldEnum = (typeof ConversationSessionScalarFieldEnum)[keyof typeof ConversationSessionScalarFieldEnum]
-
-
-  export const ConversationLogScalarFieldEnum: {
-    id: 'id',
-    sessionId: 'sessionId',
-    role: 'role',
-    content: 'content',
-    messageId: 'messageId',
-    tourStep: 'tourStep',
-    actionType: 'actionType',
-    metadata: 'metadata',
-    tokensUsed: 'tokensUsed',
-    responseTimeMs: 'responseTimeMs',
-    llmProvider: 'llmProvider',
-    createdAt: 'createdAt'
-  };
-
-  export type ConversationLogScalarFieldEnum = (typeof ConversationLogScalarFieldEnum)[keyof typeof ConversationLogScalarFieldEnum]
-
-
-  export const TourInteractionScalarFieldEnum: {
-    id: 'id',
-    sessionId: 'sessionId',
-    tourStep: 'tourStep',
-    actionType: 'actionType',
-    actionData: 'actionData',
-    timeSpentMs: 'timeSpentMs',
-    wasSkipped: 'wasSkipped',
-    satisfaction: 'satisfaction',
-    createdAt: 'createdAt'
-  };
-
-  export type TourInteractionScalarFieldEnum = (typeof TourInteractionScalarFieldEnum)[keyof typeof TourInteractionScalarFieldEnum]
-
-
-  export const LocalStorageSyncScalarFieldEnum: {
-    id: 'id',
-    sessionId: 'sessionId',
-    interests: 'interests',
-    videoRatings: 'videoRatings',
-    onboardingStep: 'onboardingStep',
-    layoutData: 'layoutData',
-    isRegistered: 'isRegistered',
-    userId: 'userId',
-    syncedAt: 'syncedAt',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt',
-    expiresAt: 'expiresAt'
-  };
-
-  export type LocalStorageSyncScalarFieldEnum = (typeof LocalStorageSyncScalarFieldEnum)[keyof typeof LocalStorageSyncScalarFieldEnum]
-
-
   export const MigrationScalarFieldEnum: {
     id: 'id',
     name: 'name',
@@ -18861,6 +19439,111 @@ export namespace Prisma {
   };
 
   export type SystemConfigScalarFieldEnum = (typeof SystemConfigScalarFieldEnum)[keyof typeof SystemConfigScalarFieldEnum]
+
+
+  export const VideoEmbeddingScalarFieldEnum: {
+    id: 'id',
+    platformId: 'platformId',
+    platform: 'platform',
+    title: 'title',
+    description: 'description',
+    tags: 'tags',
+    category: 'category',
+    duration: 'duration',
+    publishedAt: 'publishedAt',
+    channelId: 'channelId',
+    channelName: 'channelName',
+    embeddingModel: 'embeddingModel',
+    embeddingVersion: 'embeddingVersion',
+    processingStatus: 'processingStatus',
+    qualityScore: 'qualityScore',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
+    lastProcessedAt: 'lastProcessedAt'
+  };
+
+  export type VideoEmbeddingScalarFieldEnum = (typeof VideoEmbeddingScalarFieldEnum)[keyof typeof VideoEmbeddingScalarFieldEnum]
+
+
+  export const UserEmbeddingScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    confidenceScore: 'confidenceScore',
+    interactionCount: 'interactionCount',
+    lastUpdateThreshold: 'lastUpdateThreshold',
+    embeddingModel: 'embeddingModel',
+    embeddingVersion: 'embeddingVersion',
+    processingStatus: 'processingStatus',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
+    lastCalculatedAt: 'lastCalculatedAt'
+  };
+
+  export type UserEmbeddingScalarFieldEnum = (typeof UserEmbeddingScalarFieldEnum)[keyof typeof UserEmbeddingScalarFieldEnum]
+
+
+  export const CommentEmbeddingScalarFieldEnum: {
+    id: 'id',
+    platformId: 'platformId',
+    platform: 'platform',
+    videoId: 'videoId',
+    content: 'content',
+    authorName: 'authorName',
+    publishedAt: 'publishedAt',
+    toxicityScore: 'toxicityScore',
+    relevanceScore: 'relevanceScore',
+    sentimentScore: 'sentimentScore',
+    embeddingModel: 'embeddingModel',
+    embeddingVersion: 'embeddingVersion',
+    processingStatus: 'processingStatus',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type CommentEmbeddingScalarFieldEnum = (typeof CommentEmbeddingScalarFieldEnum)[keyof typeof CommentEmbeddingScalarFieldEnum]
+
+
+  export const SearchEmbeddingScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    query: 'query',
+    intent: 'intent',
+    entities: 'entities',
+    searchCount: 'searchCount',
+    clickThrough: 'clickThrough',
+    avgWatchTime: 'avgWatchTime',
+    embeddingModel: 'embeddingModel',
+    embeddingVersion: 'embeddingVersion',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
+    lastSearchedAt: 'lastSearchedAt'
+  };
+
+  export type SearchEmbeddingScalarFieldEnum = (typeof SearchEmbeddingScalarFieldEnum)[keyof typeof SearchEmbeddingScalarFieldEnum]
+
+
+  export const EmbeddingJobScalarFieldEnum: {
+    id: 'id',
+    type: 'type',
+    status: 'status',
+    batchSize: 'batchSize',
+    priority: 'priority',
+    configJson: 'configJson',
+    totalItems: 'totalItems',
+    processedItems: 'processedItems',
+    failedItems: 'failedItems',
+    successItems: 'successItems',
+    errorMessage: 'errorMessage',
+    retryCount: 'retryCount',
+    maxRetries: 'maxRetries',
+    startedAt: 'startedAt',
+    completedAt: 'completedAt',
+    avgProcessingTime: 'avgProcessingTime',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type EmbeddingJobScalarFieldEnum = (typeof EmbeddingJobScalarFieldEnum)[keyof typeof EmbeddingJobScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -19028,30 +19711,44 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'TourStep'
+   * Reference to a field of type 'EmbeddingStatus'
    */
-  export type EnumTourStepFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TourStep'>
+  export type EnumEmbeddingStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EmbeddingStatus'>
     
 
 
   /**
-   * Reference to a field of type 'TourStep[]'
+   * Reference to a field of type 'EmbeddingStatus[]'
    */
-  export type ListEnumTourStepFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TourStep[]'>
+  export type ListEnumEmbeddingStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EmbeddingStatus[]'>
     
 
 
   /**
-   * Reference to a field of type 'MessageRole'
+   * Reference to a field of type 'JobType'
    */
-  export type EnumMessageRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MessageRole'>
+  export type EnumJobTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'JobType'>
     
 
 
   /**
-   * Reference to a field of type 'MessageRole[]'
+   * Reference to a field of type 'JobType[]'
    */
-  export type ListEnumMessageRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MessageRole[]'>
+  export type ListEnumJobTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'JobType[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'JobStatus'
+   */
+  export type EnumJobStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'JobStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'JobStatus[]'
+   */
+  export type ListEnumJobStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'JobStatus[]'>
     
   /**
    * Deep Input Types
@@ -19078,7 +19775,8 @@ export namespace Prisma {
     layouts?: LayoutListRelationFilter
     lists?: ListListRelationFilter
     preferences?: PreferenceListRelationFilter
-    conversationSessions?: ConversationSessionListRelationFilter
+    userEmbedding?: XOR<UserEmbeddingNullableScalarRelationFilter, UserEmbeddingWhereInput> | null
+    searchEmbeddings?: SearchEmbeddingListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -19098,7 +19796,8 @@ export namespace Prisma {
     layouts?: LayoutOrderByRelationAggregateInput
     lists?: ListOrderByRelationAggregateInput
     preferences?: PreferenceOrderByRelationAggregateInput
-    conversationSessions?: ConversationSessionOrderByRelationAggregateInput
+    userEmbedding?: UserEmbeddingOrderByWithRelationInput
+    searchEmbeddings?: SearchEmbeddingOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -19121,7 +19820,8 @@ export namespace Prisma {
     layouts?: LayoutListRelationFilter
     lists?: ListListRelationFilter
     preferences?: PreferenceListRelationFilter
-    conversationSessions?: ConversationSessionListRelationFilter
+    userEmbedding?: XOR<UserEmbeddingNullableScalarRelationFilter, UserEmbeddingWhereInput> | null
+    searchEmbeddings?: SearchEmbeddingListRelationFilter
   }, "id" | "email" | "clerkId" | "username">
 
   export type UserOrderByWithAggregationInput = {
@@ -19823,388 +20523,6 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"Preference"> | Date | string
   }
 
-  export type ConversationSessionWhereInput = {
-    AND?: ConversationSessionWhereInput | ConversationSessionWhereInput[]
-    OR?: ConversationSessionWhereInput[]
-    NOT?: ConversationSessionWhereInput | ConversationSessionWhereInput[]
-    id?: StringFilter<"ConversationSession"> | string
-    userId?: StringNullableFilter<"ConversationSession"> | string | null
-    sessionId?: StringFilter<"ConversationSession"> | string
-    currentStep?: EnumTourStepFilter<"ConversationSession"> | $Enums.TourStep
-    isCompleted?: BoolFilter<"ConversationSession"> | boolean
-    isVoiceMode?: BoolFilter<"ConversationSession"> | boolean
-    selectedInterests?: StringNullableListFilter<"ConversationSession">
-    videoRatings?: JsonFilter<"ConversationSession">
-    layoutPreferences?: JsonFilter<"ConversationSession">
-    llmProvider?: StringNullableFilter<"ConversationSession"> | string | null
-    llmApiKey?: StringNullableFilter<"ConversationSession"> | string | null
-    conversationId?: StringNullableFilter<"ConversationSession"> | string | null
-    stepProgress?: JsonFilter<"ConversationSession">
-    completedSteps?: StringNullableListFilter<"ConversationSession">
-    createdAt?: DateTimeFilter<"ConversationSession"> | Date | string
-    updatedAt?: DateTimeFilter<"ConversationSession"> | Date | string
-    lastActiveAt?: DateTimeFilter<"ConversationSession"> | Date | string
-    completedAt?: DateTimeNullableFilter<"ConversationSession"> | Date | string | null
-    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
-    conversationLogs?: ConversationLogListRelationFilter
-    tourInteractions?: TourInteractionListRelationFilter
-  }
-
-  export type ConversationSessionOrderByWithRelationInput = {
-    id?: SortOrder
-    userId?: SortOrderInput | SortOrder
-    sessionId?: SortOrder
-    currentStep?: SortOrder
-    isCompleted?: SortOrder
-    isVoiceMode?: SortOrder
-    selectedInterests?: SortOrder
-    videoRatings?: SortOrder
-    layoutPreferences?: SortOrder
-    llmProvider?: SortOrderInput | SortOrder
-    llmApiKey?: SortOrderInput | SortOrder
-    conversationId?: SortOrderInput | SortOrder
-    stepProgress?: SortOrder
-    completedSteps?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    lastActiveAt?: SortOrder
-    completedAt?: SortOrderInput | SortOrder
-    user?: UserOrderByWithRelationInput
-    conversationLogs?: ConversationLogOrderByRelationAggregateInput
-    tourInteractions?: TourInteractionOrderByRelationAggregateInput
-  }
-
-  export type ConversationSessionWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    sessionId?: string
-    AND?: ConversationSessionWhereInput | ConversationSessionWhereInput[]
-    OR?: ConversationSessionWhereInput[]
-    NOT?: ConversationSessionWhereInput | ConversationSessionWhereInput[]
-    userId?: StringNullableFilter<"ConversationSession"> | string | null
-    currentStep?: EnumTourStepFilter<"ConversationSession"> | $Enums.TourStep
-    isCompleted?: BoolFilter<"ConversationSession"> | boolean
-    isVoiceMode?: BoolFilter<"ConversationSession"> | boolean
-    selectedInterests?: StringNullableListFilter<"ConversationSession">
-    videoRatings?: JsonFilter<"ConversationSession">
-    layoutPreferences?: JsonFilter<"ConversationSession">
-    llmProvider?: StringNullableFilter<"ConversationSession"> | string | null
-    llmApiKey?: StringNullableFilter<"ConversationSession"> | string | null
-    conversationId?: StringNullableFilter<"ConversationSession"> | string | null
-    stepProgress?: JsonFilter<"ConversationSession">
-    completedSteps?: StringNullableListFilter<"ConversationSession">
-    createdAt?: DateTimeFilter<"ConversationSession"> | Date | string
-    updatedAt?: DateTimeFilter<"ConversationSession"> | Date | string
-    lastActiveAt?: DateTimeFilter<"ConversationSession"> | Date | string
-    completedAt?: DateTimeNullableFilter<"ConversationSession"> | Date | string | null
-    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
-    conversationLogs?: ConversationLogListRelationFilter
-    tourInteractions?: TourInteractionListRelationFilter
-  }, "id" | "sessionId">
-
-  export type ConversationSessionOrderByWithAggregationInput = {
-    id?: SortOrder
-    userId?: SortOrderInput | SortOrder
-    sessionId?: SortOrder
-    currentStep?: SortOrder
-    isCompleted?: SortOrder
-    isVoiceMode?: SortOrder
-    selectedInterests?: SortOrder
-    videoRatings?: SortOrder
-    layoutPreferences?: SortOrder
-    llmProvider?: SortOrderInput | SortOrder
-    llmApiKey?: SortOrderInput | SortOrder
-    conversationId?: SortOrderInput | SortOrder
-    stepProgress?: SortOrder
-    completedSteps?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    lastActiveAt?: SortOrder
-    completedAt?: SortOrderInput | SortOrder
-    _count?: ConversationSessionCountOrderByAggregateInput
-    _max?: ConversationSessionMaxOrderByAggregateInput
-    _min?: ConversationSessionMinOrderByAggregateInput
-  }
-
-  export type ConversationSessionScalarWhereWithAggregatesInput = {
-    AND?: ConversationSessionScalarWhereWithAggregatesInput | ConversationSessionScalarWhereWithAggregatesInput[]
-    OR?: ConversationSessionScalarWhereWithAggregatesInput[]
-    NOT?: ConversationSessionScalarWhereWithAggregatesInput | ConversationSessionScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"ConversationSession"> | string
-    userId?: StringNullableWithAggregatesFilter<"ConversationSession"> | string | null
-    sessionId?: StringWithAggregatesFilter<"ConversationSession"> | string
-    currentStep?: EnumTourStepWithAggregatesFilter<"ConversationSession"> | $Enums.TourStep
-    isCompleted?: BoolWithAggregatesFilter<"ConversationSession"> | boolean
-    isVoiceMode?: BoolWithAggregatesFilter<"ConversationSession"> | boolean
-    selectedInterests?: StringNullableListFilter<"ConversationSession">
-    videoRatings?: JsonWithAggregatesFilter<"ConversationSession">
-    layoutPreferences?: JsonWithAggregatesFilter<"ConversationSession">
-    llmProvider?: StringNullableWithAggregatesFilter<"ConversationSession"> | string | null
-    llmApiKey?: StringNullableWithAggregatesFilter<"ConversationSession"> | string | null
-    conversationId?: StringNullableWithAggregatesFilter<"ConversationSession"> | string | null
-    stepProgress?: JsonWithAggregatesFilter<"ConversationSession">
-    completedSteps?: StringNullableListFilter<"ConversationSession">
-    createdAt?: DateTimeWithAggregatesFilter<"ConversationSession"> | Date | string
-    updatedAt?: DateTimeWithAggregatesFilter<"ConversationSession"> | Date | string
-    lastActiveAt?: DateTimeWithAggregatesFilter<"ConversationSession"> | Date | string
-    completedAt?: DateTimeNullableWithAggregatesFilter<"ConversationSession"> | Date | string | null
-  }
-
-  export type ConversationLogWhereInput = {
-    AND?: ConversationLogWhereInput | ConversationLogWhereInput[]
-    OR?: ConversationLogWhereInput[]
-    NOT?: ConversationLogWhereInput | ConversationLogWhereInput[]
-    id?: StringFilter<"ConversationLog"> | string
-    sessionId?: StringFilter<"ConversationLog"> | string
-    role?: EnumMessageRoleFilter<"ConversationLog"> | $Enums.MessageRole
-    content?: StringFilter<"ConversationLog"> | string
-    messageId?: StringNullableFilter<"ConversationLog"> | string | null
-    tourStep?: EnumTourStepNullableFilter<"ConversationLog"> | $Enums.TourStep | null
-    actionType?: StringNullableFilter<"ConversationLog"> | string | null
-    metadata?: JsonFilter<"ConversationLog">
-    tokensUsed?: IntNullableFilter<"ConversationLog"> | number | null
-    responseTimeMs?: IntNullableFilter<"ConversationLog"> | number | null
-    llmProvider?: StringNullableFilter<"ConversationLog"> | string | null
-    createdAt?: DateTimeFilter<"ConversationLog"> | Date | string
-    session?: XOR<ConversationSessionScalarRelationFilter, ConversationSessionWhereInput>
-  }
-
-  export type ConversationLogOrderByWithRelationInput = {
-    id?: SortOrder
-    sessionId?: SortOrder
-    role?: SortOrder
-    content?: SortOrder
-    messageId?: SortOrderInput | SortOrder
-    tourStep?: SortOrderInput | SortOrder
-    actionType?: SortOrderInput | SortOrder
-    metadata?: SortOrder
-    tokensUsed?: SortOrderInput | SortOrder
-    responseTimeMs?: SortOrderInput | SortOrder
-    llmProvider?: SortOrderInput | SortOrder
-    createdAt?: SortOrder
-    session?: ConversationSessionOrderByWithRelationInput
-  }
-
-  export type ConversationLogWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    AND?: ConversationLogWhereInput | ConversationLogWhereInput[]
-    OR?: ConversationLogWhereInput[]
-    NOT?: ConversationLogWhereInput | ConversationLogWhereInput[]
-    sessionId?: StringFilter<"ConversationLog"> | string
-    role?: EnumMessageRoleFilter<"ConversationLog"> | $Enums.MessageRole
-    content?: StringFilter<"ConversationLog"> | string
-    messageId?: StringNullableFilter<"ConversationLog"> | string | null
-    tourStep?: EnumTourStepNullableFilter<"ConversationLog"> | $Enums.TourStep | null
-    actionType?: StringNullableFilter<"ConversationLog"> | string | null
-    metadata?: JsonFilter<"ConversationLog">
-    tokensUsed?: IntNullableFilter<"ConversationLog"> | number | null
-    responseTimeMs?: IntNullableFilter<"ConversationLog"> | number | null
-    llmProvider?: StringNullableFilter<"ConversationLog"> | string | null
-    createdAt?: DateTimeFilter<"ConversationLog"> | Date | string
-    session?: XOR<ConversationSessionScalarRelationFilter, ConversationSessionWhereInput>
-  }, "id">
-
-  export type ConversationLogOrderByWithAggregationInput = {
-    id?: SortOrder
-    sessionId?: SortOrder
-    role?: SortOrder
-    content?: SortOrder
-    messageId?: SortOrderInput | SortOrder
-    tourStep?: SortOrderInput | SortOrder
-    actionType?: SortOrderInput | SortOrder
-    metadata?: SortOrder
-    tokensUsed?: SortOrderInput | SortOrder
-    responseTimeMs?: SortOrderInput | SortOrder
-    llmProvider?: SortOrderInput | SortOrder
-    createdAt?: SortOrder
-    _count?: ConversationLogCountOrderByAggregateInput
-    _avg?: ConversationLogAvgOrderByAggregateInput
-    _max?: ConversationLogMaxOrderByAggregateInput
-    _min?: ConversationLogMinOrderByAggregateInput
-    _sum?: ConversationLogSumOrderByAggregateInput
-  }
-
-  export type ConversationLogScalarWhereWithAggregatesInput = {
-    AND?: ConversationLogScalarWhereWithAggregatesInput | ConversationLogScalarWhereWithAggregatesInput[]
-    OR?: ConversationLogScalarWhereWithAggregatesInput[]
-    NOT?: ConversationLogScalarWhereWithAggregatesInput | ConversationLogScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"ConversationLog"> | string
-    sessionId?: StringWithAggregatesFilter<"ConversationLog"> | string
-    role?: EnumMessageRoleWithAggregatesFilter<"ConversationLog"> | $Enums.MessageRole
-    content?: StringWithAggregatesFilter<"ConversationLog"> | string
-    messageId?: StringNullableWithAggregatesFilter<"ConversationLog"> | string | null
-    tourStep?: EnumTourStepNullableWithAggregatesFilter<"ConversationLog"> | $Enums.TourStep | null
-    actionType?: StringNullableWithAggregatesFilter<"ConversationLog"> | string | null
-    metadata?: JsonWithAggregatesFilter<"ConversationLog">
-    tokensUsed?: IntNullableWithAggregatesFilter<"ConversationLog"> | number | null
-    responseTimeMs?: IntNullableWithAggregatesFilter<"ConversationLog"> | number | null
-    llmProvider?: StringNullableWithAggregatesFilter<"ConversationLog"> | string | null
-    createdAt?: DateTimeWithAggregatesFilter<"ConversationLog"> | Date | string
-  }
-
-  export type TourInteractionWhereInput = {
-    AND?: TourInteractionWhereInput | TourInteractionWhereInput[]
-    OR?: TourInteractionWhereInput[]
-    NOT?: TourInteractionWhereInput | TourInteractionWhereInput[]
-    id?: StringFilter<"TourInteraction"> | string
-    sessionId?: StringFilter<"TourInteraction"> | string
-    tourStep?: EnumTourStepFilter<"TourInteraction"> | $Enums.TourStep
-    actionType?: StringFilter<"TourInteraction"> | string
-    actionData?: JsonFilter<"TourInteraction">
-    timeSpentMs?: IntNullableFilter<"TourInteraction"> | number | null
-    wasSkipped?: BoolFilter<"TourInteraction"> | boolean
-    satisfaction?: IntNullableFilter<"TourInteraction"> | number | null
-    createdAt?: DateTimeFilter<"TourInteraction"> | Date | string
-    session?: XOR<ConversationSessionScalarRelationFilter, ConversationSessionWhereInput>
-  }
-
-  export type TourInteractionOrderByWithRelationInput = {
-    id?: SortOrder
-    sessionId?: SortOrder
-    tourStep?: SortOrder
-    actionType?: SortOrder
-    actionData?: SortOrder
-    timeSpentMs?: SortOrderInput | SortOrder
-    wasSkipped?: SortOrder
-    satisfaction?: SortOrderInput | SortOrder
-    createdAt?: SortOrder
-    session?: ConversationSessionOrderByWithRelationInput
-  }
-
-  export type TourInteractionWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    AND?: TourInteractionWhereInput | TourInteractionWhereInput[]
-    OR?: TourInteractionWhereInput[]
-    NOT?: TourInteractionWhereInput | TourInteractionWhereInput[]
-    sessionId?: StringFilter<"TourInteraction"> | string
-    tourStep?: EnumTourStepFilter<"TourInteraction"> | $Enums.TourStep
-    actionType?: StringFilter<"TourInteraction"> | string
-    actionData?: JsonFilter<"TourInteraction">
-    timeSpentMs?: IntNullableFilter<"TourInteraction"> | number | null
-    wasSkipped?: BoolFilter<"TourInteraction"> | boolean
-    satisfaction?: IntNullableFilter<"TourInteraction"> | number | null
-    createdAt?: DateTimeFilter<"TourInteraction"> | Date | string
-    session?: XOR<ConversationSessionScalarRelationFilter, ConversationSessionWhereInput>
-  }, "id">
-
-  export type TourInteractionOrderByWithAggregationInput = {
-    id?: SortOrder
-    sessionId?: SortOrder
-    tourStep?: SortOrder
-    actionType?: SortOrder
-    actionData?: SortOrder
-    timeSpentMs?: SortOrderInput | SortOrder
-    wasSkipped?: SortOrder
-    satisfaction?: SortOrderInput | SortOrder
-    createdAt?: SortOrder
-    _count?: TourInteractionCountOrderByAggregateInput
-    _avg?: TourInteractionAvgOrderByAggregateInput
-    _max?: TourInteractionMaxOrderByAggregateInput
-    _min?: TourInteractionMinOrderByAggregateInput
-    _sum?: TourInteractionSumOrderByAggregateInput
-  }
-
-  export type TourInteractionScalarWhereWithAggregatesInput = {
-    AND?: TourInteractionScalarWhereWithAggregatesInput | TourInteractionScalarWhereWithAggregatesInput[]
-    OR?: TourInteractionScalarWhereWithAggregatesInput[]
-    NOT?: TourInteractionScalarWhereWithAggregatesInput | TourInteractionScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"TourInteraction"> | string
-    sessionId?: StringWithAggregatesFilter<"TourInteraction"> | string
-    tourStep?: EnumTourStepWithAggregatesFilter<"TourInteraction"> | $Enums.TourStep
-    actionType?: StringWithAggregatesFilter<"TourInteraction"> | string
-    actionData?: JsonWithAggregatesFilter<"TourInteraction">
-    timeSpentMs?: IntNullableWithAggregatesFilter<"TourInteraction"> | number | null
-    wasSkipped?: BoolWithAggregatesFilter<"TourInteraction"> | boolean
-    satisfaction?: IntNullableWithAggregatesFilter<"TourInteraction"> | number | null
-    createdAt?: DateTimeWithAggregatesFilter<"TourInteraction"> | Date | string
-  }
-
-  export type LocalStorageSyncWhereInput = {
-    AND?: LocalStorageSyncWhereInput | LocalStorageSyncWhereInput[]
-    OR?: LocalStorageSyncWhereInput[]
-    NOT?: LocalStorageSyncWhereInput | LocalStorageSyncWhereInput[]
-    id?: StringFilter<"LocalStorageSync"> | string
-    sessionId?: StringFilter<"LocalStorageSync"> | string
-    interests?: StringNullableListFilter<"LocalStorageSync">
-    videoRatings?: JsonFilter<"LocalStorageSync">
-    onboardingStep?: StringNullableFilter<"LocalStorageSync"> | string | null
-    layoutData?: JsonFilter<"LocalStorageSync">
-    isRegistered?: BoolFilter<"LocalStorageSync"> | boolean
-    userId?: StringNullableFilter<"LocalStorageSync"> | string | null
-    syncedAt?: DateTimeNullableFilter<"LocalStorageSync"> | Date | string | null
-    createdAt?: DateTimeFilter<"LocalStorageSync"> | Date | string
-    updatedAt?: DateTimeFilter<"LocalStorageSync"> | Date | string
-    expiresAt?: DateTimeFilter<"LocalStorageSync"> | Date | string
-  }
-
-  export type LocalStorageSyncOrderByWithRelationInput = {
-    id?: SortOrder
-    sessionId?: SortOrder
-    interests?: SortOrder
-    videoRatings?: SortOrder
-    onboardingStep?: SortOrderInput | SortOrder
-    layoutData?: SortOrder
-    isRegistered?: SortOrder
-    userId?: SortOrderInput | SortOrder
-    syncedAt?: SortOrderInput | SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    expiresAt?: SortOrder
-  }
-
-  export type LocalStorageSyncWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    sessionId?: string
-    AND?: LocalStorageSyncWhereInput | LocalStorageSyncWhereInput[]
-    OR?: LocalStorageSyncWhereInput[]
-    NOT?: LocalStorageSyncWhereInput | LocalStorageSyncWhereInput[]
-    interests?: StringNullableListFilter<"LocalStorageSync">
-    videoRatings?: JsonFilter<"LocalStorageSync">
-    onboardingStep?: StringNullableFilter<"LocalStorageSync"> | string | null
-    layoutData?: JsonFilter<"LocalStorageSync">
-    isRegistered?: BoolFilter<"LocalStorageSync"> | boolean
-    userId?: StringNullableFilter<"LocalStorageSync"> | string | null
-    syncedAt?: DateTimeNullableFilter<"LocalStorageSync"> | Date | string | null
-    createdAt?: DateTimeFilter<"LocalStorageSync"> | Date | string
-    updatedAt?: DateTimeFilter<"LocalStorageSync"> | Date | string
-    expiresAt?: DateTimeFilter<"LocalStorageSync"> | Date | string
-  }, "id" | "sessionId">
-
-  export type LocalStorageSyncOrderByWithAggregationInput = {
-    id?: SortOrder
-    sessionId?: SortOrder
-    interests?: SortOrder
-    videoRatings?: SortOrder
-    onboardingStep?: SortOrderInput | SortOrder
-    layoutData?: SortOrder
-    isRegistered?: SortOrder
-    userId?: SortOrderInput | SortOrder
-    syncedAt?: SortOrderInput | SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    expiresAt?: SortOrder
-    _count?: LocalStorageSyncCountOrderByAggregateInput
-    _max?: LocalStorageSyncMaxOrderByAggregateInput
-    _min?: LocalStorageSyncMinOrderByAggregateInput
-  }
-
-  export type LocalStorageSyncScalarWhereWithAggregatesInput = {
-    AND?: LocalStorageSyncScalarWhereWithAggregatesInput | LocalStorageSyncScalarWhereWithAggregatesInput[]
-    OR?: LocalStorageSyncScalarWhereWithAggregatesInput[]
-    NOT?: LocalStorageSyncScalarWhereWithAggregatesInput | LocalStorageSyncScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"LocalStorageSync"> | string
-    sessionId?: StringWithAggregatesFilter<"LocalStorageSync"> | string
-    interests?: StringNullableListFilter<"LocalStorageSync">
-    videoRatings?: JsonWithAggregatesFilter<"LocalStorageSync">
-    onboardingStep?: StringNullableWithAggregatesFilter<"LocalStorageSync"> | string | null
-    layoutData?: JsonWithAggregatesFilter<"LocalStorageSync">
-    isRegistered?: BoolWithAggregatesFilter<"LocalStorageSync"> | boolean
-    userId?: StringNullableWithAggregatesFilter<"LocalStorageSync"> | string | null
-    syncedAt?: DateTimeNullableWithAggregatesFilter<"LocalStorageSync"> | Date | string | null
-    createdAt?: DateTimeWithAggregatesFilter<"LocalStorageSync"> | Date | string
-    updatedAt?: DateTimeWithAggregatesFilter<"LocalStorageSync"> | Date | string
-    expiresAt?: DateTimeWithAggregatesFilter<"LocalStorageSync"> | Date | string
-  }
-
   export type MigrationWhereInput = {
     AND?: MigrationWhereInput | MigrationWhereInput[]
     OR?: MigrationWhereInput[]
@@ -20319,6 +20637,535 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"SystemConfig"> | Date | string
   }
 
+  export type VideoEmbeddingWhereInput = {
+    AND?: VideoEmbeddingWhereInput | VideoEmbeddingWhereInput[]
+    OR?: VideoEmbeddingWhereInput[]
+    NOT?: VideoEmbeddingWhereInput | VideoEmbeddingWhereInput[]
+    id?: StringFilter<"VideoEmbedding"> | string
+    platformId?: StringFilter<"VideoEmbedding"> | string
+    platform?: StringFilter<"VideoEmbedding"> | string
+    title?: StringNullableFilter<"VideoEmbedding"> | string | null
+    description?: StringNullableFilter<"VideoEmbedding"> | string | null
+    tags?: StringNullableListFilter<"VideoEmbedding">
+    category?: StringNullableFilter<"VideoEmbedding"> | string | null
+    duration?: IntNullableFilter<"VideoEmbedding"> | number | null
+    publishedAt?: DateTimeNullableFilter<"VideoEmbedding"> | Date | string | null
+    channelId?: StringNullableFilter<"VideoEmbedding"> | string | null
+    channelName?: StringNullableFilter<"VideoEmbedding"> | string | null
+    embeddingModel?: StringFilter<"VideoEmbedding"> | string
+    embeddingVersion?: StringFilter<"VideoEmbedding"> | string
+    processingStatus?: EnumEmbeddingStatusFilter<"VideoEmbedding"> | $Enums.EmbeddingStatus
+    qualityScore?: FloatNullableFilter<"VideoEmbedding"> | number | null
+    createdAt?: DateTimeFilter<"VideoEmbedding"> | Date | string
+    updatedAt?: DateTimeFilter<"VideoEmbedding"> | Date | string
+    lastProcessedAt?: DateTimeNullableFilter<"VideoEmbedding"> | Date | string | null
+  }
+
+  export type VideoEmbeddingOrderByWithRelationInput = {
+    id?: SortOrder
+    platformId?: SortOrder
+    platform?: SortOrder
+    title?: SortOrderInput | SortOrder
+    description?: SortOrderInput | SortOrder
+    tags?: SortOrder
+    category?: SortOrderInput | SortOrder
+    duration?: SortOrderInput | SortOrder
+    publishedAt?: SortOrderInput | SortOrder
+    channelId?: SortOrderInput | SortOrder
+    channelName?: SortOrderInput | SortOrder
+    embeddingModel?: SortOrder
+    embeddingVersion?: SortOrder
+    processingStatus?: SortOrder
+    qualityScore?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    lastProcessedAt?: SortOrderInput | SortOrder
+  }
+
+  export type VideoEmbeddingWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    platformId_platform?: VideoEmbeddingPlatformIdPlatformCompoundUniqueInput
+    AND?: VideoEmbeddingWhereInput | VideoEmbeddingWhereInput[]
+    OR?: VideoEmbeddingWhereInput[]
+    NOT?: VideoEmbeddingWhereInput | VideoEmbeddingWhereInput[]
+    platformId?: StringFilter<"VideoEmbedding"> | string
+    platform?: StringFilter<"VideoEmbedding"> | string
+    title?: StringNullableFilter<"VideoEmbedding"> | string | null
+    description?: StringNullableFilter<"VideoEmbedding"> | string | null
+    tags?: StringNullableListFilter<"VideoEmbedding">
+    category?: StringNullableFilter<"VideoEmbedding"> | string | null
+    duration?: IntNullableFilter<"VideoEmbedding"> | number | null
+    publishedAt?: DateTimeNullableFilter<"VideoEmbedding"> | Date | string | null
+    channelId?: StringNullableFilter<"VideoEmbedding"> | string | null
+    channelName?: StringNullableFilter<"VideoEmbedding"> | string | null
+    embeddingModel?: StringFilter<"VideoEmbedding"> | string
+    embeddingVersion?: StringFilter<"VideoEmbedding"> | string
+    processingStatus?: EnumEmbeddingStatusFilter<"VideoEmbedding"> | $Enums.EmbeddingStatus
+    qualityScore?: FloatNullableFilter<"VideoEmbedding"> | number | null
+    createdAt?: DateTimeFilter<"VideoEmbedding"> | Date | string
+    updatedAt?: DateTimeFilter<"VideoEmbedding"> | Date | string
+    lastProcessedAt?: DateTimeNullableFilter<"VideoEmbedding"> | Date | string | null
+  }, "id" | "platformId_platform">
+
+  export type VideoEmbeddingOrderByWithAggregationInput = {
+    id?: SortOrder
+    platformId?: SortOrder
+    platform?: SortOrder
+    title?: SortOrderInput | SortOrder
+    description?: SortOrderInput | SortOrder
+    tags?: SortOrder
+    category?: SortOrderInput | SortOrder
+    duration?: SortOrderInput | SortOrder
+    publishedAt?: SortOrderInput | SortOrder
+    channelId?: SortOrderInput | SortOrder
+    channelName?: SortOrderInput | SortOrder
+    embeddingModel?: SortOrder
+    embeddingVersion?: SortOrder
+    processingStatus?: SortOrder
+    qualityScore?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    lastProcessedAt?: SortOrderInput | SortOrder
+    _count?: VideoEmbeddingCountOrderByAggregateInput
+    _avg?: VideoEmbeddingAvgOrderByAggregateInput
+    _max?: VideoEmbeddingMaxOrderByAggregateInput
+    _min?: VideoEmbeddingMinOrderByAggregateInput
+    _sum?: VideoEmbeddingSumOrderByAggregateInput
+  }
+
+  export type VideoEmbeddingScalarWhereWithAggregatesInput = {
+    AND?: VideoEmbeddingScalarWhereWithAggregatesInput | VideoEmbeddingScalarWhereWithAggregatesInput[]
+    OR?: VideoEmbeddingScalarWhereWithAggregatesInput[]
+    NOT?: VideoEmbeddingScalarWhereWithAggregatesInput | VideoEmbeddingScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"VideoEmbedding"> | string
+    platformId?: StringWithAggregatesFilter<"VideoEmbedding"> | string
+    platform?: StringWithAggregatesFilter<"VideoEmbedding"> | string
+    title?: StringNullableWithAggregatesFilter<"VideoEmbedding"> | string | null
+    description?: StringNullableWithAggregatesFilter<"VideoEmbedding"> | string | null
+    tags?: StringNullableListFilter<"VideoEmbedding">
+    category?: StringNullableWithAggregatesFilter<"VideoEmbedding"> | string | null
+    duration?: IntNullableWithAggregatesFilter<"VideoEmbedding"> | number | null
+    publishedAt?: DateTimeNullableWithAggregatesFilter<"VideoEmbedding"> | Date | string | null
+    channelId?: StringNullableWithAggregatesFilter<"VideoEmbedding"> | string | null
+    channelName?: StringNullableWithAggregatesFilter<"VideoEmbedding"> | string | null
+    embeddingModel?: StringWithAggregatesFilter<"VideoEmbedding"> | string
+    embeddingVersion?: StringWithAggregatesFilter<"VideoEmbedding"> | string
+    processingStatus?: EnumEmbeddingStatusWithAggregatesFilter<"VideoEmbedding"> | $Enums.EmbeddingStatus
+    qualityScore?: FloatNullableWithAggregatesFilter<"VideoEmbedding"> | number | null
+    createdAt?: DateTimeWithAggregatesFilter<"VideoEmbedding"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"VideoEmbedding"> | Date | string
+    lastProcessedAt?: DateTimeNullableWithAggregatesFilter<"VideoEmbedding"> | Date | string | null
+  }
+
+  export type UserEmbeddingWhereInput = {
+    AND?: UserEmbeddingWhereInput | UserEmbeddingWhereInput[]
+    OR?: UserEmbeddingWhereInput[]
+    NOT?: UserEmbeddingWhereInput | UserEmbeddingWhereInput[]
+    id?: StringFilter<"UserEmbedding"> | string
+    userId?: StringFilter<"UserEmbedding"> | string
+    confidenceScore?: FloatFilter<"UserEmbedding"> | number
+    interactionCount?: IntFilter<"UserEmbedding"> | number
+    lastUpdateThreshold?: IntFilter<"UserEmbedding"> | number
+    embeddingModel?: StringFilter<"UserEmbedding"> | string
+    embeddingVersion?: StringFilter<"UserEmbedding"> | string
+    processingStatus?: EnumEmbeddingStatusFilter<"UserEmbedding"> | $Enums.EmbeddingStatus
+    createdAt?: DateTimeFilter<"UserEmbedding"> | Date | string
+    updatedAt?: DateTimeFilter<"UserEmbedding"> | Date | string
+    lastCalculatedAt?: DateTimeNullableFilter<"UserEmbedding"> | Date | string | null
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type UserEmbeddingOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    confidenceScore?: SortOrder
+    interactionCount?: SortOrder
+    lastUpdateThreshold?: SortOrder
+    embeddingModel?: SortOrder
+    embeddingVersion?: SortOrder
+    processingStatus?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    lastCalculatedAt?: SortOrderInput | SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type UserEmbeddingWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    userId?: string
+    AND?: UserEmbeddingWhereInput | UserEmbeddingWhereInput[]
+    OR?: UserEmbeddingWhereInput[]
+    NOT?: UserEmbeddingWhereInput | UserEmbeddingWhereInput[]
+    confidenceScore?: FloatFilter<"UserEmbedding"> | number
+    interactionCount?: IntFilter<"UserEmbedding"> | number
+    lastUpdateThreshold?: IntFilter<"UserEmbedding"> | number
+    embeddingModel?: StringFilter<"UserEmbedding"> | string
+    embeddingVersion?: StringFilter<"UserEmbedding"> | string
+    processingStatus?: EnumEmbeddingStatusFilter<"UserEmbedding"> | $Enums.EmbeddingStatus
+    createdAt?: DateTimeFilter<"UserEmbedding"> | Date | string
+    updatedAt?: DateTimeFilter<"UserEmbedding"> | Date | string
+    lastCalculatedAt?: DateTimeNullableFilter<"UserEmbedding"> | Date | string | null
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id" | "userId">
+
+  export type UserEmbeddingOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    confidenceScore?: SortOrder
+    interactionCount?: SortOrder
+    lastUpdateThreshold?: SortOrder
+    embeddingModel?: SortOrder
+    embeddingVersion?: SortOrder
+    processingStatus?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    lastCalculatedAt?: SortOrderInput | SortOrder
+    _count?: UserEmbeddingCountOrderByAggregateInput
+    _avg?: UserEmbeddingAvgOrderByAggregateInput
+    _max?: UserEmbeddingMaxOrderByAggregateInput
+    _min?: UserEmbeddingMinOrderByAggregateInput
+    _sum?: UserEmbeddingSumOrderByAggregateInput
+  }
+
+  export type UserEmbeddingScalarWhereWithAggregatesInput = {
+    AND?: UserEmbeddingScalarWhereWithAggregatesInput | UserEmbeddingScalarWhereWithAggregatesInput[]
+    OR?: UserEmbeddingScalarWhereWithAggregatesInput[]
+    NOT?: UserEmbeddingScalarWhereWithAggregatesInput | UserEmbeddingScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"UserEmbedding"> | string
+    userId?: StringWithAggregatesFilter<"UserEmbedding"> | string
+    confidenceScore?: FloatWithAggregatesFilter<"UserEmbedding"> | number
+    interactionCount?: IntWithAggregatesFilter<"UserEmbedding"> | number
+    lastUpdateThreshold?: IntWithAggregatesFilter<"UserEmbedding"> | number
+    embeddingModel?: StringWithAggregatesFilter<"UserEmbedding"> | string
+    embeddingVersion?: StringWithAggregatesFilter<"UserEmbedding"> | string
+    processingStatus?: EnumEmbeddingStatusWithAggregatesFilter<"UserEmbedding"> | $Enums.EmbeddingStatus
+    createdAt?: DateTimeWithAggregatesFilter<"UserEmbedding"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"UserEmbedding"> | Date | string
+    lastCalculatedAt?: DateTimeNullableWithAggregatesFilter<"UserEmbedding"> | Date | string | null
+  }
+
+  export type CommentEmbeddingWhereInput = {
+    AND?: CommentEmbeddingWhereInput | CommentEmbeddingWhereInput[]
+    OR?: CommentEmbeddingWhereInput[]
+    NOT?: CommentEmbeddingWhereInput | CommentEmbeddingWhereInput[]
+    id?: StringFilter<"CommentEmbedding"> | string
+    platformId?: StringFilter<"CommentEmbedding"> | string
+    platform?: StringFilter<"CommentEmbedding"> | string
+    videoId?: StringFilter<"CommentEmbedding"> | string
+    content?: StringFilter<"CommentEmbedding"> | string
+    authorName?: StringNullableFilter<"CommentEmbedding"> | string | null
+    publishedAt?: DateTimeNullableFilter<"CommentEmbedding"> | Date | string | null
+    toxicityScore?: FloatNullableFilter<"CommentEmbedding"> | number | null
+    relevanceScore?: FloatNullableFilter<"CommentEmbedding"> | number | null
+    sentimentScore?: FloatNullableFilter<"CommentEmbedding"> | number | null
+    embeddingModel?: StringFilter<"CommentEmbedding"> | string
+    embeddingVersion?: StringFilter<"CommentEmbedding"> | string
+    processingStatus?: EnumEmbeddingStatusFilter<"CommentEmbedding"> | $Enums.EmbeddingStatus
+    createdAt?: DateTimeFilter<"CommentEmbedding"> | Date | string
+    updatedAt?: DateTimeFilter<"CommentEmbedding"> | Date | string
+  }
+
+  export type CommentEmbeddingOrderByWithRelationInput = {
+    id?: SortOrder
+    platformId?: SortOrder
+    platform?: SortOrder
+    videoId?: SortOrder
+    content?: SortOrder
+    authorName?: SortOrderInput | SortOrder
+    publishedAt?: SortOrderInput | SortOrder
+    toxicityScore?: SortOrderInput | SortOrder
+    relevanceScore?: SortOrderInput | SortOrder
+    sentimentScore?: SortOrderInput | SortOrder
+    embeddingModel?: SortOrder
+    embeddingVersion?: SortOrder
+    processingStatus?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CommentEmbeddingWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    platformId_platform?: CommentEmbeddingPlatformIdPlatformCompoundUniqueInput
+    AND?: CommentEmbeddingWhereInput | CommentEmbeddingWhereInput[]
+    OR?: CommentEmbeddingWhereInput[]
+    NOT?: CommentEmbeddingWhereInput | CommentEmbeddingWhereInput[]
+    platformId?: StringFilter<"CommentEmbedding"> | string
+    platform?: StringFilter<"CommentEmbedding"> | string
+    videoId?: StringFilter<"CommentEmbedding"> | string
+    content?: StringFilter<"CommentEmbedding"> | string
+    authorName?: StringNullableFilter<"CommentEmbedding"> | string | null
+    publishedAt?: DateTimeNullableFilter<"CommentEmbedding"> | Date | string | null
+    toxicityScore?: FloatNullableFilter<"CommentEmbedding"> | number | null
+    relevanceScore?: FloatNullableFilter<"CommentEmbedding"> | number | null
+    sentimentScore?: FloatNullableFilter<"CommentEmbedding"> | number | null
+    embeddingModel?: StringFilter<"CommentEmbedding"> | string
+    embeddingVersion?: StringFilter<"CommentEmbedding"> | string
+    processingStatus?: EnumEmbeddingStatusFilter<"CommentEmbedding"> | $Enums.EmbeddingStatus
+    createdAt?: DateTimeFilter<"CommentEmbedding"> | Date | string
+    updatedAt?: DateTimeFilter<"CommentEmbedding"> | Date | string
+  }, "id" | "platformId_platform">
+
+  export type CommentEmbeddingOrderByWithAggregationInput = {
+    id?: SortOrder
+    platformId?: SortOrder
+    platform?: SortOrder
+    videoId?: SortOrder
+    content?: SortOrder
+    authorName?: SortOrderInput | SortOrder
+    publishedAt?: SortOrderInput | SortOrder
+    toxicityScore?: SortOrderInput | SortOrder
+    relevanceScore?: SortOrderInput | SortOrder
+    sentimentScore?: SortOrderInput | SortOrder
+    embeddingModel?: SortOrder
+    embeddingVersion?: SortOrder
+    processingStatus?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: CommentEmbeddingCountOrderByAggregateInput
+    _avg?: CommentEmbeddingAvgOrderByAggregateInput
+    _max?: CommentEmbeddingMaxOrderByAggregateInput
+    _min?: CommentEmbeddingMinOrderByAggregateInput
+    _sum?: CommentEmbeddingSumOrderByAggregateInput
+  }
+
+  export type CommentEmbeddingScalarWhereWithAggregatesInput = {
+    AND?: CommentEmbeddingScalarWhereWithAggregatesInput | CommentEmbeddingScalarWhereWithAggregatesInput[]
+    OR?: CommentEmbeddingScalarWhereWithAggregatesInput[]
+    NOT?: CommentEmbeddingScalarWhereWithAggregatesInput | CommentEmbeddingScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"CommentEmbedding"> | string
+    platformId?: StringWithAggregatesFilter<"CommentEmbedding"> | string
+    platform?: StringWithAggregatesFilter<"CommentEmbedding"> | string
+    videoId?: StringWithAggregatesFilter<"CommentEmbedding"> | string
+    content?: StringWithAggregatesFilter<"CommentEmbedding"> | string
+    authorName?: StringNullableWithAggregatesFilter<"CommentEmbedding"> | string | null
+    publishedAt?: DateTimeNullableWithAggregatesFilter<"CommentEmbedding"> | Date | string | null
+    toxicityScore?: FloatNullableWithAggregatesFilter<"CommentEmbedding"> | number | null
+    relevanceScore?: FloatNullableWithAggregatesFilter<"CommentEmbedding"> | number | null
+    sentimentScore?: FloatNullableWithAggregatesFilter<"CommentEmbedding"> | number | null
+    embeddingModel?: StringWithAggregatesFilter<"CommentEmbedding"> | string
+    embeddingVersion?: StringWithAggregatesFilter<"CommentEmbedding"> | string
+    processingStatus?: EnumEmbeddingStatusWithAggregatesFilter<"CommentEmbedding"> | $Enums.EmbeddingStatus
+    createdAt?: DateTimeWithAggregatesFilter<"CommentEmbedding"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"CommentEmbedding"> | Date | string
+  }
+
+  export type SearchEmbeddingWhereInput = {
+    AND?: SearchEmbeddingWhereInput | SearchEmbeddingWhereInput[]
+    OR?: SearchEmbeddingWhereInput[]
+    NOT?: SearchEmbeddingWhereInput | SearchEmbeddingWhereInput[]
+    id?: StringFilter<"SearchEmbedding"> | string
+    userId?: StringNullableFilter<"SearchEmbedding"> | string | null
+    query?: StringFilter<"SearchEmbedding"> | string
+    intent?: StringNullableFilter<"SearchEmbedding"> | string | null
+    entities?: StringNullableListFilter<"SearchEmbedding">
+    searchCount?: IntFilter<"SearchEmbedding"> | number
+    clickThrough?: FloatFilter<"SearchEmbedding"> | number
+    avgWatchTime?: FloatNullableFilter<"SearchEmbedding"> | number | null
+    embeddingModel?: StringFilter<"SearchEmbedding"> | string
+    embeddingVersion?: StringFilter<"SearchEmbedding"> | string
+    createdAt?: DateTimeFilter<"SearchEmbedding"> | Date | string
+    updatedAt?: DateTimeFilter<"SearchEmbedding"> | Date | string
+    lastSearchedAt?: DateTimeFilter<"SearchEmbedding"> | Date | string
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }
+
+  export type SearchEmbeddingOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    query?: SortOrder
+    intent?: SortOrderInput | SortOrder
+    entities?: SortOrder
+    searchCount?: SortOrder
+    clickThrough?: SortOrder
+    avgWatchTime?: SortOrderInput | SortOrder
+    embeddingModel?: SortOrder
+    embeddingVersion?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    lastSearchedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type SearchEmbeddingWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    query_userId?: SearchEmbeddingQueryUserIdCompoundUniqueInput
+    AND?: SearchEmbeddingWhereInput | SearchEmbeddingWhereInput[]
+    OR?: SearchEmbeddingWhereInput[]
+    NOT?: SearchEmbeddingWhereInput | SearchEmbeddingWhereInput[]
+    userId?: StringNullableFilter<"SearchEmbedding"> | string | null
+    query?: StringFilter<"SearchEmbedding"> | string
+    intent?: StringNullableFilter<"SearchEmbedding"> | string | null
+    entities?: StringNullableListFilter<"SearchEmbedding">
+    searchCount?: IntFilter<"SearchEmbedding"> | number
+    clickThrough?: FloatFilter<"SearchEmbedding"> | number
+    avgWatchTime?: FloatNullableFilter<"SearchEmbedding"> | number | null
+    embeddingModel?: StringFilter<"SearchEmbedding"> | string
+    embeddingVersion?: StringFilter<"SearchEmbedding"> | string
+    createdAt?: DateTimeFilter<"SearchEmbedding"> | Date | string
+    updatedAt?: DateTimeFilter<"SearchEmbedding"> | Date | string
+    lastSearchedAt?: DateTimeFilter<"SearchEmbedding"> | Date | string
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }, "id" | "query_userId">
+
+  export type SearchEmbeddingOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    query?: SortOrder
+    intent?: SortOrderInput | SortOrder
+    entities?: SortOrder
+    searchCount?: SortOrder
+    clickThrough?: SortOrder
+    avgWatchTime?: SortOrderInput | SortOrder
+    embeddingModel?: SortOrder
+    embeddingVersion?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    lastSearchedAt?: SortOrder
+    _count?: SearchEmbeddingCountOrderByAggregateInput
+    _avg?: SearchEmbeddingAvgOrderByAggregateInput
+    _max?: SearchEmbeddingMaxOrderByAggregateInput
+    _min?: SearchEmbeddingMinOrderByAggregateInput
+    _sum?: SearchEmbeddingSumOrderByAggregateInput
+  }
+
+  export type SearchEmbeddingScalarWhereWithAggregatesInput = {
+    AND?: SearchEmbeddingScalarWhereWithAggregatesInput | SearchEmbeddingScalarWhereWithAggregatesInput[]
+    OR?: SearchEmbeddingScalarWhereWithAggregatesInput[]
+    NOT?: SearchEmbeddingScalarWhereWithAggregatesInput | SearchEmbeddingScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"SearchEmbedding"> | string
+    userId?: StringNullableWithAggregatesFilter<"SearchEmbedding"> | string | null
+    query?: StringWithAggregatesFilter<"SearchEmbedding"> | string
+    intent?: StringNullableWithAggregatesFilter<"SearchEmbedding"> | string | null
+    entities?: StringNullableListFilter<"SearchEmbedding">
+    searchCount?: IntWithAggregatesFilter<"SearchEmbedding"> | number
+    clickThrough?: FloatWithAggregatesFilter<"SearchEmbedding"> | number
+    avgWatchTime?: FloatNullableWithAggregatesFilter<"SearchEmbedding"> | number | null
+    embeddingModel?: StringWithAggregatesFilter<"SearchEmbedding"> | string
+    embeddingVersion?: StringWithAggregatesFilter<"SearchEmbedding"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"SearchEmbedding"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"SearchEmbedding"> | Date | string
+    lastSearchedAt?: DateTimeWithAggregatesFilter<"SearchEmbedding"> | Date | string
+  }
+
+  export type EmbeddingJobWhereInput = {
+    AND?: EmbeddingJobWhereInput | EmbeddingJobWhereInput[]
+    OR?: EmbeddingJobWhereInput[]
+    NOT?: EmbeddingJobWhereInput | EmbeddingJobWhereInput[]
+    id?: StringFilter<"EmbeddingJob"> | string
+    type?: EnumJobTypeFilter<"EmbeddingJob"> | $Enums.JobType
+    status?: EnumJobStatusFilter<"EmbeddingJob"> | $Enums.JobStatus
+    batchSize?: IntFilter<"EmbeddingJob"> | number
+    priority?: IntFilter<"EmbeddingJob"> | number
+    configJson?: JsonFilter<"EmbeddingJob">
+    totalItems?: IntFilter<"EmbeddingJob"> | number
+    processedItems?: IntFilter<"EmbeddingJob"> | number
+    failedItems?: IntFilter<"EmbeddingJob"> | number
+    successItems?: IntFilter<"EmbeddingJob"> | number
+    errorMessage?: StringNullableFilter<"EmbeddingJob"> | string | null
+    retryCount?: IntFilter<"EmbeddingJob"> | number
+    maxRetries?: IntFilter<"EmbeddingJob"> | number
+    startedAt?: DateTimeNullableFilter<"EmbeddingJob"> | Date | string | null
+    completedAt?: DateTimeNullableFilter<"EmbeddingJob"> | Date | string | null
+    avgProcessingTime?: FloatNullableFilter<"EmbeddingJob"> | number | null
+    createdAt?: DateTimeFilter<"EmbeddingJob"> | Date | string
+    updatedAt?: DateTimeFilter<"EmbeddingJob"> | Date | string
+  }
+
+  export type EmbeddingJobOrderByWithRelationInput = {
+    id?: SortOrder
+    type?: SortOrder
+    status?: SortOrder
+    batchSize?: SortOrder
+    priority?: SortOrder
+    configJson?: SortOrder
+    totalItems?: SortOrder
+    processedItems?: SortOrder
+    failedItems?: SortOrder
+    successItems?: SortOrder
+    errorMessage?: SortOrderInput | SortOrder
+    retryCount?: SortOrder
+    maxRetries?: SortOrder
+    startedAt?: SortOrderInput | SortOrder
+    completedAt?: SortOrderInput | SortOrder
+    avgProcessingTime?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EmbeddingJobWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: EmbeddingJobWhereInput | EmbeddingJobWhereInput[]
+    OR?: EmbeddingJobWhereInput[]
+    NOT?: EmbeddingJobWhereInput | EmbeddingJobWhereInput[]
+    type?: EnumJobTypeFilter<"EmbeddingJob"> | $Enums.JobType
+    status?: EnumJobStatusFilter<"EmbeddingJob"> | $Enums.JobStatus
+    batchSize?: IntFilter<"EmbeddingJob"> | number
+    priority?: IntFilter<"EmbeddingJob"> | number
+    configJson?: JsonFilter<"EmbeddingJob">
+    totalItems?: IntFilter<"EmbeddingJob"> | number
+    processedItems?: IntFilter<"EmbeddingJob"> | number
+    failedItems?: IntFilter<"EmbeddingJob"> | number
+    successItems?: IntFilter<"EmbeddingJob"> | number
+    errorMessage?: StringNullableFilter<"EmbeddingJob"> | string | null
+    retryCount?: IntFilter<"EmbeddingJob"> | number
+    maxRetries?: IntFilter<"EmbeddingJob"> | number
+    startedAt?: DateTimeNullableFilter<"EmbeddingJob"> | Date | string | null
+    completedAt?: DateTimeNullableFilter<"EmbeddingJob"> | Date | string | null
+    avgProcessingTime?: FloatNullableFilter<"EmbeddingJob"> | number | null
+    createdAt?: DateTimeFilter<"EmbeddingJob"> | Date | string
+    updatedAt?: DateTimeFilter<"EmbeddingJob"> | Date | string
+  }, "id">
+
+  export type EmbeddingJobOrderByWithAggregationInput = {
+    id?: SortOrder
+    type?: SortOrder
+    status?: SortOrder
+    batchSize?: SortOrder
+    priority?: SortOrder
+    configJson?: SortOrder
+    totalItems?: SortOrder
+    processedItems?: SortOrder
+    failedItems?: SortOrder
+    successItems?: SortOrder
+    errorMessage?: SortOrderInput | SortOrder
+    retryCount?: SortOrder
+    maxRetries?: SortOrder
+    startedAt?: SortOrderInput | SortOrder
+    completedAt?: SortOrderInput | SortOrder
+    avgProcessingTime?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: EmbeddingJobCountOrderByAggregateInput
+    _avg?: EmbeddingJobAvgOrderByAggregateInput
+    _max?: EmbeddingJobMaxOrderByAggregateInput
+    _min?: EmbeddingJobMinOrderByAggregateInput
+    _sum?: EmbeddingJobSumOrderByAggregateInput
+  }
+
+  export type EmbeddingJobScalarWhereWithAggregatesInput = {
+    AND?: EmbeddingJobScalarWhereWithAggregatesInput | EmbeddingJobScalarWhereWithAggregatesInput[]
+    OR?: EmbeddingJobScalarWhereWithAggregatesInput[]
+    NOT?: EmbeddingJobScalarWhereWithAggregatesInput | EmbeddingJobScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"EmbeddingJob"> | string
+    type?: EnumJobTypeWithAggregatesFilter<"EmbeddingJob"> | $Enums.JobType
+    status?: EnumJobStatusWithAggregatesFilter<"EmbeddingJob"> | $Enums.JobStatus
+    batchSize?: IntWithAggregatesFilter<"EmbeddingJob"> | number
+    priority?: IntWithAggregatesFilter<"EmbeddingJob"> | number
+    configJson?: JsonWithAggregatesFilter<"EmbeddingJob">
+    totalItems?: IntWithAggregatesFilter<"EmbeddingJob"> | number
+    processedItems?: IntWithAggregatesFilter<"EmbeddingJob"> | number
+    failedItems?: IntWithAggregatesFilter<"EmbeddingJob"> | number
+    successItems?: IntWithAggregatesFilter<"EmbeddingJob"> | number
+    errorMessage?: StringNullableWithAggregatesFilter<"EmbeddingJob"> | string | null
+    retryCount?: IntWithAggregatesFilter<"EmbeddingJob"> | number
+    maxRetries?: IntWithAggregatesFilter<"EmbeddingJob"> | number
+    startedAt?: DateTimeNullableWithAggregatesFilter<"EmbeddingJob"> | Date | string | null
+    completedAt?: DateTimeNullableWithAggregatesFilter<"EmbeddingJob"> | Date | string | null
+    avgProcessingTime?: FloatNullableWithAggregatesFilter<"EmbeddingJob"> | number | null
+    createdAt?: DateTimeWithAggregatesFilter<"EmbeddingJob"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"EmbeddingJob"> | Date | string
+  }
+
   export type UserCreateInput = {
     id?: string
     email: string
@@ -20336,7 +21183,8 @@ export namespace Prisma {
     layouts?: LayoutCreateNestedManyWithoutUserInput
     lists?: ListCreateNestedManyWithoutUserInput
     preferences?: PreferenceCreateNestedManyWithoutUserInput
-    conversationSessions?: ConversationSessionCreateNestedManyWithoutUserInput
+    userEmbedding?: UserEmbeddingCreateNestedOneWithoutUserInput
+    searchEmbeddings?: SearchEmbeddingCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -20356,7 +21204,8 @@ export namespace Prisma {
     layouts?: LayoutUncheckedCreateNestedManyWithoutUserInput
     lists?: ListUncheckedCreateNestedManyWithoutUserInput
     preferences?: PreferenceUncheckedCreateNestedManyWithoutUserInput
-    conversationSessions?: ConversationSessionUncheckedCreateNestedManyWithoutUserInput
+    userEmbedding?: UserEmbeddingUncheckedCreateNestedOneWithoutUserInput
+    searchEmbeddings?: SearchEmbeddingUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -20376,7 +21225,8 @@ export namespace Prisma {
     layouts?: LayoutUpdateManyWithoutUserNestedInput
     lists?: ListUpdateManyWithoutUserNestedInput
     preferences?: PreferenceUpdateManyWithoutUserNestedInput
-    conversationSessions?: ConversationSessionUpdateManyWithoutUserNestedInput
+    userEmbedding?: UserEmbeddingUpdateOneWithoutUserNestedInput
+    searchEmbeddings?: SearchEmbeddingUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -20396,7 +21246,8 @@ export namespace Prisma {
     layouts?: LayoutUncheckedUpdateManyWithoutUserNestedInput
     lists?: ListUncheckedUpdateManyWithoutUserNestedInput
     preferences?: PreferenceUncheckedUpdateManyWithoutUserNestedInput
-    conversationSessions?: ConversationSessionUncheckedUpdateManyWithoutUserNestedInput
+    userEmbedding?: UserEmbeddingUncheckedUpdateOneWithoutUserNestedInput
+    searchEmbeddings?: SearchEmbeddingUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -21198,452 +22049,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ConversationSessionCreateInput = {
-    id?: string
-    sessionId: string
-    currentStep?: $Enums.TourStep
-    isCompleted?: boolean
-    isVoiceMode?: boolean
-    selectedInterests?: ConversationSessionCreateselectedInterestsInput | string[]
-    videoRatings?: JsonNullValueInput | InputJsonValue
-    layoutPreferences?: JsonNullValueInput | InputJsonValue
-    llmProvider?: string | null
-    llmApiKey?: string | null
-    conversationId?: string | null
-    stepProgress?: JsonNullValueInput | InputJsonValue
-    completedSteps?: ConversationSessionCreatecompletedStepsInput | string[]
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    lastActiveAt?: Date | string
-    completedAt?: Date | string | null
-    user?: UserCreateNestedOneWithoutConversationSessionsInput
-    conversationLogs?: ConversationLogCreateNestedManyWithoutSessionInput
-    tourInteractions?: TourInteractionCreateNestedManyWithoutSessionInput
-  }
-
-  export type ConversationSessionUncheckedCreateInput = {
-    id?: string
-    userId?: string | null
-    sessionId: string
-    currentStep?: $Enums.TourStep
-    isCompleted?: boolean
-    isVoiceMode?: boolean
-    selectedInterests?: ConversationSessionCreateselectedInterestsInput | string[]
-    videoRatings?: JsonNullValueInput | InputJsonValue
-    layoutPreferences?: JsonNullValueInput | InputJsonValue
-    llmProvider?: string | null
-    llmApiKey?: string | null
-    conversationId?: string | null
-    stepProgress?: JsonNullValueInput | InputJsonValue
-    completedSteps?: ConversationSessionCreatecompletedStepsInput | string[]
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    lastActiveAt?: Date | string
-    completedAt?: Date | string | null
-    conversationLogs?: ConversationLogUncheckedCreateNestedManyWithoutSessionInput
-    tourInteractions?: TourInteractionUncheckedCreateNestedManyWithoutSessionInput
-  }
-
-  export type ConversationSessionUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sessionId?: StringFieldUpdateOperationsInput | string
-    currentStep?: EnumTourStepFieldUpdateOperationsInput | $Enums.TourStep
-    isCompleted?: BoolFieldUpdateOperationsInput | boolean
-    isVoiceMode?: BoolFieldUpdateOperationsInput | boolean
-    selectedInterests?: ConversationSessionUpdateselectedInterestsInput | string[]
-    videoRatings?: JsonNullValueInput | InputJsonValue
-    layoutPreferences?: JsonNullValueInput | InputJsonValue
-    llmProvider?: NullableStringFieldUpdateOperationsInput | string | null
-    llmApiKey?: NullableStringFieldUpdateOperationsInput | string | null
-    conversationId?: NullableStringFieldUpdateOperationsInput | string | null
-    stepProgress?: JsonNullValueInput | InputJsonValue
-    completedSteps?: ConversationSessionUpdatecompletedStepsInput | string[]
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    lastActiveAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    user?: UserUpdateOneWithoutConversationSessionsNestedInput
-    conversationLogs?: ConversationLogUpdateManyWithoutSessionNestedInput
-    tourInteractions?: TourInteractionUpdateManyWithoutSessionNestedInput
-  }
-
-  export type ConversationSessionUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    userId?: NullableStringFieldUpdateOperationsInput | string | null
-    sessionId?: StringFieldUpdateOperationsInput | string
-    currentStep?: EnumTourStepFieldUpdateOperationsInput | $Enums.TourStep
-    isCompleted?: BoolFieldUpdateOperationsInput | boolean
-    isVoiceMode?: BoolFieldUpdateOperationsInput | boolean
-    selectedInterests?: ConversationSessionUpdateselectedInterestsInput | string[]
-    videoRatings?: JsonNullValueInput | InputJsonValue
-    layoutPreferences?: JsonNullValueInput | InputJsonValue
-    llmProvider?: NullableStringFieldUpdateOperationsInput | string | null
-    llmApiKey?: NullableStringFieldUpdateOperationsInput | string | null
-    conversationId?: NullableStringFieldUpdateOperationsInput | string | null
-    stepProgress?: JsonNullValueInput | InputJsonValue
-    completedSteps?: ConversationSessionUpdatecompletedStepsInput | string[]
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    lastActiveAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    conversationLogs?: ConversationLogUncheckedUpdateManyWithoutSessionNestedInput
-    tourInteractions?: TourInteractionUncheckedUpdateManyWithoutSessionNestedInput
-  }
-
-  export type ConversationSessionCreateManyInput = {
-    id?: string
-    userId?: string | null
-    sessionId: string
-    currentStep?: $Enums.TourStep
-    isCompleted?: boolean
-    isVoiceMode?: boolean
-    selectedInterests?: ConversationSessionCreateselectedInterestsInput | string[]
-    videoRatings?: JsonNullValueInput | InputJsonValue
-    layoutPreferences?: JsonNullValueInput | InputJsonValue
-    llmProvider?: string | null
-    llmApiKey?: string | null
-    conversationId?: string | null
-    stepProgress?: JsonNullValueInput | InputJsonValue
-    completedSteps?: ConversationSessionCreatecompletedStepsInput | string[]
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    lastActiveAt?: Date | string
-    completedAt?: Date | string | null
-  }
-
-  export type ConversationSessionUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sessionId?: StringFieldUpdateOperationsInput | string
-    currentStep?: EnumTourStepFieldUpdateOperationsInput | $Enums.TourStep
-    isCompleted?: BoolFieldUpdateOperationsInput | boolean
-    isVoiceMode?: BoolFieldUpdateOperationsInput | boolean
-    selectedInterests?: ConversationSessionUpdateselectedInterestsInput | string[]
-    videoRatings?: JsonNullValueInput | InputJsonValue
-    layoutPreferences?: JsonNullValueInput | InputJsonValue
-    llmProvider?: NullableStringFieldUpdateOperationsInput | string | null
-    llmApiKey?: NullableStringFieldUpdateOperationsInput | string | null
-    conversationId?: NullableStringFieldUpdateOperationsInput | string | null
-    stepProgress?: JsonNullValueInput | InputJsonValue
-    completedSteps?: ConversationSessionUpdatecompletedStepsInput | string[]
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    lastActiveAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type ConversationSessionUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    userId?: NullableStringFieldUpdateOperationsInput | string | null
-    sessionId?: StringFieldUpdateOperationsInput | string
-    currentStep?: EnumTourStepFieldUpdateOperationsInput | $Enums.TourStep
-    isCompleted?: BoolFieldUpdateOperationsInput | boolean
-    isVoiceMode?: BoolFieldUpdateOperationsInput | boolean
-    selectedInterests?: ConversationSessionUpdateselectedInterestsInput | string[]
-    videoRatings?: JsonNullValueInput | InputJsonValue
-    layoutPreferences?: JsonNullValueInput | InputJsonValue
-    llmProvider?: NullableStringFieldUpdateOperationsInput | string | null
-    llmApiKey?: NullableStringFieldUpdateOperationsInput | string | null
-    conversationId?: NullableStringFieldUpdateOperationsInput | string | null
-    stepProgress?: JsonNullValueInput | InputJsonValue
-    completedSteps?: ConversationSessionUpdatecompletedStepsInput | string[]
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    lastActiveAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type ConversationLogCreateInput = {
-    id?: string
-    role: $Enums.MessageRole
-    content: string
-    messageId?: string | null
-    tourStep?: $Enums.TourStep | null
-    actionType?: string | null
-    metadata?: JsonNullValueInput | InputJsonValue
-    tokensUsed?: number | null
-    responseTimeMs?: number | null
-    llmProvider?: string | null
-    createdAt?: Date | string
-    session: ConversationSessionCreateNestedOneWithoutConversationLogsInput
-  }
-
-  export type ConversationLogUncheckedCreateInput = {
-    id?: string
-    sessionId: string
-    role: $Enums.MessageRole
-    content: string
-    messageId?: string | null
-    tourStep?: $Enums.TourStep | null
-    actionType?: string | null
-    metadata?: JsonNullValueInput | InputJsonValue
-    tokensUsed?: number | null
-    responseTimeMs?: number | null
-    llmProvider?: string | null
-    createdAt?: Date | string
-  }
-
-  export type ConversationLogUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    role?: EnumMessageRoleFieldUpdateOperationsInput | $Enums.MessageRole
-    content?: StringFieldUpdateOperationsInput | string
-    messageId?: NullableStringFieldUpdateOperationsInput | string | null
-    tourStep?: NullableEnumTourStepFieldUpdateOperationsInput | $Enums.TourStep | null
-    actionType?: NullableStringFieldUpdateOperationsInput | string | null
-    metadata?: JsonNullValueInput | InputJsonValue
-    tokensUsed?: NullableIntFieldUpdateOperationsInput | number | null
-    responseTimeMs?: NullableIntFieldUpdateOperationsInput | number | null
-    llmProvider?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    session?: ConversationSessionUpdateOneRequiredWithoutConversationLogsNestedInput
-  }
-
-  export type ConversationLogUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sessionId?: StringFieldUpdateOperationsInput | string
-    role?: EnumMessageRoleFieldUpdateOperationsInput | $Enums.MessageRole
-    content?: StringFieldUpdateOperationsInput | string
-    messageId?: NullableStringFieldUpdateOperationsInput | string | null
-    tourStep?: NullableEnumTourStepFieldUpdateOperationsInput | $Enums.TourStep | null
-    actionType?: NullableStringFieldUpdateOperationsInput | string | null
-    metadata?: JsonNullValueInput | InputJsonValue
-    tokensUsed?: NullableIntFieldUpdateOperationsInput | number | null
-    responseTimeMs?: NullableIntFieldUpdateOperationsInput | number | null
-    llmProvider?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type ConversationLogCreateManyInput = {
-    id?: string
-    sessionId: string
-    role: $Enums.MessageRole
-    content: string
-    messageId?: string | null
-    tourStep?: $Enums.TourStep | null
-    actionType?: string | null
-    metadata?: JsonNullValueInput | InputJsonValue
-    tokensUsed?: number | null
-    responseTimeMs?: number | null
-    llmProvider?: string | null
-    createdAt?: Date | string
-  }
-
-  export type ConversationLogUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    role?: EnumMessageRoleFieldUpdateOperationsInput | $Enums.MessageRole
-    content?: StringFieldUpdateOperationsInput | string
-    messageId?: NullableStringFieldUpdateOperationsInput | string | null
-    tourStep?: NullableEnumTourStepFieldUpdateOperationsInput | $Enums.TourStep | null
-    actionType?: NullableStringFieldUpdateOperationsInput | string | null
-    metadata?: JsonNullValueInput | InputJsonValue
-    tokensUsed?: NullableIntFieldUpdateOperationsInput | number | null
-    responseTimeMs?: NullableIntFieldUpdateOperationsInput | number | null
-    llmProvider?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type ConversationLogUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sessionId?: StringFieldUpdateOperationsInput | string
-    role?: EnumMessageRoleFieldUpdateOperationsInput | $Enums.MessageRole
-    content?: StringFieldUpdateOperationsInput | string
-    messageId?: NullableStringFieldUpdateOperationsInput | string | null
-    tourStep?: NullableEnumTourStepFieldUpdateOperationsInput | $Enums.TourStep | null
-    actionType?: NullableStringFieldUpdateOperationsInput | string | null
-    metadata?: JsonNullValueInput | InputJsonValue
-    tokensUsed?: NullableIntFieldUpdateOperationsInput | number | null
-    responseTimeMs?: NullableIntFieldUpdateOperationsInput | number | null
-    llmProvider?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type TourInteractionCreateInput = {
-    id?: string
-    tourStep: $Enums.TourStep
-    actionType: string
-    actionData?: JsonNullValueInput | InputJsonValue
-    timeSpentMs?: number | null
-    wasSkipped?: boolean
-    satisfaction?: number | null
-    createdAt?: Date | string
-    session: ConversationSessionCreateNestedOneWithoutTourInteractionsInput
-  }
-
-  export type TourInteractionUncheckedCreateInput = {
-    id?: string
-    sessionId: string
-    tourStep: $Enums.TourStep
-    actionType: string
-    actionData?: JsonNullValueInput | InputJsonValue
-    timeSpentMs?: number | null
-    wasSkipped?: boolean
-    satisfaction?: number | null
-    createdAt?: Date | string
-  }
-
-  export type TourInteractionUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tourStep?: EnumTourStepFieldUpdateOperationsInput | $Enums.TourStep
-    actionType?: StringFieldUpdateOperationsInput | string
-    actionData?: JsonNullValueInput | InputJsonValue
-    timeSpentMs?: NullableIntFieldUpdateOperationsInput | number | null
-    wasSkipped?: BoolFieldUpdateOperationsInput | boolean
-    satisfaction?: NullableIntFieldUpdateOperationsInput | number | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    session?: ConversationSessionUpdateOneRequiredWithoutTourInteractionsNestedInput
-  }
-
-  export type TourInteractionUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sessionId?: StringFieldUpdateOperationsInput | string
-    tourStep?: EnumTourStepFieldUpdateOperationsInput | $Enums.TourStep
-    actionType?: StringFieldUpdateOperationsInput | string
-    actionData?: JsonNullValueInput | InputJsonValue
-    timeSpentMs?: NullableIntFieldUpdateOperationsInput | number | null
-    wasSkipped?: BoolFieldUpdateOperationsInput | boolean
-    satisfaction?: NullableIntFieldUpdateOperationsInput | number | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type TourInteractionCreateManyInput = {
-    id?: string
-    sessionId: string
-    tourStep: $Enums.TourStep
-    actionType: string
-    actionData?: JsonNullValueInput | InputJsonValue
-    timeSpentMs?: number | null
-    wasSkipped?: boolean
-    satisfaction?: number | null
-    createdAt?: Date | string
-  }
-
-  export type TourInteractionUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tourStep?: EnumTourStepFieldUpdateOperationsInput | $Enums.TourStep
-    actionType?: StringFieldUpdateOperationsInput | string
-    actionData?: JsonNullValueInput | InputJsonValue
-    timeSpentMs?: NullableIntFieldUpdateOperationsInput | number | null
-    wasSkipped?: BoolFieldUpdateOperationsInput | boolean
-    satisfaction?: NullableIntFieldUpdateOperationsInput | number | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type TourInteractionUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sessionId?: StringFieldUpdateOperationsInput | string
-    tourStep?: EnumTourStepFieldUpdateOperationsInput | $Enums.TourStep
-    actionType?: StringFieldUpdateOperationsInput | string
-    actionData?: JsonNullValueInput | InputJsonValue
-    timeSpentMs?: NullableIntFieldUpdateOperationsInput | number | null
-    wasSkipped?: BoolFieldUpdateOperationsInput | boolean
-    satisfaction?: NullableIntFieldUpdateOperationsInput | number | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type LocalStorageSyncCreateInput = {
-    id?: string
-    sessionId: string
-    interests?: LocalStorageSyncCreateinterestsInput | string[]
-    videoRatings?: JsonNullValueInput | InputJsonValue
-    onboardingStep?: string | null
-    layoutData?: JsonNullValueInput | InputJsonValue
-    isRegistered?: boolean
-    userId?: string | null
-    syncedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    expiresAt: Date | string
-  }
-
-  export type LocalStorageSyncUncheckedCreateInput = {
-    id?: string
-    sessionId: string
-    interests?: LocalStorageSyncCreateinterestsInput | string[]
-    videoRatings?: JsonNullValueInput | InputJsonValue
-    onboardingStep?: string | null
-    layoutData?: JsonNullValueInput | InputJsonValue
-    isRegistered?: boolean
-    userId?: string | null
-    syncedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    expiresAt: Date | string
-  }
-
-  export type LocalStorageSyncUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sessionId?: StringFieldUpdateOperationsInput | string
-    interests?: LocalStorageSyncUpdateinterestsInput | string[]
-    videoRatings?: JsonNullValueInput | InputJsonValue
-    onboardingStep?: NullableStringFieldUpdateOperationsInput | string | null
-    layoutData?: JsonNullValueInput | InputJsonValue
-    isRegistered?: BoolFieldUpdateOperationsInput | boolean
-    userId?: NullableStringFieldUpdateOperationsInput | string | null
-    syncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type LocalStorageSyncUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sessionId?: StringFieldUpdateOperationsInput | string
-    interests?: LocalStorageSyncUpdateinterestsInput | string[]
-    videoRatings?: JsonNullValueInput | InputJsonValue
-    onboardingStep?: NullableStringFieldUpdateOperationsInput | string | null
-    layoutData?: JsonNullValueInput | InputJsonValue
-    isRegistered?: BoolFieldUpdateOperationsInput | boolean
-    userId?: NullableStringFieldUpdateOperationsInput | string | null
-    syncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type LocalStorageSyncCreateManyInput = {
-    id?: string
-    sessionId: string
-    interests?: LocalStorageSyncCreateinterestsInput | string[]
-    videoRatings?: JsonNullValueInput | InputJsonValue
-    onboardingStep?: string | null
-    layoutData?: JsonNullValueInput | InputJsonValue
-    isRegistered?: boolean
-    userId?: string | null
-    syncedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    expiresAt: Date | string
-  }
-
-  export type LocalStorageSyncUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sessionId?: StringFieldUpdateOperationsInput | string
-    interests?: LocalStorageSyncUpdateinterestsInput | string[]
-    videoRatings?: JsonNullValueInput | InputJsonValue
-    onboardingStep?: NullableStringFieldUpdateOperationsInput | string | null
-    layoutData?: JsonNullValueInput | InputJsonValue
-    isRegistered?: BoolFieldUpdateOperationsInput | boolean
-    userId?: NullableStringFieldUpdateOperationsInput | string | null
-    syncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type LocalStorageSyncUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sessionId?: StringFieldUpdateOperationsInput | string
-    interests?: LocalStorageSyncUpdateinterestsInput | string[]
-    videoRatings?: JsonNullValueInput | InputJsonValue
-    onboardingStep?: NullableStringFieldUpdateOperationsInput | string | null
-    layoutData?: JsonNullValueInput | InputJsonValue
-    isRegistered?: BoolFieldUpdateOperationsInput | boolean
-    userId?: NullableStringFieldUpdateOperationsInput | string | null
-    syncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
   export type MigrationCreateInput = {
     id?: string
     name: string
@@ -21770,6 +22175,427 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type VideoEmbeddingUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    platformId?: StringFieldUpdateOperationsInput | string
+    platform?: StringFieldUpdateOperationsInput | string
+    title?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: VideoEmbeddingUpdatetagsInput | string[]
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    channelId?: NullableStringFieldUpdateOperationsInput | string | null
+    channelName?: NullableStringFieldUpdateOperationsInput | string | null
+    embeddingModel?: StringFieldUpdateOperationsInput | string
+    embeddingVersion?: StringFieldUpdateOperationsInput | string
+    processingStatus?: EnumEmbeddingStatusFieldUpdateOperationsInput | $Enums.EmbeddingStatus
+    qualityScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type VideoEmbeddingUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    platformId?: StringFieldUpdateOperationsInput | string
+    platform?: StringFieldUpdateOperationsInput | string
+    title?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: VideoEmbeddingUpdatetagsInput | string[]
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    channelId?: NullableStringFieldUpdateOperationsInput | string | null
+    channelName?: NullableStringFieldUpdateOperationsInput | string | null
+    embeddingModel?: StringFieldUpdateOperationsInput | string
+    embeddingVersion?: StringFieldUpdateOperationsInput | string
+    processingStatus?: EnumEmbeddingStatusFieldUpdateOperationsInput | $Enums.EmbeddingStatus
+    qualityScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type VideoEmbeddingUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    platformId?: StringFieldUpdateOperationsInput | string
+    platform?: StringFieldUpdateOperationsInput | string
+    title?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: VideoEmbeddingUpdatetagsInput | string[]
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    channelId?: NullableStringFieldUpdateOperationsInput | string | null
+    channelName?: NullableStringFieldUpdateOperationsInput | string | null
+    embeddingModel?: StringFieldUpdateOperationsInput | string
+    embeddingVersion?: StringFieldUpdateOperationsInput | string
+    processingStatus?: EnumEmbeddingStatusFieldUpdateOperationsInput | $Enums.EmbeddingStatus
+    qualityScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type VideoEmbeddingUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    platformId?: StringFieldUpdateOperationsInput | string
+    platform?: StringFieldUpdateOperationsInput | string
+    title?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: VideoEmbeddingUpdatetagsInput | string[]
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    channelId?: NullableStringFieldUpdateOperationsInput | string | null
+    channelName?: NullableStringFieldUpdateOperationsInput | string | null
+    embeddingModel?: StringFieldUpdateOperationsInput | string
+    embeddingVersion?: StringFieldUpdateOperationsInput | string
+    processingStatus?: EnumEmbeddingStatusFieldUpdateOperationsInput | $Enums.EmbeddingStatus
+    qualityScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastProcessedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type UserEmbeddingUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    confidenceScore?: FloatFieldUpdateOperationsInput | number
+    interactionCount?: IntFieldUpdateOperationsInput | number
+    lastUpdateThreshold?: IntFieldUpdateOperationsInput | number
+    embeddingModel?: StringFieldUpdateOperationsInput | string
+    embeddingVersion?: StringFieldUpdateOperationsInput | string
+    processingStatus?: EnumEmbeddingStatusFieldUpdateOperationsInput | $Enums.EmbeddingStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastCalculatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    user?: UserUpdateOneRequiredWithoutUserEmbeddingNestedInput
+  }
+
+  export type UserEmbeddingUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    confidenceScore?: FloatFieldUpdateOperationsInput | number
+    interactionCount?: IntFieldUpdateOperationsInput | number
+    lastUpdateThreshold?: IntFieldUpdateOperationsInput | number
+    embeddingModel?: StringFieldUpdateOperationsInput | string
+    embeddingVersion?: StringFieldUpdateOperationsInput | string
+    processingStatus?: EnumEmbeddingStatusFieldUpdateOperationsInput | $Enums.EmbeddingStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastCalculatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type UserEmbeddingUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    confidenceScore?: FloatFieldUpdateOperationsInput | number
+    interactionCount?: IntFieldUpdateOperationsInput | number
+    lastUpdateThreshold?: IntFieldUpdateOperationsInput | number
+    embeddingModel?: StringFieldUpdateOperationsInput | string
+    embeddingVersion?: StringFieldUpdateOperationsInput | string
+    processingStatus?: EnumEmbeddingStatusFieldUpdateOperationsInput | $Enums.EmbeddingStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastCalculatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type UserEmbeddingUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    confidenceScore?: FloatFieldUpdateOperationsInput | number
+    interactionCount?: IntFieldUpdateOperationsInput | number
+    lastUpdateThreshold?: IntFieldUpdateOperationsInput | number
+    embeddingModel?: StringFieldUpdateOperationsInput | string
+    embeddingVersion?: StringFieldUpdateOperationsInput | string
+    processingStatus?: EnumEmbeddingStatusFieldUpdateOperationsInput | $Enums.EmbeddingStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastCalculatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type CommentEmbeddingUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    platformId?: StringFieldUpdateOperationsInput | string
+    platform?: StringFieldUpdateOperationsInput | string
+    videoId?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    authorName?: NullableStringFieldUpdateOperationsInput | string | null
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    toxicityScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    relevanceScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    sentimentScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    embeddingModel?: StringFieldUpdateOperationsInput | string
+    embeddingVersion?: StringFieldUpdateOperationsInput | string
+    processingStatus?: EnumEmbeddingStatusFieldUpdateOperationsInput | $Enums.EmbeddingStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CommentEmbeddingUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    platformId?: StringFieldUpdateOperationsInput | string
+    platform?: StringFieldUpdateOperationsInput | string
+    videoId?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    authorName?: NullableStringFieldUpdateOperationsInput | string | null
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    toxicityScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    relevanceScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    sentimentScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    embeddingModel?: StringFieldUpdateOperationsInput | string
+    embeddingVersion?: StringFieldUpdateOperationsInput | string
+    processingStatus?: EnumEmbeddingStatusFieldUpdateOperationsInput | $Enums.EmbeddingStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CommentEmbeddingUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    platformId?: StringFieldUpdateOperationsInput | string
+    platform?: StringFieldUpdateOperationsInput | string
+    videoId?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    authorName?: NullableStringFieldUpdateOperationsInput | string | null
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    toxicityScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    relevanceScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    sentimentScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    embeddingModel?: StringFieldUpdateOperationsInput | string
+    embeddingVersion?: StringFieldUpdateOperationsInput | string
+    processingStatus?: EnumEmbeddingStatusFieldUpdateOperationsInput | $Enums.EmbeddingStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CommentEmbeddingUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    platformId?: StringFieldUpdateOperationsInput | string
+    platform?: StringFieldUpdateOperationsInput | string
+    videoId?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    authorName?: NullableStringFieldUpdateOperationsInput | string | null
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    toxicityScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    relevanceScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    sentimentScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    embeddingModel?: StringFieldUpdateOperationsInput | string
+    embeddingVersion?: StringFieldUpdateOperationsInput | string
+    processingStatus?: EnumEmbeddingStatusFieldUpdateOperationsInput | $Enums.EmbeddingStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SearchEmbeddingUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    query?: StringFieldUpdateOperationsInput | string
+    intent?: NullableStringFieldUpdateOperationsInput | string | null
+    entities?: SearchEmbeddingUpdateentitiesInput | string[]
+    searchCount?: IntFieldUpdateOperationsInput | number
+    clickThrough?: FloatFieldUpdateOperationsInput | number
+    avgWatchTime?: NullableFloatFieldUpdateOperationsInput | number | null
+    embeddingModel?: StringFieldUpdateOperationsInput | string
+    embeddingVersion?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastSearchedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneWithoutSearchEmbeddingsNestedInput
+  }
+
+  export type SearchEmbeddingUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    query?: StringFieldUpdateOperationsInput | string
+    intent?: NullableStringFieldUpdateOperationsInput | string | null
+    entities?: SearchEmbeddingUpdateentitiesInput | string[]
+    searchCount?: IntFieldUpdateOperationsInput | number
+    clickThrough?: FloatFieldUpdateOperationsInput | number
+    avgWatchTime?: NullableFloatFieldUpdateOperationsInput | number | null
+    embeddingModel?: StringFieldUpdateOperationsInput | string
+    embeddingVersion?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastSearchedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SearchEmbeddingUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    query?: StringFieldUpdateOperationsInput | string
+    intent?: NullableStringFieldUpdateOperationsInput | string | null
+    entities?: SearchEmbeddingUpdateentitiesInput | string[]
+    searchCount?: IntFieldUpdateOperationsInput | number
+    clickThrough?: FloatFieldUpdateOperationsInput | number
+    avgWatchTime?: NullableFloatFieldUpdateOperationsInput | number | null
+    embeddingModel?: StringFieldUpdateOperationsInput | string
+    embeddingVersion?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastSearchedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SearchEmbeddingUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    query?: StringFieldUpdateOperationsInput | string
+    intent?: NullableStringFieldUpdateOperationsInput | string | null
+    entities?: SearchEmbeddingUpdateentitiesInput | string[]
+    searchCount?: IntFieldUpdateOperationsInput | number
+    clickThrough?: FloatFieldUpdateOperationsInput | number
+    avgWatchTime?: NullableFloatFieldUpdateOperationsInput | number | null
+    embeddingModel?: StringFieldUpdateOperationsInput | string
+    embeddingVersion?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastSearchedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmbeddingJobCreateInput = {
+    id?: string
+    type: $Enums.JobType
+    status?: $Enums.JobStatus
+    batchSize?: number
+    priority?: number
+    configJson?: JsonNullValueInput | InputJsonValue
+    totalItems?: number
+    processedItems?: number
+    failedItems?: number
+    successItems?: number
+    errorMessage?: string | null
+    retryCount?: number
+    maxRetries?: number
+    startedAt?: Date | string | null
+    completedAt?: Date | string | null
+    avgProcessingTime?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EmbeddingJobUncheckedCreateInput = {
+    id?: string
+    type: $Enums.JobType
+    status?: $Enums.JobStatus
+    batchSize?: number
+    priority?: number
+    configJson?: JsonNullValueInput | InputJsonValue
+    totalItems?: number
+    processedItems?: number
+    failedItems?: number
+    successItems?: number
+    errorMessage?: string | null
+    retryCount?: number
+    maxRetries?: number
+    startedAt?: Date | string | null
+    completedAt?: Date | string | null
+    avgProcessingTime?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EmbeddingJobUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumJobTypeFieldUpdateOperationsInput | $Enums.JobType
+    status?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    batchSize?: IntFieldUpdateOperationsInput | number
+    priority?: IntFieldUpdateOperationsInput | number
+    configJson?: JsonNullValueInput | InputJsonValue
+    totalItems?: IntFieldUpdateOperationsInput | number
+    processedItems?: IntFieldUpdateOperationsInput | number
+    failedItems?: IntFieldUpdateOperationsInput | number
+    successItems?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    retryCount?: IntFieldUpdateOperationsInput | number
+    maxRetries?: IntFieldUpdateOperationsInput | number
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    avgProcessingTime?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmbeddingJobUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumJobTypeFieldUpdateOperationsInput | $Enums.JobType
+    status?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    batchSize?: IntFieldUpdateOperationsInput | number
+    priority?: IntFieldUpdateOperationsInput | number
+    configJson?: JsonNullValueInput | InputJsonValue
+    totalItems?: IntFieldUpdateOperationsInput | number
+    processedItems?: IntFieldUpdateOperationsInput | number
+    failedItems?: IntFieldUpdateOperationsInput | number
+    successItems?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    retryCount?: IntFieldUpdateOperationsInput | number
+    maxRetries?: IntFieldUpdateOperationsInput | number
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    avgProcessingTime?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmbeddingJobCreateManyInput = {
+    id?: string
+    type: $Enums.JobType
+    status?: $Enums.JobStatus
+    batchSize?: number
+    priority?: number
+    configJson?: JsonNullValueInput | InputJsonValue
+    totalItems?: number
+    processedItems?: number
+    failedItems?: number
+    successItems?: number
+    errorMessage?: string | null
+    retryCount?: number
+    maxRetries?: number
+    startedAt?: Date | string | null
+    completedAt?: Date | string | null
+    avgProcessingTime?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EmbeddingJobUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumJobTypeFieldUpdateOperationsInput | $Enums.JobType
+    status?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    batchSize?: IntFieldUpdateOperationsInput | number
+    priority?: IntFieldUpdateOperationsInput | number
+    configJson?: JsonNullValueInput | InputJsonValue
+    totalItems?: IntFieldUpdateOperationsInput | number
+    processedItems?: IntFieldUpdateOperationsInput | number
+    failedItems?: IntFieldUpdateOperationsInput | number
+    successItems?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    retryCount?: IntFieldUpdateOperationsInput | number
+    maxRetries?: IntFieldUpdateOperationsInput | number
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    avgProcessingTime?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmbeddingJobUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumJobTypeFieldUpdateOperationsInput | $Enums.JobType
+    status?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    batchSize?: IntFieldUpdateOperationsInput | number
+    priority?: IntFieldUpdateOperationsInput | number
+    configJson?: JsonNullValueInput | InputJsonValue
+    totalItems?: IntFieldUpdateOperationsInput | number
+    processedItems?: IntFieldUpdateOperationsInput | number
+    failedItems?: IntFieldUpdateOperationsInput | number
+    successItems?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    retryCount?: IntFieldUpdateOperationsInput | number
+    maxRetries?: IntFieldUpdateOperationsInput | number
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    avgProcessingTime?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -21874,10 +22700,15 @@ export namespace Prisma {
     none?: PreferenceWhereInput
   }
 
-  export type ConversationSessionListRelationFilter = {
-    every?: ConversationSessionWhereInput
-    some?: ConversationSessionWhereInput
-    none?: ConversationSessionWhereInput
+  export type UserEmbeddingNullableScalarRelationFilter = {
+    is?: UserEmbeddingWhereInput | null
+    isNot?: UserEmbeddingWhereInput | null
+  }
+
+  export type SearchEmbeddingListRelationFilter = {
+    every?: SearchEmbeddingWhereInput
+    some?: SearchEmbeddingWhereInput
+    none?: SearchEmbeddingWhereInput
   }
 
   export type SortOrderInput = {
@@ -21901,7 +22732,7 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
-  export type ConversationSessionOrderByRelationAggregateInput = {
+  export type SearchEmbeddingOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -22604,276 +23435,6 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
-  export type EnumTourStepFilter<$PrismaModel = never> = {
-    equals?: $Enums.TourStep | EnumTourStepFieldRefInput<$PrismaModel>
-    in?: $Enums.TourStep[] | ListEnumTourStepFieldRefInput<$PrismaModel>
-    notIn?: $Enums.TourStep[] | ListEnumTourStepFieldRefInput<$PrismaModel>
-    not?: NestedEnumTourStepFilter<$PrismaModel> | $Enums.TourStep
-  }
-
-  export type UserNullableScalarRelationFilter = {
-    is?: UserWhereInput | null
-    isNot?: UserWhereInput | null
-  }
-
-  export type ConversationLogListRelationFilter = {
-    every?: ConversationLogWhereInput
-    some?: ConversationLogWhereInput
-    none?: ConversationLogWhereInput
-  }
-
-  export type TourInteractionListRelationFilter = {
-    every?: TourInteractionWhereInput
-    some?: TourInteractionWhereInput
-    none?: TourInteractionWhereInput
-  }
-
-  export type ConversationLogOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
-  export type TourInteractionOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
-  export type ConversationSessionCountOrderByAggregateInput = {
-    id?: SortOrder
-    userId?: SortOrder
-    sessionId?: SortOrder
-    currentStep?: SortOrder
-    isCompleted?: SortOrder
-    isVoiceMode?: SortOrder
-    selectedInterests?: SortOrder
-    videoRatings?: SortOrder
-    layoutPreferences?: SortOrder
-    llmProvider?: SortOrder
-    llmApiKey?: SortOrder
-    conversationId?: SortOrder
-    stepProgress?: SortOrder
-    completedSteps?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    lastActiveAt?: SortOrder
-    completedAt?: SortOrder
-  }
-
-  export type ConversationSessionMaxOrderByAggregateInput = {
-    id?: SortOrder
-    userId?: SortOrder
-    sessionId?: SortOrder
-    currentStep?: SortOrder
-    isCompleted?: SortOrder
-    isVoiceMode?: SortOrder
-    llmProvider?: SortOrder
-    llmApiKey?: SortOrder
-    conversationId?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    lastActiveAt?: SortOrder
-    completedAt?: SortOrder
-  }
-
-  export type ConversationSessionMinOrderByAggregateInput = {
-    id?: SortOrder
-    userId?: SortOrder
-    sessionId?: SortOrder
-    currentStep?: SortOrder
-    isCompleted?: SortOrder
-    isVoiceMode?: SortOrder
-    llmProvider?: SortOrder
-    llmApiKey?: SortOrder
-    conversationId?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    lastActiveAt?: SortOrder
-    completedAt?: SortOrder
-  }
-
-  export type EnumTourStepWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.TourStep | EnumTourStepFieldRefInput<$PrismaModel>
-    in?: $Enums.TourStep[] | ListEnumTourStepFieldRefInput<$PrismaModel>
-    notIn?: $Enums.TourStep[] | ListEnumTourStepFieldRefInput<$PrismaModel>
-    not?: NestedEnumTourStepWithAggregatesFilter<$PrismaModel> | $Enums.TourStep
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumTourStepFilter<$PrismaModel>
-    _max?: NestedEnumTourStepFilter<$PrismaModel>
-  }
-
-  export type EnumMessageRoleFilter<$PrismaModel = never> = {
-    equals?: $Enums.MessageRole | EnumMessageRoleFieldRefInput<$PrismaModel>
-    in?: $Enums.MessageRole[] | ListEnumMessageRoleFieldRefInput<$PrismaModel>
-    notIn?: $Enums.MessageRole[] | ListEnumMessageRoleFieldRefInput<$PrismaModel>
-    not?: NestedEnumMessageRoleFilter<$PrismaModel> | $Enums.MessageRole
-  }
-
-  export type EnumTourStepNullableFilter<$PrismaModel = never> = {
-    equals?: $Enums.TourStep | EnumTourStepFieldRefInput<$PrismaModel> | null
-    in?: $Enums.TourStep[] | ListEnumTourStepFieldRefInput<$PrismaModel> | null
-    notIn?: $Enums.TourStep[] | ListEnumTourStepFieldRefInput<$PrismaModel> | null
-    not?: NestedEnumTourStepNullableFilter<$PrismaModel> | $Enums.TourStep | null
-  }
-
-  export type ConversationSessionScalarRelationFilter = {
-    is?: ConversationSessionWhereInput
-    isNot?: ConversationSessionWhereInput
-  }
-
-  export type ConversationLogCountOrderByAggregateInput = {
-    id?: SortOrder
-    sessionId?: SortOrder
-    role?: SortOrder
-    content?: SortOrder
-    messageId?: SortOrder
-    tourStep?: SortOrder
-    actionType?: SortOrder
-    metadata?: SortOrder
-    tokensUsed?: SortOrder
-    responseTimeMs?: SortOrder
-    llmProvider?: SortOrder
-    createdAt?: SortOrder
-  }
-
-  export type ConversationLogAvgOrderByAggregateInput = {
-    tokensUsed?: SortOrder
-    responseTimeMs?: SortOrder
-  }
-
-  export type ConversationLogMaxOrderByAggregateInput = {
-    id?: SortOrder
-    sessionId?: SortOrder
-    role?: SortOrder
-    content?: SortOrder
-    messageId?: SortOrder
-    tourStep?: SortOrder
-    actionType?: SortOrder
-    tokensUsed?: SortOrder
-    responseTimeMs?: SortOrder
-    llmProvider?: SortOrder
-    createdAt?: SortOrder
-  }
-
-  export type ConversationLogMinOrderByAggregateInput = {
-    id?: SortOrder
-    sessionId?: SortOrder
-    role?: SortOrder
-    content?: SortOrder
-    messageId?: SortOrder
-    tourStep?: SortOrder
-    actionType?: SortOrder
-    tokensUsed?: SortOrder
-    responseTimeMs?: SortOrder
-    llmProvider?: SortOrder
-    createdAt?: SortOrder
-  }
-
-  export type ConversationLogSumOrderByAggregateInput = {
-    tokensUsed?: SortOrder
-    responseTimeMs?: SortOrder
-  }
-
-  export type EnumMessageRoleWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.MessageRole | EnumMessageRoleFieldRefInput<$PrismaModel>
-    in?: $Enums.MessageRole[] | ListEnumMessageRoleFieldRefInput<$PrismaModel>
-    notIn?: $Enums.MessageRole[] | ListEnumMessageRoleFieldRefInput<$PrismaModel>
-    not?: NestedEnumMessageRoleWithAggregatesFilter<$PrismaModel> | $Enums.MessageRole
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumMessageRoleFilter<$PrismaModel>
-    _max?: NestedEnumMessageRoleFilter<$PrismaModel>
-  }
-
-  export type EnumTourStepNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.TourStep | EnumTourStepFieldRefInput<$PrismaModel> | null
-    in?: $Enums.TourStep[] | ListEnumTourStepFieldRefInput<$PrismaModel> | null
-    notIn?: $Enums.TourStep[] | ListEnumTourStepFieldRefInput<$PrismaModel> | null
-    not?: NestedEnumTourStepNullableWithAggregatesFilter<$PrismaModel> | $Enums.TourStep | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedEnumTourStepNullableFilter<$PrismaModel>
-    _max?: NestedEnumTourStepNullableFilter<$PrismaModel>
-  }
-
-  export type TourInteractionCountOrderByAggregateInput = {
-    id?: SortOrder
-    sessionId?: SortOrder
-    tourStep?: SortOrder
-    actionType?: SortOrder
-    actionData?: SortOrder
-    timeSpentMs?: SortOrder
-    wasSkipped?: SortOrder
-    satisfaction?: SortOrder
-    createdAt?: SortOrder
-  }
-
-  export type TourInteractionAvgOrderByAggregateInput = {
-    timeSpentMs?: SortOrder
-    satisfaction?: SortOrder
-  }
-
-  export type TourInteractionMaxOrderByAggregateInput = {
-    id?: SortOrder
-    sessionId?: SortOrder
-    tourStep?: SortOrder
-    actionType?: SortOrder
-    timeSpentMs?: SortOrder
-    wasSkipped?: SortOrder
-    satisfaction?: SortOrder
-    createdAt?: SortOrder
-  }
-
-  export type TourInteractionMinOrderByAggregateInput = {
-    id?: SortOrder
-    sessionId?: SortOrder
-    tourStep?: SortOrder
-    actionType?: SortOrder
-    timeSpentMs?: SortOrder
-    wasSkipped?: SortOrder
-    satisfaction?: SortOrder
-    createdAt?: SortOrder
-  }
-
-  export type TourInteractionSumOrderByAggregateInput = {
-    timeSpentMs?: SortOrder
-    satisfaction?: SortOrder
-  }
-
-  export type LocalStorageSyncCountOrderByAggregateInput = {
-    id?: SortOrder
-    sessionId?: SortOrder
-    interests?: SortOrder
-    videoRatings?: SortOrder
-    onboardingStep?: SortOrder
-    layoutData?: SortOrder
-    isRegistered?: SortOrder
-    userId?: SortOrder
-    syncedAt?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    expiresAt?: SortOrder
-  }
-
-  export type LocalStorageSyncMaxOrderByAggregateInput = {
-    id?: SortOrder
-    sessionId?: SortOrder
-    onboardingStep?: SortOrder
-    isRegistered?: SortOrder
-    userId?: SortOrder
-    syncedAt?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    expiresAt?: SortOrder
-  }
-
-  export type LocalStorageSyncMinOrderByAggregateInput = {
-    id?: SortOrder
-    sessionId?: SortOrder
-    onboardingStep?: SortOrder
-    isRegistered?: SortOrder
-    userId?: SortOrder
-    syncedAt?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    expiresAt?: SortOrder
-  }
-
   export type MigrationCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
@@ -22926,6 +23487,438 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
+  export type EnumEmbeddingStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmbeddingStatus | EnumEmbeddingStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EmbeddingStatus[] | ListEnumEmbeddingStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EmbeddingStatus[] | ListEnumEmbeddingStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEmbeddingStatusFilter<$PrismaModel> | $Enums.EmbeddingStatus
+  }
+
+  export type VideoEmbeddingPlatformIdPlatformCompoundUniqueInput = {
+    platformId: string
+    platform: string
+  }
+
+  export type VideoEmbeddingCountOrderByAggregateInput = {
+    id?: SortOrder
+    platformId?: SortOrder
+    platform?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    tags?: SortOrder
+    category?: SortOrder
+    duration?: SortOrder
+    publishedAt?: SortOrder
+    channelId?: SortOrder
+    channelName?: SortOrder
+    embeddingModel?: SortOrder
+    embeddingVersion?: SortOrder
+    processingStatus?: SortOrder
+    qualityScore?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    lastProcessedAt?: SortOrder
+  }
+
+  export type VideoEmbeddingAvgOrderByAggregateInput = {
+    duration?: SortOrder
+    qualityScore?: SortOrder
+  }
+
+  export type VideoEmbeddingMaxOrderByAggregateInput = {
+    id?: SortOrder
+    platformId?: SortOrder
+    platform?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    category?: SortOrder
+    duration?: SortOrder
+    publishedAt?: SortOrder
+    channelId?: SortOrder
+    channelName?: SortOrder
+    embeddingModel?: SortOrder
+    embeddingVersion?: SortOrder
+    processingStatus?: SortOrder
+    qualityScore?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    lastProcessedAt?: SortOrder
+  }
+
+  export type VideoEmbeddingMinOrderByAggregateInput = {
+    id?: SortOrder
+    platformId?: SortOrder
+    platform?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    category?: SortOrder
+    duration?: SortOrder
+    publishedAt?: SortOrder
+    channelId?: SortOrder
+    channelName?: SortOrder
+    embeddingModel?: SortOrder
+    embeddingVersion?: SortOrder
+    processingStatus?: SortOrder
+    qualityScore?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    lastProcessedAt?: SortOrder
+  }
+
+  export type VideoEmbeddingSumOrderByAggregateInput = {
+    duration?: SortOrder
+    qualityScore?: SortOrder
+  }
+
+  export type EnumEmbeddingStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmbeddingStatus | EnumEmbeddingStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EmbeddingStatus[] | ListEnumEmbeddingStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EmbeddingStatus[] | ListEnumEmbeddingStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEmbeddingStatusWithAggregatesFilter<$PrismaModel> | $Enums.EmbeddingStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumEmbeddingStatusFilter<$PrismaModel>
+    _max?: NestedEnumEmbeddingStatusFilter<$PrismaModel>
+  }
+
+  export type FloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
+  export type UserEmbeddingCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    confidenceScore?: SortOrder
+    interactionCount?: SortOrder
+    lastUpdateThreshold?: SortOrder
+    embeddingModel?: SortOrder
+    embeddingVersion?: SortOrder
+    processingStatus?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    lastCalculatedAt?: SortOrder
+  }
+
+  export type UserEmbeddingAvgOrderByAggregateInput = {
+    confidenceScore?: SortOrder
+    interactionCount?: SortOrder
+    lastUpdateThreshold?: SortOrder
+  }
+
+  export type UserEmbeddingMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    confidenceScore?: SortOrder
+    interactionCount?: SortOrder
+    lastUpdateThreshold?: SortOrder
+    embeddingModel?: SortOrder
+    embeddingVersion?: SortOrder
+    processingStatus?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    lastCalculatedAt?: SortOrder
+  }
+
+  export type UserEmbeddingMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    confidenceScore?: SortOrder
+    interactionCount?: SortOrder
+    lastUpdateThreshold?: SortOrder
+    embeddingModel?: SortOrder
+    embeddingVersion?: SortOrder
+    processingStatus?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    lastCalculatedAt?: SortOrder
+  }
+
+  export type UserEmbeddingSumOrderByAggregateInput = {
+    confidenceScore?: SortOrder
+    interactionCount?: SortOrder
+    lastUpdateThreshold?: SortOrder
+  }
+
+  export type FloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
+  }
+
+  export type CommentEmbeddingPlatformIdPlatformCompoundUniqueInput = {
+    platformId: string
+    platform: string
+  }
+
+  export type CommentEmbeddingCountOrderByAggregateInput = {
+    id?: SortOrder
+    platformId?: SortOrder
+    platform?: SortOrder
+    videoId?: SortOrder
+    content?: SortOrder
+    authorName?: SortOrder
+    publishedAt?: SortOrder
+    toxicityScore?: SortOrder
+    relevanceScore?: SortOrder
+    sentimentScore?: SortOrder
+    embeddingModel?: SortOrder
+    embeddingVersion?: SortOrder
+    processingStatus?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CommentEmbeddingAvgOrderByAggregateInput = {
+    toxicityScore?: SortOrder
+    relevanceScore?: SortOrder
+    sentimentScore?: SortOrder
+  }
+
+  export type CommentEmbeddingMaxOrderByAggregateInput = {
+    id?: SortOrder
+    platformId?: SortOrder
+    platform?: SortOrder
+    videoId?: SortOrder
+    content?: SortOrder
+    authorName?: SortOrder
+    publishedAt?: SortOrder
+    toxicityScore?: SortOrder
+    relevanceScore?: SortOrder
+    sentimentScore?: SortOrder
+    embeddingModel?: SortOrder
+    embeddingVersion?: SortOrder
+    processingStatus?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CommentEmbeddingMinOrderByAggregateInput = {
+    id?: SortOrder
+    platformId?: SortOrder
+    platform?: SortOrder
+    videoId?: SortOrder
+    content?: SortOrder
+    authorName?: SortOrder
+    publishedAt?: SortOrder
+    toxicityScore?: SortOrder
+    relevanceScore?: SortOrder
+    sentimentScore?: SortOrder
+    embeddingModel?: SortOrder
+    embeddingVersion?: SortOrder
+    processingStatus?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CommentEmbeddingSumOrderByAggregateInput = {
+    toxicityScore?: SortOrder
+    relevanceScore?: SortOrder
+    sentimentScore?: SortOrder
+  }
+
+  export type UserNullableScalarRelationFilter = {
+    is?: UserWhereInput | null
+    isNot?: UserWhereInput | null
+  }
+
+  export type SearchEmbeddingQueryUserIdCompoundUniqueInput = {
+    query: string
+    userId: string
+  }
+
+  export type SearchEmbeddingCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    query?: SortOrder
+    intent?: SortOrder
+    entities?: SortOrder
+    searchCount?: SortOrder
+    clickThrough?: SortOrder
+    avgWatchTime?: SortOrder
+    embeddingModel?: SortOrder
+    embeddingVersion?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    lastSearchedAt?: SortOrder
+  }
+
+  export type SearchEmbeddingAvgOrderByAggregateInput = {
+    searchCount?: SortOrder
+    clickThrough?: SortOrder
+    avgWatchTime?: SortOrder
+  }
+
+  export type SearchEmbeddingMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    query?: SortOrder
+    intent?: SortOrder
+    searchCount?: SortOrder
+    clickThrough?: SortOrder
+    avgWatchTime?: SortOrder
+    embeddingModel?: SortOrder
+    embeddingVersion?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    lastSearchedAt?: SortOrder
+  }
+
+  export type SearchEmbeddingMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    query?: SortOrder
+    intent?: SortOrder
+    searchCount?: SortOrder
+    clickThrough?: SortOrder
+    avgWatchTime?: SortOrder
+    embeddingModel?: SortOrder
+    embeddingVersion?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    lastSearchedAt?: SortOrder
+  }
+
+  export type SearchEmbeddingSumOrderByAggregateInput = {
+    searchCount?: SortOrder
+    clickThrough?: SortOrder
+    avgWatchTime?: SortOrder
+  }
+
+  export type EnumJobTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.JobType | EnumJobTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.JobType[] | ListEnumJobTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.JobType[] | ListEnumJobTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumJobTypeFilter<$PrismaModel> | $Enums.JobType
+  }
+
+  export type EnumJobStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.JobStatus | EnumJobStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.JobStatus[] | ListEnumJobStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.JobStatus[] | ListEnumJobStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumJobStatusFilter<$PrismaModel> | $Enums.JobStatus
+  }
+
+  export type EmbeddingJobCountOrderByAggregateInput = {
+    id?: SortOrder
+    type?: SortOrder
+    status?: SortOrder
+    batchSize?: SortOrder
+    priority?: SortOrder
+    configJson?: SortOrder
+    totalItems?: SortOrder
+    processedItems?: SortOrder
+    failedItems?: SortOrder
+    successItems?: SortOrder
+    errorMessage?: SortOrder
+    retryCount?: SortOrder
+    maxRetries?: SortOrder
+    startedAt?: SortOrder
+    completedAt?: SortOrder
+    avgProcessingTime?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EmbeddingJobAvgOrderByAggregateInput = {
+    batchSize?: SortOrder
+    priority?: SortOrder
+    totalItems?: SortOrder
+    processedItems?: SortOrder
+    failedItems?: SortOrder
+    successItems?: SortOrder
+    retryCount?: SortOrder
+    maxRetries?: SortOrder
+    avgProcessingTime?: SortOrder
+  }
+
+  export type EmbeddingJobMaxOrderByAggregateInput = {
+    id?: SortOrder
+    type?: SortOrder
+    status?: SortOrder
+    batchSize?: SortOrder
+    priority?: SortOrder
+    totalItems?: SortOrder
+    processedItems?: SortOrder
+    failedItems?: SortOrder
+    successItems?: SortOrder
+    errorMessage?: SortOrder
+    retryCount?: SortOrder
+    maxRetries?: SortOrder
+    startedAt?: SortOrder
+    completedAt?: SortOrder
+    avgProcessingTime?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EmbeddingJobMinOrderByAggregateInput = {
+    id?: SortOrder
+    type?: SortOrder
+    status?: SortOrder
+    batchSize?: SortOrder
+    priority?: SortOrder
+    totalItems?: SortOrder
+    processedItems?: SortOrder
+    failedItems?: SortOrder
+    successItems?: SortOrder
+    errorMessage?: SortOrder
+    retryCount?: SortOrder
+    maxRetries?: SortOrder
+    startedAt?: SortOrder
+    completedAt?: SortOrder
+    avgProcessingTime?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EmbeddingJobSumOrderByAggregateInput = {
+    batchSize?: SortOrder
+    priority?: SortOrder
+    totalItems?: SortOrder
+    processedItems?: SortOrder
+    failedItems?: SortOrder
+    successItems?: SortOrder
+    retryCount?: SortOrder
+    maxRetries?: SortOrder
+    avgProcessingTime?: SortOrder
+  }
+
+  export type EnumJobTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.JobType | EnumJobTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.JobType[] | ListEnumJobTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.JobType[] | ListEnumJobTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumJobTypeWithAggregatesFilter<$PrismaModel> | $Enums.JobType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumJobTypeFilter<$PrismaModel>
+    _max?: NestedEnumJobTypeFilter<$PrismaModel>
+  }
+
+  export type EnumJobStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.JobStatus | EnumJobStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.JobStatus[] | ListEnumJobStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.JobStatus[] | ListEnumJobStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumJobStatusWithAggregatesFilter<$PrismaModel> | $Enums.JobStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumJobStatusFilter<$PrismaModel>
+    _max?: NestedEnumJobStatusFilter<$PrismaModel>
+  }
+
   export type ConnectionCreateNestedManyWithoutUserInput = {
     create?: XOR<ConnectionCreateWithoutUserInput, ConnectionUncheckedCreateWithoutUserInput> | ConnectionCreateWithoutUserInput[] | ConnectionUncheckedCreateWithoutUserInput[]
     connectOrCreate?: ConnectionCreateOrConnectWithoutUserInput | ConnectionCreateOrConnectWithoutUserInput[]
@@ -22954,11 +23947,12 @@ export namespace Prisma {
     connect?: PreferenceWhereUniqueInput | PreferenceWhereUniqueInput[]
   }
 
-  export type ConversationSessionCreateNestedManyWithoutUserInput = {
-    create?: XOR<ConversationSessionCreateWithoutUserInput, ConversationSessionUncheckedCreateWithoutUserInput> | ConversationSessionCreateWithoutUserInput[] | ConversationSessionUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: ConversationSessionCreateOrConnectWithoutUserInput | ConversationSessionCreateOrConnectWithoutUserInput[]
-    createMany?: ConversationSessionCreateManyUserInputEnvelope
-    connect?: ConversationSessionWhereUniqueInput | ConversationSessionWhereUniqueInput[]
+  export type UserEmbeddingCreateNestedOneWithoutUserInput = {
+    connect?: UserEmbeddingWhereUniqueInput
+  }
+
+  export type SearchEmbeddingCreateNestedManyWithoutUserInput = {
+    connect?: SearchEmbeddingWhereUniqueInput | SearchEmbeddingWhereUniqueInput[]
   }
 
   export type ConnectionUncheckedCreateNestedManyWithoutUserInput = {
@@ -22989,11 +23983,12 @@ export namespace Prisma {
     connect?: PreferenceWhereUniqueInput | PreferenceWhereUniqueInput[]
   }
 
-  export type ConversationSessionUncheckedCreateNestedManyWithoutUserInput = {
-    create?: XOR<ConversationSessionCreateWithoutUserInput, ConversationSessionUncheckedCreateWithoutUserInput> | ConversationSessionCreateWithoutUserInput[] | ConversationSessionUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: ConversationSessionCreateOrConnectWithoutUserInput | ConversationSessionCreateOrConnectWithoutUserInput[]
-    createMany?: ConversationSessionCreateManyUserInputEnvelope
-    connect?: ConversationSessionWhereUniqueInput | ConversationSessionWhereUniqueInput[]
+  export type UserEmbeddingUncheckedCreateNestedOneWithoutUserInput = {
+    connect?: UserEmbeddingWhereUniqueInput
+  }
+
+  export type SearchEmbeddingUncheckedCreateNestedManyWithoutUserInput = {
+    connect?: SearchEmbeddingWhereUniqueInput | SearchEmbeddingWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -23072,18 +24067,21 @@ export namespace Prisma {
     deleteMany?: PreferenceScalarWhereInput | PreferenceScalarWhereInput[]
   }
 
-  export type ConversationSessionUpdateManyWithoutUserNestedInput = {
-    create?: XOR<ConversationSessionCreateWithoutUserInput, ConversationSessionUncheckedCreateWithoutUserInput> | ConversationSessionCreateWithoutUserInput[] | ConversationSessionUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: ConversationSessionCreateOrConnectWithoutUserInput | ConversationSessionCreateOrConnectWithoutUserInput[]
-    upsert?: ConversationSessionUpsertWithWhereUniqueWithoutUserInput | ConversationSessionUpsertWithWhereUniqueWithoutUserInput[]
-    createMany?: ConversationSessionCreateManyUserInputEnvelope
-    set?: ConversationSessionWhereUniqueInput | ConversationSessionWhereUniqueInput[]
-    disconnect?: ConversationSessionWhereUniqueInput | ConversationSessionWhereUniqueInput[]
-    delete?: ConversationSessionWhereUniqueInput | ConversationSessionWhereUniqueInput[]
-    connect?: ConversationSessionWhereUniqueInput | ConversationSessionWhereUniqueInput[]
-    update?: ConversationSessionUpdateWithWhereUniqueWithoutUserInput | ConversationSessionUpdateWithWhereUniqueWithoutUserInput[]
-    updateMany?: ConversationSessionUpdateManyWithWhereWithoutUserInput | ConversationSessionUpdateManyWithWhereWithoutUserInput[]
-    deleteMany?: ConversationSessionScalarWhereInput | ConversationSessionScalarWhereInput[]
+  export type UserEmbeddingUpdateOneWithoutUserNestedInput = {
+    disconnect?: UserEmbeddingWhereInput | boolean
+    delete?: UserEmbeddingWhereInput | boolean
+    connect?: UserEmbeddingWhereUniqueInput
+    update?: XOR<XOR<UserEmbeddingUpdateToOneWithWhereWithoutUserInput, UserEmbeddingUpdateWithoutUserInput>, UserEmbeddingUncheckedUpdateWithoutUserInput>
+  }
+
+  export type SearchEmbeddingUpdateManyWithoutUserNestedInput = {
+    set?: SearchEmbeddingWhereUniqueInput | SearchEmbeddingWhereUniqueInput[]
+    disconnect?: SearchEmbeddingWhereUniqueInput | SearchEmbeddingWhereUniqueInput[]
+    delete?: SearchEmbeddingWhereUniqueInput | SearchEmbeddingWhereUniqueInput[]
+    connect?: SearchEmbeddingWhereUniqueInput | SearchEmbeddingWhereUniqueInput[]
+    update?: SearchEmbeddingUpdateWithWhereUniqueWithoutUserInput | SearchEmbeddingUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: SearchEmbeddingUpdateManyWithWhereWithoutUserInput | SearchEmbeddingUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: SearchEmbeddingScalarWhereInput | SearchEmbeddingScalarWhereInput[]
   }
 
   export type ConnectionUncheckedUpdateManyWithoutUserNestedInput = {
@@ -23142,18 +24140,21 @@ export namespace Prisma {
     deleteMany?: PreferenceScalarWhereInput | PreferenceScalarWhereInput[]
   }
 
-  export type ConversationSessionUncheckedUpdateManyWithoutUserNestedInput = {
-    create?: XOR<ConversationSessionCreateWithoutUserInput, ConversationSessionUncheckedCreateWithoutUserInput> | ConversationSessionCreateWithoutUserInput[] | ConversationSessionUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: ConversationSessionCreateOrConnectWithoutUserInput | ConversationSessionCreateOrConnectWithoutUserInput[]
-    upsert?: ConversationSessionUpsertWithWhereUniqueWithoutUserInput | ConversationSessionUpsertWithWhereUniqueWithoutUserInput[]
-    createMany?: ConversationSessionCreateManyUserInputEnvelope
-    set?: ConversationSessionWhereUniqueInput | ConversationSessionWhereUniqueInput[]
-    disconnect?: ConversationSessionWhereUniqueInput | ConversationSessionWhereUniqueInput[]
-    delete?: ConversationSessionWhereUniqueInput | ConversationSessionWhereUniqueInput[]
-    connect?: ConversationSessionWhereUniqueInput | ConversationSessionWhereUniqueInput[]
-    update?: ConversationSessionUpdateWithWhereUniqueWithoutUserInput | ConversationSessionUpdateWithWhereUniqueWithoutUserInput[]
-    updateMany?: ConversationSessionUpdateManyWithWhereWithoutUserInput | ConversationSessionUpdateManyWithWhereWithoutUserInput[]
-    deleteMany?: ConversationSessionScalarWhereInput | ConversationSessionScalarWhereInput[]
+  export type UserEmbeddingUncheckedUpdateOneWithoutUserNestedInput = {
+    disconnect?: UserEmbeddingWhereInput | boolean
+    delete?: UserEmbeddingWhereInput | boolean
+    connect?: UserEmbeddingWhereUniqueInput
+    update?: XOR<XOR<UserEmbeddingUpdateToOneWithWhereWithoutUserInput, UserEmbeddingUpdateWithoutUserInput>, UserEmbeddingUncheckedUpdateWithoutUserInput>
+  }
+
+  export type SearchEmbeddingUncheckedUpdateManyWithoutUserNestedInput = {
+    set?: SearchEmbeddingWhereUniqueInput | SearchEmbeddingWhereUniqueInput[]
+    disconnect?: SearchEmbeddingWhereUniqueInput | SearchEmbeddingWhereUniqueInput[]
+    delete?: SearchEmbeddingWhereUniqueInput | SearchEmbeddingWhereUniqueInput[]
+    connect?: SearchEmbeddingWhereUniqueInput | SearchEmbeddingWhereUniqueInput[]
+    update?: SearchEmbeddingUpdateWithWhereUniqueWithoutUserInput | SearchEmbeddingUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: SearchEmbeddingUpdateManyWithWhereWithoutUserInput | SearchEmbeddingUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: SearchEmbeddingScalarWhereInput | SearchEmbeddingScalarWhereInput[]
   }
 
   export type ConnectionCreatescopesInput = {
@@ -23452,171 +24453,52 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutPreferencesInput, UserUpdateWithoutPreferencesInput>, UserUncheckedUpdateWithoutPreferencesInput>
   }
 
-  export type ConversationSessionCreateselectedInterestsInput = {
-    set: string[]
+  export type VideoEmbeddingUpdatetagsInput = {
+    set?: string[]
+    push?: string | string[]
   }
 
-  export type ConversationSessionCreatecompletedStepsInput = {
-    set: string[]
+  export type EnumEmbeddingStatusFieldUpdateOperationsInput = {
+    set?: $Enums.EmbeddingStatus
   }
 
-  export type UserCreateNestedOneWithoutConversationSessionsInput = {
-    create?: XOR<UserCreateWithoutConversationSessionsInput, UserUncheckedCreateWithoutConversationSessionsInput>
-    connectOrCreate?: UserCreateOrConnectWithoutConversationSessionsInput
+  export type FloatFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type UserUpdateOneRequiredWithoutUserEmbeddingNestedInput = {
+    create?: XOR<UserCreateWithoutUserEmbeddingInput, UserUncheckedCreateWithoutUserEmbeddingInput>
+    connectOrCreate?: UserCreateOrConnectWithoutUserEmbeddingInput
+    upsert?: UserUpsertWithoutUserEmbeddingInput
     connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutUserEmbeddingInput, UserUpdateWithoutUserEmbeddingInput>, UserUncheckedUpdateWithoutUserEmbeddingInput>
   }
 
-  export type ConversationLogCreateNestedManyWithoutSessionInput = {
-    create?: XOR<ConversationLogCreateWithoutSessionInput, ConversationLogUncheckedCreateWithoutSessionInput> | ConversationLogCreateWithoutSessionInput[] | ConversationLogUncheckedCreateWithoutSessionInput[]
-    connectOrCreate?: ConversationLogCreateOrConnectWithoutSessionInput | ConversationLogCreateOrConnectWithoutSessionInput[]
-    createMany?: ConversationLogCreateManySessionInputEnvelope
-    connect?: ConversationLogWhereUniqueInput | ConversationLogWhereUniqueInput[]
-  }
-
-  export type TourInteractionCreateNestedManyWithoutSessionInput = {
-    create?: XOR<TourInteractionCreateWithoutSessionInput, TourInteractionUncheckedCreateWithoutSessionInput> | TourInteractionCreateWithoutSessionInput[] | TourInteractionUncheckedCreateWithoutSessionInput[]
-    connectOrCreate?: TourInteractionCreateOrConnectWithoutSessionInput | TourInteractionCreateOrConnectWithoutSessionInput[]
-    createMany?: TourInteractionCreateManySessionInputEnvelope
-    connect?: TourInteractionWhereUniqueInput | TourInteractionWhereUniqueInput[]
-  }
-
-  export type ConversationLogUncheckedCreateNestedManyWithoutSessionInput = {
-    create?: XOR<ConversationLogCreateWithoutSessionInput, ConversationLogUncheckedCreateWithoutSessionInput> | ConversationLogCreateWithoutSessionInput[] | ConversationLogUncheckedCreateWithoutSessionInput[]
-    connectOrCreate?: ConversationLogCreateOrConnectWithoutSessionInput | ConversationLogCreateOrConnectWithoutSessionInput[]
-    createMany?: ConversationLogCreateManySessionInputEnvelope
-    connect?: ConversationLogWhereUniqueInput | ConversationLogWhereUniqueInput[]
-  }
-
-  export type TourInteractionUncheckedCreateNestedManyWithoutSessionInput = {
-    create?: XOR<TourInteractionCreateWithoutSessionInput, TourInteractionUncheckedCreateWithoutSessionInput> | TourInteractionCreateWithoutSessionInput[] | TourInteractionUncheckedCreateWithoutSessionInput[]
-    connectOrCreate?: TourInteractionCreateOrConnectWithoutSessionInput | TourInteractionCreateOrConnectWithoutSessionInput[]
-    createMany?: TourInteractionCreateManySessionInputEnvelope
-    connect?: TourInteractionWhereUniqueInput | TourInteractionWhereUniqueInput[]
-  }
-
-  export type EnumTourStepFieldUpdateOperationsInput = {
-    set?: $Enums.TourStep
-  }
-
-  export type ConversationSessionUpdateselectedInterestsInput = {
+  export type SearchEmbeddingUpdateentitiesInput = {
     set?: string[]
     push?: string | string[]
   }
 
-  export type ConversationSessionUpdatecompletedStepsInput = {
-    set?: string[]
-    push?: string | string[]
-  }
-
-  export type UserUpdateOneWithoutConversationSessionsNestedInput = {
-    create?: XOR<UserCreateWithoutConversationSessionsInput, UserUncheckedCreateWithoutConversationSessionsInput>
-    connectOrCreate?: UserCreateOrConnectWithoutConversationSessionsInput
-    upsert?: UserUpsertWithoutConversationSessionsInput
+  export type UserUpdateOneWithoutSearchEmbeddingsNestedInput = {
+    create?: XOR<UserCreateWithoutSearchEmbeddingsInput, UserUncheckedCreateWithoutSearchEmbeddingsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutSearchEmbeddingsInput
+    upsert?: UserUpsertWithoutSearchEmbeddingsInput
     disconnect?: UserWhereInput | boolean
     delete?: UserWhereInput | boolean
     connect?: UserWhereUniqueInput
-    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutConversationSessionsInput, UserUpdateWithoutConversationSessionsInput>, UserUncheckedUpdateWithoutConversationSessionsInput>
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutSearchEmbeddingsInput, UserUpdateWithoutSearchEmbeddingsInput>, UserUncheckedUpdateWithoutSearchEmbeddingsInput>
   }
 
-  export type ConversationLogUpdateManyWithoutSessionNestedInput = {
-    create?: XOR<ConversationLogCreateWithoutSessionInput, ConversationLogUncheckedCreateWithoutSessionInput> | ConversationLogCreateWithoutSessionInput[] | ConversationLogUncheckedCreateWithoutSessionInput[]
-    connectOrCreate?: ConversationLogCreateOrConnectWithoutSessionInput | ConversationLogCreateOrConnectWithoutSessionInput[]
-    upsert?: ConversationLogUpsertWithWhereUniqueWithoutSessionInput | ConversationLogUpsertWithWhereUniqueWithoutSessionInput[]
-    createMany?: ConversationLogCreateManySessionInputEnvelope
-    set?: ConversationLogWhereUniqueInput | ConversationLogWhereUniqueInput[]
-    disconnect?: ConversationLogWhereUniqueInput | ConversationLogWhereUniqueInput[]
-    delete?: ConversationLogWhereUniqueInput | ConversationLogWhereUniqueInput[]
-    connect?: ConversationLogWhereUniqueInput | ConversationLogWhereUniqueInput[]
-    update?: ConversationLogUpdateWithWhereUniqueWithoutSessionInput | ConversationLogUpdateWithWhereUniqueWithoutSessionInput[]
-    updateMany?: ConversationLogUpdateManyWithWhereWithoutSessionInput | ConversationLogUpdateManyWithWhereWithoutSessionInput[]
-    deleteMany?: ConversationLogScalarWhereInput | ConversationLogScalarWhereInput[]
+  export type EnumJobTypeFieldUpdateOperationsInput = {
+    set?: $Enums.JobType
   }
 
-  export type TourInteractionUpdateManyWithoutSessionNestedInput = {
-    create?: XOR<TourInteractionCreateWithoutSessionInput, TourInteractionUncheckedCreateWithoutSessionInput> | TourInteractionCreateWithoutSessionInput[] | TourInteractionUncheckedCreateWithoutSessionInput[]
-    connectOrCreate?: TourInteractionCreateOrConnectWithoutSessionInput | TourInteractionCreateOrConnectWithoutSessionInput[]
-    upsert?: TourInteractionUpsertWithWhereUniqueWithoutSessionInput | TourInteractionUpsertWithWhereUniqueWithoutSessionInput[]
-    createMany?: TourInteractionCreateManySessionInputEnvelope
-    set?: TourInteractionWhereUniqueInput | TourInteractionWhereUniqueInput[]
-    disconnect?: TourInteractionWhereUniqueInput | TourInteractionWhereUniqueInput[]
-    delete?: TourInteractionWhereUniqueInput | TourInteractionWhereUniqueInput[]
-    connect?: TourInteractionWhereUniqueInput | TourInteractionWhereUniqueInput[]
-    update?: TourInteractionUpdateWithWhereUniqueWithoutSessionInput | TourInteractionUpdateWithWhereUniqueWithoutSessionInput[]
-    updateMany?: TourInteractionUpdateManyWithWhereWithoutSessionInput | TourInteractionUpdateManyWithWhereWithoutSessionInput[]
-    deleteMany?: TourInteractionScalarWhereInput | TourInteractionScalarWhereInput[]
-  }
-
-  export type ConversationLogUncheckedUpdateManyWithoutSessionNestedInput = {
-    create?: XOR<ConversationLogCreateWithoutSessionInput, ConversationLogUncheckedCreateWithoutSessionInput> | ConversationLogCreateWithoutSessionInput[] | ConversationLogUncheckedCreateWithoutSessionInput[]
-    connectOrCreate?: ConversationLogCreateOrConnectWithoutSessionInput | ConversationLogCreateOrConnectWithoutSessionInput[]
-    upsert?: ConversationLogUpsertWithWhereUniqueWithoutSessionInput | ConversationLogUpsertWithWhereUniqueWithoutSessionInput[]
-    createMany?: ConversationLogCreateManySessionInputEnvelope
-    set?: ConversationLogWhereUniqueInput | ConversationLogWhereUniqueInput[]
-    disconnect?: ConversationLogWhereUniqueInput | ConversationLogWhereUniqueInput[]
-    delete?: ConversationLogWhereUniqueInput | ConversationLogWhereUniqueInput[]
-    connect?: ConversationLogWhereUniqueInput | ConversationLogWhereUniqueInput[]
-    update?: ConversationLogUpdateWithWhereUniqueWithoutSessionInput | ConversationLogUpdateWithWhereUniqueWithoutSessionInput[]
-    updateMany?: ConversationLogUpdateManyWithWhereWithoutSessionInput | ConversationLogUpdateManyWithWhereWithoutSessionInput[]
-    deleteMany?: ConversationLogScalarWhereInput | ConversationLogScalarWhereInput[]
-  }
-
-  export type TourInteractionUncheckedUpdateManyWithoutSessionNestedInput = {
-    create?: XOR<TourInteractionCreateWithoutSessionInput, TourInteractionUncheckedCreateWithoutSessionInput> | TourInteractionCreateWithoutSessionInput[] | TourInteractionUncheckedCreateWithoutSessionInput[]
-    connectOrCreate?: TourInteractionCreateOrConnectWithoutSessionInput | TourInteractionCreateOrConnectWithoutSessionInput[]
-    upsert?: TourInteractionUpsertWithWhereUniqueWithoutSessionInput | TourInteractionUpsertWithWhereUniqueWithoutSessionInput[]
-    createMany?: TourInteractionCreateManySessionInputEnvelope
-    set?: TourInteractionWhereUniqueInput | TourInteractionWhereUniqueInput[]
-    disconnect?: TourInteractionWhereUniqueInput | TourInteractionWhereUniqueInput[]
-    delete?: TourInteractionWhereUniqueInput | TourInteractionWhereUniqueInput[]
-    connect?: TourInteractionWhereUniqueInput | TourInteractionWhereUniqueInput[]
-    update?: TourInteractionUpdateWithWhereUniqueWithoutSessionInput | TourInteractionUpdateWithWhereUniqueWithoutSessionInput[]
-    updateMany?: TourInteractionUpdateManyWithWhereWithoutSessionInput | TourInteractionUpdateManyWithWhereWithoutSessionInput[]
-    deleteMany?: TourInteractionScalarWhereInput | TourInteractionScalarWhereInput[]
-  }
-
-  export type ConversationSessionCreateNestedOneWithoutConversationLogsInput = {
-    create?: XOR<ConversationSessionCreateWithoutConversationLogsInput, ConversationSessionUncheckedCreateWithoutConversationLogsInput>
-    connectOrCreate?: ConversationSessionCreateOrConnectWithoutConversationLogsInput
-    connect?: ConversationSessionWhereUniqueInput
-  }
-
-  export type EnumMessageRoleFieldUpdateOperationsInput = {
-    set?: $Enums.MessageRole
-  }
-
-  export type NullableEnumTourStepFieldUpdateOperationsInput = {
-    set?: $Enums.TourStep | null
-  }
-
-  export type ConversationSessionUpdateOneRequiredWithoutConversationLogsNestedInput = {
-    create?: XOR<ConversationSessionCreateWithoutConversationLogsInput, ConversationSessionUncheckedCreateWithoutConversationLogsInput>
-    connectOrCreate?: ConversationSessionCreateOrConnectWithoutConversationLogsInput
-    upsert?: ConversationSessionUpsertWithoutConversationLogsInput
-    connect?: ConversationSessionWhereUniqueInput
-    update?: XOR<XOR<ConversationSessionUpdateToOneWithWhereWithoutConversationLogsInput, ConversationSessionUpdateWithoutConversationLogsInput>, ConversationSessionUncheckedUpdateWithoutConversationLogsInput>
-  }
-
-  export type ConversationSessionCreateNestedOneWithoutTourInteractionsInput = {
-    create?: XOR<ConversationSessionCreateWithoutTourInteractionsInput, ConversationSessionUncheckedCreateWithoutTourInteractionsInput>
-    connectOrCreate?: ConversationSessionCreateOrConnectWithoutTourInteractionsInput
-    connect?: ConversationSessionWhereUniqueInput
-  }
-
-  export type ConversationSessionUpdateOneRequiredWithoutTourInteractionsNestedInput = {
-    create?: XOR<ConversationSessionCreateWithoutTourInteractionsInput, ConversationSessionUncheckedCreateWithoutTourInteractionsInput>
-    connectOrCreate?: ConversationSessionCreateOrConnectWithoutTourInteractionsInput
-    upsert?: ConversationSessionUpsertWithoutTourInteractionsInput
-    connect?: ConversationSessionWhereUniqueInput
-    update?: XOR<XOR<ConversationSessionUpdateToOneWithWhereWithoutTourInteractionsInput, ConversationSessionUpdateWithoutTourInteractionsInput>, ConversationSessionUncheckedUpdateWithoutTourInteractionsInput>
-  }
-
-  export type LocalStorageSyncCreateinterestsInput = {
-    set: string[]
-  }
-
-  export type LocalStorageSyncUpdateinterestsInput = {
-    set?: string[]
-    push?: string | string[]
+  export type EnumJobStatusFieldUpdateOperationsInput = {
+    set?: $Enums.JobStatus
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -23910,55 +24792,71 @@ export namespace Prisma {
     _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
-  export type NestedEnumTourStepFilter<$PrismaModel = never> = {
-    equals?: $Enums.TourStep | EnumTourStepFieldRefInput<$PrismaModel>
-    in?: $Enums.TourStep[] | ListEnumTourStepFieldRefInput<$PrismaModel>
-    notIn?: $Enums.TourStep[] | ListEnumTourStepFieldRefInput<$PrismaModel>
-    not?: NestedEnumTourStepFilter<$PrismaModel> | $Enums.TourStep
+  export type NestedEnumEmbeddingStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmbeddingStatus | EnumEmbeddingStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EmbeddingStatus[] | ListEnumEmbeddingStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EmbeddingStatus[] | ListEnumEmbeddingStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEmbeddingStatusFilter<$PrismaModel> | $Enums.EmbeddingStatus
   }
 
-  export type NestedEnumTourStepWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.TourStep | EnumTourStepFieldRefInput<$PrismaModel>
-    in?: $Enums.TourStep[] | ListEnumTourStepFieldRefInput<$PrismaModel>
-    notIn?: $Enums.TourStep[] | ListEnumTourStepFieldRefInput<$PrismaModel>
-    not?: NestedEnumTourStepWithAggregatesFilter<$PrismaModel> | $Enums.TourStep
+  export type NestedEnumEmbeddingStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmbeddingStatus | EnumEmbeddingStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EmbeddingStatus[] | ListEnumEmbeddingStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EmbeddingStatus[] | ListEnumEmbeddingStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEmbeddingStatusWithAggregatesFilter<$PrismaModel> | $Enums.EmbeddingStatus
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumTourStepFilter<$PrismaModel>
-    _max?: NestedEnumTourStepFilter<$PrismaModel>
+    _min?: NestedEnumEmbeddingStatusFilter<$PrismaModel>
+    _max?: NestedEnumEmbeddingStatusFilter<$PrismaModel>
   }
 
-  export type NestedEnumMessageRoleFilter<$PrismaModel = never> = {
-    equals?: $Enums.MessageRole | EnumMessageRoleFieldRefInput<$PrismaModel>
-    in?: $Enums.MessageRole[] | ListEnumMessageRoleFieldRefInput<$PrismaModel>
-    notIn?: $Enums.MessageRole[] | ListEnumMessageRoleFieldRefInput<$PrismaModel>
-    not?: NestedEnumMessageRoleFilter<$PrismaModel> | $Enums.MessageRole
-  }
-
-  export type NestedEnumTourStepNullableFilter<$PrismaModel = never> = {
-    equals?: $Enums.TourStep | EnumTourStepFieldRefInput<$PrismaModel> | null
-    in?: $Enums.TourStep[] | ListEnumTourStepFieldRefInput<$PrismaModel> | null
-    notIn?: $Enums.TourStep[] | ListEnumTourStepFieldRefInput<$PrismaModel> | null
-    not?: NestedEnumTourStepNullableFilter<$PrismaModel> | $Enums.TourStep | null
-  }
-
-  export type NestedEnumMessageRoleWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.MessageRole | EnumMessageRoleFieldRefInput<$PrismaModel>
-    in?: $Enums.MessageRole[] | ListEnumMessageRoleFieldRefInput<$PrismaModel>
-    notIn?: $Enums.MessageRole[] | ListEnumMessageRoleFieldRefInput<$PrismaModel>
-    not?: NestedEnumMessageRoleWithAggregatesFilter<$PrismaModel> | $Enums.MessageRole
+  export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumMessageRoleFilter<$PrismaModel>
-    _max?: NestedEnumMessageRoleFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
   }
 
-  export type NestedEnumTourStepNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.TourStep | EnumTourStepFieldRefInput<$PrismaModel> | null
-    in?: $Enums.TourStep[] | ListEnumTourStepFieldRefInput<$PrismaModel> | null
-    notIn?: $Enums.TourStep[] | ListEnumTourStepFieldRefInput<$PrismaModel> | null
-    not?: NestedEnumTourStepNullableWithAggregatesFilter<$PrismaModel> | $Enums.TourStep | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedEnumTourStepNullableFilter<$PrismaModel>
-    _max?: NestedEnumTourStepNullableFilter<$PrismaModel>
+  export type NestedEnumJobTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.JobType | EnumJobTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.JobType[] | ListEnumJobTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.JobType[] | ListEnumJobTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumJobTypeFilter<$PrismaModel> | $Enums.JobType
+  }
+
+  export type NestedEnumJobStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.JobStatus | EnumJobStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.JobStatus[] | ListEnumJobStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.JobStatus[] | ListEnumJobStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumJobStatusFilter<$PrismaModel> | $Enums.JobStatus
+  }
+
+  export type NestedEnumJobTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.JobType | EnumJobTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.JobType[] | ListEnumJobTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.JobType[] | ListEnumJobTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumJobTypeWithAggregatesFilter<$PrismaModel> | $Enums.JobType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumJobTypeFilter<$PrismaModel>
+    _max?: NestedEnumJobTypeFilter<$PrismaModel>
+  }
+
+  export type NestedEnumJobStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.JobStatus | EnumJobStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.JobStatus[] | ListEnumJobStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.JobStatus[] | ListEnumJobStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumJobStatusWithAggregatesFilter<$PrismaModel> | $Enums.JobStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumJobStatusFilter<$PrismaModel>
+    _max?: NestedEnumJobStatusFilter<$PrismaModel>
   }
 
   export type ConnectionCreateWithoutUserInput = {
@@ -24115,60 +25013,6 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type ConversationSessionCreateWithoutUserInput = {
-    id?: string
-    sessionId: string
-    currentStep?: $Enums.TourStep
-    isCompleted?: boolean
-    isVoiceMode?: boolean
-    selectedInterests?: ConversationSessionCreateselectedInterestsInput | string[]
-    videoRatings?: JsonNullValueInput | InputJsonValue
-    layoutPreferences?: JsonNullValueInput | InputJsonValue
-    llmProvider?: string | null
-    llmApiKey?: string | null
-    conversationId?: string | null
-    stepProgress?: JsonNullValueInput | InputJsonValue
-    completedSteps?: ConversationSessionCreatecompletedStepsInput | string[]
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    lastActiveAt?: Date | string
-    completedAt?: Date | string | null
-    conversationLogs?: ConversationLogCreateNestedManyWithoutSessionInput
-    tourInteractions?: TourInteractionCreateNestedManyWithoutSessionInput
-  }
-
-  export type ConversationSessionUncheckedCreateWithoutUserInput = {
-    id?: string
-    sessionId: string
-    currentStep?: $Enums.TourStep
-    isCompleted?: boolean
-    isVoiceMode?: boolean
-    selectedInterests?: ConversationSessionCreateselectedInterestsInput | string[]
-    videoRatings?: JsonNullValueInput | InputJsonValue
-    layoutPreferences?: JsonNullValueInput | InputJsonValue
-    llmProvider?: string | null
-    llmApiKey?: string | null
-    conversationId?: string | null
-    stepProgress?: JsonNullValueInput | InputJsonValue
-    completedSteps?: ConversationSessionCreatecompletedStepsInput | string[]
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    lastActiveAt?: Date | string
-    completedAt?: Date | string | null
-    conversationLogs?: ConversationLogUncheckedCreateNestedManyWithoutSessionInput
-    tourInteractions?: TourInteractionUncheckedCreateNestedManyWithoutSessionInput
-  }
-
-  export type ConversationSessionCreateOrConnectWithoutUserInput = {
-    where: ConversationSessionWhereUniqueInput
-    create: XOR<ConversationSessionCreateWithoutUserInput, ConversationSessionUncheckedCreateWithoutUserInput>
-  }
-
-  export type ConversationSessionCreateManyUserInputEnvelope = {
-    data: ConversationSessionCreateManyUserInput | ConversationSessionCreateManyUserInput[]
-    skipDuplicates?: boolean
-  }
-
   export type ConnectionUpsertWithWhereUniqueWithoutUserInput = {
     where: ConnectionWhereUniqueInput
     update: XOR<ConnectionUpdateWithoutUserInput, ConnectionUncheckedUpdateWithoutUserInput>
@@ -24304,44 +25148,64 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Preference"> | Date | string
   }
 
-  export type ConversationSessionUpsertWithWhereUniqueWithoutUserInput = {
-    where: ConversationSessionWhereUniqueInput
-    update: XOR<ConversationSessionUpdateWithoutUserInput, ConversationSessionUncheckedUpdateWithoutUserInput>
-    create: XOR<ConversationSessionCreateWithoutUserInput, ConversationSessionUncheckedCreateWithoutUserInput>
+  export type UserEmbeddingUpdateToOneWithWhereWithoutUserInput = {
+    where?: UserEmbeddingWhereInput
+    data: XOR<UserEmbeddingUpdateWithoutUserInput, UserEmbeddingUncheckedUpdateWithoutUserInput>
   }
 
-  export type ConversationSessionUpdateWithWhereUniqueWithoutUserInput = {
-    where: ConversationSessionWhereUniqueInput
-    data: XOR<ConversationSessionUpdateWithoutUserInput, ConversationSessionUncheckedUpdateWithoutUserInput>
+  export type UserEmbeddingUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    confidenceScore?: FloatFieldUpdateOperationsInput | number
+    interactionCount?: IntFieldUpdateOperationsInput | number
+    lastUpdateThreshold?: IntFieldUpdateOperationsInput | number
+    embeddingModel?: StringFieldUpdateOperationsInput | string
+    embeddingVersion?: StringFieldUpdateOperationsInput | string
+    processingStatus?: EnumEmbeddingStatusFieldUpdateOperationsInput | $Enums.EmbeddingStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastCalculatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
-  export type ConversationSessionUpdateManyWithWhereWithoutUserInput = {
-    where: ConversationSessionScalarWhereInput
-    data: XOR<ConversationSessionUpdateManyMutationInput, ConversationSessionUncheckedUpdateManyWithoutUserInput>
+  export type UserEmbeddingUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    confidenceScore?: FloatFieldUpdateOperationsInput | number
+    interactionCount?: IntFieldUpdateOperationsInput | number
+    lastUpdateThreshold?: IntFieldUpdateOperationsInput | number
+    embeddingModel?: StringFieldUpdateOperationsInput | string
+    embeddingVersion?: StringFieldUpdateOperationsInput | string
+    processingStatus?: EnumEmbeddingStatusFieldUpdateOperationsInput | $Enums.EmbeddingStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastCalculatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
-  export type ConversationSessionScalarWhereInput = {
-    AND?: ConversationSessionScalarWhereInput | ConversationSessionScalarWhereInput[]
-    OR?: ConversationSessionScalarWhereInput[]
-    NOT?: ConversationSessionScalarWhereInput | ConversationSessionScalarWhereInput[]
-    id?: StringFilter<"ConversationSession"> | string
-    userId?: StringNullableFilter<"ConversationSession"> | string | null
-    sessionId?: StringFilter<"ConversationSession"> | string
-    currentStep?: EnumTourStepFilter<"ConversationSession"> | $Enums.TourStep
-    isCompleted?: BoolFilter<"ConversationSession"> | boolean
-    isVoiceMode?: BoolFilter<"ConversationSession"> | boolean
-    selectedInterests?: StringNullableListFilter<"ConversationSession">
-    videoRatings?: JsonFilter<"ConversationSession">
-    layoutPreferences?: JsonFilter<"ConversationSession">
-    llmProvider?: StringNullableFilter<"ConversationSession"> | string | null
-    llmApiKey?: StringNullableFilter<"ConversationSession"> | string | null
-    conversationId?: StringNullableFilter<"ConversationSession"> | string | null
-    stepProgress?: JsonFilter<"ConversationSession">
-    completedSteps?: StringNullableListFilter<"ConversationSession">
-    createdAt?: DateTimeFilter<"ConversationSession"> | Date | string
-    updatedAt?: DateTimeFilter<"ConversationSession"> | Date | string
-    lastActiveAt?: DateTimeFilter<"ConversationSession"> | Date | string
-    completedAt?: DateTimeNullableFilter<"ConversationSession"> | Date | string | null
+  export type SearchEmbeddingUpdateWithWhereUniqueWithoutUserInput = {
+    where: SearchEmbeddingWhereUniqueInput
+    data: XOR<SearchEmbeddingUpdateWithoutUserInput, SearchEmbeddingUncheckedUpdateWithoutUserInput>
+  }
+
+  export type SearchEmbeddingUpdateManyWithWhereWithoutUserInput = {
+    where: SearchEmbeddingScalarWhereInput
+    data: XOR<SearchEmbeddingUpdateManyMutationInput, SearchEmbeddingUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type SearchEmbeddingScalarWhereInput = {
+    AND?: SearchEmbeddingScalarWhereInput | SearchEmbeddingScalarWhereInput[]
+    OR?: SearchEmbeddingScalarWhereInput[]
+    NOT?: SearchEmbeddingScalarWhereInput | SearchEmbeddingScalarWhereInput[]
+    id?: StringFilter<"SearchEmbedding"> | string
+    userId?: StringNullableFilter<"SearchEmbedding"> | string | null
+    query?: StringFilter<"SearchEmbedding"> | string
+    intent?: StringNullableFilter<"SearchEmbedding"> | string | null
+    entities?: StringNullableListFilter<"SearchEmbedding">
+    searchCount?: IntFilter<"SearchEmbedding"> | number
+    clickThrough?: FloatFilter<"SearchEmbedding"> | number
+    avgWatchTime?: FloatNullableFilter<"SearchEmbedding"> | number | null
+    embeddingModel?: StringFilter<"SearchEmbedding"> | string
+    embeddingVersion?: StringFilter<"SearchEmbedding"> | string
+    createdAt?: DateTimeFilter<"SearchEmbedding"> | Date | string
+    updatedAt?: DateTimeFilter<"SearchEmbedding"> | Date | string
+    lastSearchedAt?: DateTimeFilter<"SearchEmbedding"> | Date | string
   }
 
   export type UserCreateWithoutConnectionsInput = {
@@ -24360,7 +25224,8 @@ export namespace Prisma {
     layouts?: LayoutCreateNestedManyWithoutUserInput
     lists?: ListCreateNestedManyWithoutUserInput
     preferences?: PreferenceCreateNestedManyWithoutUserInput
-    conversationSessions?: ConversationSessionCreateNestedManyWithoutUserInput
+    userEmbedding?: UserEmbeddingCreateNestedOneWithoutUserInput
+    searchEmbeddings?: SearchEmbeddingCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutConnectionsInput = {
@@ -24379,7 +25244,8 @@ export namespace Prisma {
     layouts?: LayoutUncheckedCreateNestedManyWithoutUserInput
     lists?: ListUncheckedCreateNestedManyWithoutUserInput
     preferences?: PreferenceUncheckedCreateNestedManyWithoutUserInput
-    conversationSessions?: ConversationSessionUncheckedCreateNestedManyWithoutUserInput
+    userEmbedding?: UserEmbeddingUncheckedCreateNestedOneWithoutUserInput
+    searchEmbeddings?: SearchEmbeddingUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutConnectionsInput = {
@@ -24414,7 +25280,8 @@ export namespace Prisma {
     layouts?: LayoutUpdateManyWithoutUserNestedInput
     lists?: ListUpdateManyWithoutUserNestedInput
     preferences?: PreferenceUpdateManyWithoutUserNestedInput
-    conversationSessions?: ConversationSessionUpdateManyWithoutUserNestedInput
+    userEmbedding?: UserEmbeddingUpdateOneWithoutUserNestedInput
+    searchEmbeddings?: SearchEmbeddingUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutConnectionsInput = {
@@ -24433,7 +25300,8 @@ export namespace Prisma {
     layouts?: LayoutUncheckedUpdateManyWithoutUserNestedInput
     lists?: ListUncheckedUpdateManyWithoutUserNestedInput
     preferences?: PreferenceUncheckedUpdateManyWithoutUserNestedInput
-    conversationSessions?: ConversationSessionUncheckedUpdateManyWithoutUserNestedInput
+    userEmbedding?: UserEmbeddingUncheckedUpdateOneWithoutUserNestedInput
+    searchEmbeddings?: SearchEmbeddingUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutLayoutsInput = {
@@ -24452,7 +25320,8 @@ export namespace Prisma {
     connections?: ConnectionCreateNestedManyWithoutUserInput
     lists?: ListCreateNestedManyWithoutUserInput
     preferences?: PreferenceCreateNestedManyWithoutUserInput
-    conversationSessions?: ConversationSessionCreateNestedManyWithoutUserInput
+    userEmbedding?: UserEmbeddingCreateNestedOneWithoutUserInput
+    searchEmbeddings?: SearchEmbeddingCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutLayoutsInput = {
@@ -24471,7 +25340,8 @@ export namespace Prisma {
     connections?: ConnectionUncheckedCreateNestedManyWithoutUserInput
     lists?: ListUncheckedCreateNestedManyWithoutUserInput
     preferences?: PreferenceUncheckedCreateNestedManyWithoutUserInput
-    conversationSessions?: ConversationSessionUncheckedCreateNestedManyWithoutUserInput
+    userEmbedding?: UserEmbeddingUncheckedCreateNestedOneWithoutUserInput
+    searchEmbeddings?: SearchEmbeddingUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutLayoutsInput = {
@@ -24544,7 +25414,8 @@ export namespace Prisma {
     connections?: ConnectionUpdateManyWithoutUserNestedInput
     lists?: ListUpdateManyWithoutUserNestedInput
     preferences?: PreferenceUpdateManyWithoutUserNestedInput
-    conversationSessions?: ConversationSessionUpdateManyWithoutUserNestedInput
+    userEmbedding?: UserEmbeddingUpdateOneWithoutUserNestedInput
+    searchEmbeddings?: SearchEmbeddingUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutLayoutsInput = {
@@ -24563,7 +25434,8 @@ export namespace Prisma {
     connections?: ConnectionUncheckedUpdateManyWithoutUserNestedInput
     lists?: ListUncheckedUpdateManyWithoutUserNestedInput
     preferences?: PreferenceUncheckedUpdateManyWithoutUserNestedInput
-    conversationSessions?: ConversationSessionUncheckedUpdateManyWithoutUserNestedInput
+    userEmbedding?: UserEmbeddingUncheckedUpdateOneWithoutUserNestedInput
+    searchEmbeddings?: SearchEmbeddingUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type LayoutPanelUpsertWithWhereUniqueWithoutLayoutInput = {
@@ -24818,7 +25690,8 @@ export namespace Prisma {
     connections?: ConnectionCreateNestedManyWithoutUserInput
     layouts?: LayoutCreateNestedManyWithoutUserInput
     preferences?: PreferenceCreateNestedManyWithoutUserInput
-    conversationSessions?: ConversationSessionCreateNestedManyWithoutUserInput
+    userEmbedding?: UserEmbeddingCreateNestedOneWithoutUserInput
+    searchEmbeddings?: SearchEmbeddingCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutListsInput = {
@@ -24837,7 +25710,8 @@ export namespace Prisma {
     connections?: ConnectionUncheckedCreateNestedManyWithoutUserInput
     layouts?: LayoutUncheckedCreateNestedManyWithoutUserInput
     preferences?: PreferenceUncheckedCreateNestedManyWithoutUserInput
-    conversationSessions?: ConversationSessionUncheckedCreateNestedManyWithoutUserInput
+    userEmbedding?: UserEmbeddingUncheckedCreateNestedOneWithoutUserInput
+    searchEmbeddings?: SearchEmbeddingUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutListsInput = {
@@ -24918,7 +25792,8 @@ export namespace Prisma {
     connections?: ConnectionUpdateManyWithoutUserNestedInput
     layouts?: LayoutUpdateManyWithoutUserNestedInput
     preferences?: PreferenceUpdateManyWithoutUserNestedInput
-    conversationSessions?: ConversationSessionUpdateManyWithoutUserNestedInput
+    userEmbedding?: UserEmbeddingUpdateOneWithoutUserNestedInput
+    searchEmbeddings?: SearchEmbeddingUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutListsInput = {
@@ -24937,7 +25812,8 @@ export namespace Prisma {
     connections?: ConnectionUncheckedUpdateManyWithoutUserNestedInput
     layouts?: LayoutUncheckedUpdateManyWithoutUserNestedInput
     preferences?: PreferenceUncheckedUpdateManyWithoutUserNestedInput
-    conversationSessions?: ConversationSessionUncheckedUpdateManyWithoutUserNestedInput
+    userEmbedding?: UserEmbeddingUncheckedUpdateOneWithoutUserNestedInput
+    searchEmbeddings?: SearchEmbeddingUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ListItemUpsertWithWhereUniqueWithoutListInput = {
@@ -25074,7 +25950,8 @@ export namespace Prisma {
     connections?: ConnectionCreateNestedManyWithoutUserInput
     layouts?: LayoutCreateNestedManyWithoutUserInput
     lists?: ListCreateNestedManyWithoutUserInput
-    conversationSessions?: ConversationSessionCreateNestedManyWithoutUserInput
+    userEmbedding?: UserEmbeddingCreateNestedOneWithoutUserInput
+    searchEmbeddings?: SearchEmbeddingCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutPreferencesInput = {
@@ -25093,7 +25970,8 @@ export namespace Prisma {
     connections?: ConnectionUncheckedCreateNestedManyWithoutUserInput
     layouts?: LayoutUncheckedCreateNestedManyWithoutUserInput
     lists?: ListUncheckedCreateNestedManyWithoutUserInput
-    conversationSessions?: ConversationSessionUncheckedCreateNestedManyWithoutUserInput
+    userEmbedding?: UserEmbeddingUncheckedCreateNestedOneWithoutUserInput
+    searchEmbeddings?: SearchEmbeddingUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutPreferencesInput = {
@@ -25128,7 +26006,8 @@ export namespace Prisma {
     connections?: ConnectionUpdateManyWithoutUserNestedInput
     layouts?: LayoutUpdateManyWithoutUserNestedInput
     lists?: ListUpdateManyWithoutUserNestedInput
-    conversationSessions?: ConversationSessionUpdateManyWithoutUserNestedInput
+    userEmbedding?: UserEmbeddingUpdateOneWithoutUserNestedInput
+    searchEmbeddings?: SearchEmbeddingUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPreferencesInput = {
@@ -25147,10 +26026,11 @@ export namespace Prisma {
     connections?: ConnectionUncheckedUpdateManyWithoutUserNestedInput
     layouts?: LayoutUncheckedUpdateManyWithoutUserNestedInput
     lists?: ListUncheckedUpdateManyWithoutUserNestedInput
-    conversationSessions?: ConversationSessionUncheckedUpdateManyWithoutUserNestedInput
+    userEmbedding?: UserEmbeddingUncheckedUpdateOneWithoutUserNestedInput
+    searchEmbeddings?: SearchEmbeddingUncheckedUpdateManyWithoutUserNestedInput
   }
 
-  export type UserCreateWithoutConversationSessionsInput = {
+  export type UserCreateWithoutUserEmbeddingInput = {
     id?: string
     email: string
     clerkId?: string | null
@@ -25167,9 +26047,10 @@ export namespace Prisma {
     layouts?: LayoutCreateNestedManyWithoutUserInput
     lists?: ListCreateNestedManyWithoutUserInput
     preferences?: PreferenceCreateNestedManyWithoutUserInput
+    searchEmbeddings?: SearchEmbeddingCreateNestedManyWithoutUserInput
   }
 
-  export type UserUncheckedCreateWithoutConversationSessionsInput = {
+  export type UserUncheckedCreateWithoutUserEmbeddingInput = {
     id?: string
     email: string
     clerkId?: string | null
@@ -25186,95 +26067,26 @@ export namespace Prisma {
     layouts?: LayoutUncheckedCreateNestedManyWithoutUserInput
     lists?: ListUncheckedCreateNestedManyWithoutUserInput
     preferences?: PreferenceUncheckedCreateNestedManyWithoutUserInput
+    searchEmbeddings?: SearchEmbeddingUncheckedCreateNestedManyWithoutUserInput
   }
 
-  export type UserCreateOrConnectWithoutConversationSessionsInput = {
+  export type UserCreateOrConnectWithoutUserEmbeddingInput = {
     where: UserWhereUniqueInput
-    create: XOR<UserCreateWithoutConversationSessionsInput, UserUncheckedCreateWithoutConversationSessionsInput>
+    create: XOR<UserCreateWithoutUserEmbeddingInput, UserUncheckedCreateWithoutUserEmbeddingInput>
   }
 
-  export type ConversationLogCreateWithoutSessionInput = {
-    id?: string
-    role: $Enums.MessageRole
-    content: string
-    messageId?: string | null
-    tourStep?: $Enums.TourStep | null
-    actionType?: string | null
-    metadata?: JsonNullValueInput | InputJsonValue
-    tokensUsed?: number | null
-    responseTimeMs?: number | null
-    llmProvider?: string | null
-    createdAt?: Date | string
-  }
-
-  export type ConversationLogUncheckedCreateWithoutSessionInput = {
-    id?: string
-    role: $Enums.MessageRole
-    content: string
-    messageId?: string | null
-    tourStep?: $Enums.TourStep | null
-    actionType?: string | null
-    metadata?: JsonNullValueInput | InputJsonValue
-    tokensUsed?: number | null
-    responseTimeMs?: number | null
-    llmProvider?: string | null
-    createdAt?: Date | string
-  }
-
-  export type ConversationLogCreateOrConnectWithoutSessionInput = {
-    where: ConversationLogWhereUniqueInput
-    create: XOR<ConversationLogCreateWithoutSessionInput, ConversationLogUncheckedCreateWithoutSessionInput>
-  }
-
-  export type ConversationLogCreateManySessionInputEnvelope = {
-    data: ConversationLogCreateManySessionInput | ConversationLogCreateManySessionInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type TourInteractionCreateWithoutSessionInput = {
-    id?: string
-    tourStep: $Enums.TourStep
-    actionType: string
-    actionData?: JsonNullValueInput | InputJsonValue
-    timeSpentMs?: number | null
-    wasSkipped?: boolean
-    satisfaction?: number | null
-    createdAt?: Date | string
-  }
-
-  export type TourInteractionUncheckedCreateWithoutSessionInput = {
-    id?: string
-    tourStep: $Enums.TourStep
-    actionType: string
-    actionData?: JsonNullValueInput | InputJsonValue
-    timeSpentMs?: number | null
-    wasSkipped?: boolean
-    satisfaction?: number | null
-    createdAt?: Date | string
-  }
-
-  export type TourInteractionCreateOrConnectWithoutSessionInput = {
-    where: TourInteractionWhereUniqueInput
-    create: XOR<TourInteractionCreateWithoutSessionInput, TourInteractionUncheckedCreateWithoutSessionInput>
-  }
-
-  export type TourInteractionCreateManySessionInputEnvelope = {
-    data: TourInteractionCreateManySessionInput | TourInteractionCreateManySessionInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type UserUpsertWithoutConversationSessionsInput = {
-    update: XOR<UserUpdateWithoutConversationSessionsInput, UserUncheckedUpdateWithoutConversationSessionsInput>
-    create: XOR<UserCreateWithoutConversationSessionsInput, UserUncheckedCreateWithoutConversationSessionsInput>
+  export type UserUpsertWithoutUserEmbeddingInput = {
+    update: XOR<UserUpdateWithoutUserEmbeddingInput, UserUncheckedUpdateWithoutUserEmbeddingInput>
+    create: XOR<UserCreateWithoutUserEmbeddingInput, UserUncheckedCreateWithoutUserEmbeddingInput>
     where?: UserWhereInput
   }
 
-  export type UserUpdateToOneWithWhereWithoutConversationSessionsInput = {
+  export type UserUpdateToOneWithWhereWithoutUserEmbeddingInput = {
     where?: UserWhereInput
-    data: XOR<UserUpdateWithoutConversationSessionsInput, UserUncheckedUpdateWithoutConversationSessionsInput>
+    data: XOR<UserUpdateWithoutUserEmbeddingInput, UserUncheckedUpdateWithoutUserEmbeddingInput>
   }
 
-  export type UserUpdateWithoutConversationSessionsInput = {
+  export type UserUpdateWithoutUserEmbeddingInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     clerkId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -25291,9 +26103,10 @@ export namespace Prisma {
     layouts?: LayoutUpdateManyWithoutUserNestedInput
     lists?: ListUpdateManyWithoutUserNestedInput
     preferences?: PreferenceUpdateManyWithoutUserNestedInput
+    searchEmbeddings?: SearchEmbeddingUpdateManyWithoutUserNestedInput
   }
 
-  export type UserUncheckedUpdateWithoutConversationSessionsInput = {
+  export type UserUncheckedUpdateWithoutUserEmbeddingInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     clerkId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -25310,279 +26123,103 @@ export namespace Prisma {
     layouts?: LayoutUncheckedUpdateManyWithoutUserNestedInput
     lists?: ListUncheckedUpdateManyWithoutUserNestedInput
     preferences?: PreferenceUncheckedUpdateManyWithoutUserNestedInput
+    searchEmbeddings?: SearchEmbeddingUncheckedUpdateManyWithoutUserNestedInput
   }
 
-  export type ConversationLogUpsertWithWhereUniqueWithoutSessionInput = {
-    where: ConversationLogWhereUniqueInput
-    update: XOR<ConversationLogUpdateWithoutSessionInput, ConversationLogUncheckedUpdateWithoutSessionInput>
-    create: XOR<ConversationLogCreateWithoutSessionInput, ConversationLogUncheckedCreateWithoutSessionInput>
-  }
-
-  export type ConversationLogUpdateWithWhereUniqueWithoutSessionInput = {
-    where: ConversationLogWhereUniqueInput
-    data: XOR<ConversationLogUpdateWithoutSessionInput, ConversationLogUncheckedUpdateWithoutSessionInput>
-  }
-
-  export type ConversationLogUpdateManyWithWhereWithoutSessionInput = {
-    where: ConversationLogScalarWhereInput
-    data: XOR<ConversationLogUpdateManyMutationInput, ConversationLogUncheckedUpdateManyWithoutSessionInput>
-  }
-
-  export type ConversationLogScalarWhereInput = {
-    AND?: ConversationLogScalarWhereInput | ConversationLogScalarWhereInput[]
-    OR?: ConversationLogScalarWhereInput[]
-    NOT?: ConversationLogScalarWhereInput | ConversationLogScalarWhereInput[]
-    id?: StringFilter<"ConversationLog"> | string
-    sessionId?: StringFilter<"ConversationLog"> | string
-    role?: EnumMessageRoleFilter<"ConversationLog"> | $Enums.MessageRole
-    content?: StringFilter<"ConversationLog"> | string
-    messageId?: StringNullableFilter<"ConversationLog"> | string | null
-    tourStep?: EnumTourStepNullableFilter<"ConversationLog"> | $Enums.TourStep | null
-    actionType?: StringNullableFilter<"ConversationLog"> | string | null
-    metadata?: JsonFilter<"ConversationLog">
-    tokensUsed?: IntNullableFilter<"ConversationLog"> | number | null
-    responseTimeMs?: IntNullableFilter<"ConversationLog"> | number | null
-    llmProvider?: StringNullableFilter<"ConversationLog"> | string | null
-    createdAt?: DateTimeFilter<"ConversationLog"> | Date | string
-  }
-
-  export type TourInteractionUpsertWithWhereUniqueWithoutSessionInput = {
-    where: TourInteractionWhereUniqueInput
-    update: XOR<TourInteractionUpdateWithoutSessionInput, TourInteractionUncheckedUpdateWithoutSessionInput>
-    create: XOR<TourInteractionCreateWithoutSessionInput, TourInteractionUncheckedCreateWithoutSessionInput>
-  }
-
-  export type TourInteractionUpdateWithWhereUniqueWithoutSessionInput = {
-    where: TourInteractionWhereUniqueInput
-    data: XOR<TourInteractionUpdateWithoutSessionInput, TourInteractionUncheckedUpdateWithoutSessionInput>
-  }
-
-  export type TourInteractionUpdateManyWithWhereWithoutSessionInput = {
-    where: TourInteractionScalarWhereInput
-    data: XOR<TourInteractionUpdateManyMutationInput, TourInteractionUncheckedUpdateManyWithoutSessionInput>
-  }
-
-  export type TourInteractionScalarWhereInput = {
-    AND?: TourInteractionScalarWhereInput | TourInteractionScalarWhereInput[]
-    OR?: TourInteractionScalarWhereInput[]
-    NOT?: TourInteractionScalarWhereInput | TourInteractionScalarWhereInput[]
-    id?: StringFilter<"TourInteraction"> | string
-    sessionId?: StringFilter<"TourInteraction"> | string
-    tourStep?: EnumTourStepFilter<"TourInteraction"> | $Enums.TourStep
-    actionType?: StringFilter<"TourInteraction"> | string
-    actionData?: JsonFilter<"TourInteraction">
-    timeSpentMs?: IntNullableFilter<"TourInteraction"> | number | null
-    wasSkipped?: BoolFilter<"TourInteraction"> | boolean
-    satisfaction?: IntNullableFilter<"TourInteraction"> | number | null
-    createdAt?: DateTimeFilter<"TourInteraction"> | Date | string
-  }
-
-  export type ConversationSessionCreateWithoutConversationLogsInput = {
+  export type UserCreateWithoutSearchEmbeddingsInput = {
     id?: string
-    sessionId: string
-    currentStep?: $Enums.TourStep
-    isCompleted?: boolean
-    isVoiceMode?: boolean
-    selectedInterests?: ConversationSessionCreateselectedInterestsInput | string[]
-    videoRatings?: JsonNullValueInput | InputJsonValue
-    layoutPreferences?: JsonNullValueInput | InputJsonValue
-    llmProvider?: string | null
-    llmApiKey?: string | null
-    conversationId?: string | null
-    stepProgress?: JsonNullValueInput | InputJsonValue
-    completedSteps?: ConversationSessionCreatecompletedStepsInput | string[]
+    email: string
+    clerkId?: string | null
+    username?: string | null
+    displayName?: string | null
+    avatar?: string | null
+    settingsJson?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    lastActiveAt?: Date | string
-    completedAt?: Date | string | null
-    user?: UserCreateNestedOneWithoutConversationSessionsInput
-    tourInteractions?: TourInteractionCreateNestedManyWithoutSessionInput
+    lastLoginAt?: Date | string | null
+    isActive?: boolean
+    isVerified?: boolean
+    connections?: ConnectionCreateNestedManyWithoutUserInput
+    layouts?: LayoutCreateNestedManyWithoutUserInput
+    lists?: ListCreateNestedManyWithoutUserInput
+    preferences?: PreferenceCreateNestedManyWithoutUserInput
+    userEmbedding?: UserEmbeddingCreateNestedOneWithoutUserInput
   }
 
-  export type ConversationSessionUncheckedCreateWithoutConversationLogsInput = {
+  export type UserUncheckedCreateWithoutSearchEmbeddingsInput = {
     id?: string
-    userId?: string | null
-    sessionId: string
-    currentStep?: $Enums.TourStep
-    isCompleted?: boolean
-    isVoiceMode?: boolean
-    selectedInterests?: ConversationSessionCreateselectedInterestsInput | string[]
-    videoRatings?: JsonNullValueInput | InputJsonValue
-    layoutPreferences?: JsonNullValueInput | InputJsonValue
-    llmProvider?: string | null
-    llmApiKey?: string | null
-    conversationId?: string | null
-    stepProgress?: JsonNullValueInput | InputJsonValue
-    completedSteps?: ConversationSessionCreatecompletedStepsInput | string[]
+    email: string
+    clerkId?: string | null
+    username?: string | null
+    displayName?: string | null
+    avatar?: string | null
+    settingsJson?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    lastActiveAt?: Date | string
-    completedAt?: Date | string | null
-    tourInteractions?: TourInteractionUncheckedCreateNestedManyWithoutSessionInput
+    lastLoginAt?: Date | string | null
+    isActive?: boolean
+    isVerified?: boolean
+    connections?: ConnectionUncheckedCreateNestedManyWithoutUserInput
+    layouts?: LayoutUncheckedCreateNestedManyWithoutUserInput
+    lists?: ListUncheckedCreateNestedManyWithoutUserInput
+    preferences?: PreferenceUncheckedCreateNestedManyWithoutUserInput
+    userEmbedding?: UserEmbeddingUncheckedCreateNestedOneWithoutUserInput
   }
 
-  export type ConversationSessionCreateOrConnectWithoutConversationLogsInput = {
-    where: ConversationSessionWhereUniqueInput
-    create: XOR<ConversationSessionCreateWithoutConversationLogsInput, ConversationSessionUncheckedCreateWithoutConversationLogsInput>
+  export type UserCreateOrConnectWithoutSearchEmbeddingsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutSearchEmbeddingsInput, UserUncheckedCreateWithoutSearchEmbeddingsInput>
   }
 
-  export type ConversationSessionUpsertWithoutConversationLogsInput = {
-    update: XOR<ConversationSessionUpdateWithoutConversationLogsInput, ConversationSessionUncheckedUpdateWithoutConversationLogsInput>
-    create: XOR<ConversationSessionCreateWithoutConversationLogsInput, ConversationSessionUncheckedCreateWithoutConversationLogsInput>
-    where?: ConversationSessionWhereInput
+  export type UserUpsertWithoutSearchEmbeddingsInput = {
+    update: XOR<UserUpdateWithoutSearchEmbeddingsInput, UserUncheckedUpdateWithoutSearchEmbeddingsInput>
+    create: XOR<UserCreateWithoutSearchEmbeddingsInput, UserUncheckedCreateWithoutSearchEmbeddingsInput>
+    where?: UserWhereInput
   }
 
-  export type ConversationSessionUpdateToOneWithWhereWithoutConversationLogsInput = {
-    where?: ConversationSessionWhereInput
-    data: XOR<ConversationSessionUpdateWithoutConversationLogsInput, ConversationSessionUncheckedUpdateWithoutConversationLogsInput>
+  export type UserUpdateToOneWithWhereWithoutSearchEmbeddingsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutSearchEmbeddingsInput, UserUncheckedUpdateWithoutSearchEmbeddingsInput>
   }
 
-  export type ConversationSessionUpdateWithoutConversationLogsInput = {
+  export type UserUpdateWithoutSearchEmbeddingsInput = {
     id?: StringFieldUpdateOperationsInput | string
-    sessionId?: StringFieldUpdateOperationsInput | string
-    currentStep?: EnumTourStepFieldUpdateOperationsInput | $Enums.TourStep
-    isCompleted?: BoolFieldUpdateOperationsInput | boolean
-    isVoiceMode?: BoolFieldUpdateOperationsInput | boolean
-    selectedInterests?: ConversationSessionUpdateselectedInterestsInput | string[]
-    videoRatings?: JsonNullValueInput | InputJsonValue
-    layoutPreferences?: JsonNullValueInput | InputJsonValue
-    llmProvider?: NullableStringFieldUpdateOperationsInput | string | null
-    llmApiKey?: NullableStringFieldUpdateOperationsInput | string | null
-    conversationId?: NullableStringFieldUpdateOperationsInput | string | null
-    stepProgress?: JsonNullValueInput | InputJsonValue
-    completedSteps?: ConversationSessionUpdatecompletedStepsInput | string[]
+    email?: StringFieldUpdateOperationsInput | string
+    clerkId?: NullableStringFieldUpdateOperationsInput | string | null
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    displayName?: NullableStringFieldUpdateOperationsInput | string | null
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    settingsJson?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    lastActiveAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    user?: UserUpdateOneWithoutConversationSessionsNestedInput
-    tourInteractions?: TourInteractionUpdateManyWithoutSessionNestedInput
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    connections?: ConnectionUpdateManyWithoutUserNestedInput
+    layouts?: LayoutUpdateManyWithoutUserNestedInput
+    lists?: ListUpdateManyWithoutUserNestedInput
+    preferences?: PreferenceUpdateManyWithoutUserNestedInput
+    userEmbedding?: UserEmbeddingUpdateOneWithoutUserNestedInput
   }
 
-  export type ConversationSessionUncheckedUpdateWithoutConversationLogsInput = {
+  export type UserUncheckedUpdateWithoutSearchEmbeddingsInput = {
     id?: StringFieldUpdateOperationsInput | string
-    userId?: NullableStringFieldUpdateOperationsInput | string | null
-    sessionId?: StringFieldUpdateOperationsInput | string
-    currentStep?: EnumTourStepFieldUpdateOperationsInput | $Enums.TourStep
-    isCompleted?: BoolFieldUpdateOperationsInput | boolean
-    isVoiceMode?: BoolFieldUpdateOperationsInput | boolean
-    selectedInterests?: ConversationSessionUpdateselectedInterestsInput | string[]
-    videoRatings?: JsonNullValueInput | InputJsonValue
-    layoutPreferences?: JsonNullValueInput | InputJsonValue
-    llmProvider?: NullableStringFieldUpdateOperationsInput | string | null
-    llmApiKey?: NullableStringFieldUpdateOperationsInput | string | null
-    conversationId?: NullableStringFieldUpdateOperationsInput | string | null
-    stepProgress?: JsonNullValueInput | InputJsonValue
-    completedSteps?: ConversationSessionUpdatecompletedStepsInput | string[]
+    email?: StringFieldUpdateOperationsInput | string
+    clerkId?: NullableStringFieldUpdateOperationsInput | string | null
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    displayName?: NullableStringFieldUpdateOperationsInput | string | null
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    settingsJson?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    lastActiveAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    tourInteractions?: TourInteractionUncheckedUpdateManyWithoutSessionNestedInput
-  }
-
-  export type ConversationSessionCreateWithoutTourInteractionsInput = {
-    id?: string
-    sessionId: string
-    currentStep?: $Enums.TourStep
-    isCompleted?: boolean
-    isVoiceMode?: boolean
-    selectedInterests?: ConversationSessionCreateselectedInterestsInput | string[]
-    videoRatings?: JsonNullValueInput | InputJsonValue
-    layoutPreferences?: JsonNullValueInput | InputJsonValue
-    llmProvider?: string | null
-    llmApiKey?: string | null
-    conversationId?: string | null
-    stepProgress?: JsonNullValueInput | InputJsonValue
-    completedSteps?: ConversationSessionCreatecompletedStepsInput | string[]
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    lastActiveAt?: Date | string
-    completedAt?: Date | string | null
-    user?: UserCreateNestedOneWithoutConversationSessionsInput
-    conversationLogs?: ConversationLogCreateNestedManyWithoutSessionInput
-  }
-
-  export type ConversationSessionUncheckedCreateWithoutTourInteractionsInput = {
-    id?: string
-    userId?: string | null
-    sessionId: string
-    currentStep?: $Enums.TourStep
-    isCompleted?: boolean
-    isVoiceMode?: boolean
-    selectedInterests?: ConversationSessionCreateselectedInterestsInput | string[]
-    videoRatings?: JsonNullValueInput | InputJsonValue
-    layoutPreferences?: JsonNullValueInput | InputJsonValue
-    llmProvider?: string | null
-    llmApiKey?: string | null
-    conversationId?: string | null
-    stepProgress?: JsonNullValueInput | InputJsonValue
-    completedSteps?: ConversationSessionCreatecompletedStepsInput | string[]
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    lastActiveAt?: Date | string
-    completedAt?: Date | string | null
-    conversationLogs?: ConversationLogUncheckedCreateNestedManyWithoutSessionInput
-  }
-
-  export type ConversationSessionCreateOrConnectWithoutTourInteractionsInput = {
-    where: ConversationSessionWhereUniqueInput
-    create: XOR<ConversationSessionCreateWithoutTourInteractionsInput, ConversationSessionUncheckedCreateWithoutTourInteractionsInput>
-  }
-
-  export type ConversationSessionUpsertWithoutTourInteractionsInput = {
-    update: XOR<ConversationSessionUpdateWithoutTourInteractionsInput, ConversationSessionUncheckedUpdateWithoutTourInteractionsInput>
-    create: XOR<ConversationSessionCreateWithoutTourInteractionsInput, ConversationSessionUncheckedCreateWithoutTourInteractionsInput>
-    where?: ConversationSessionWhereInput
-  }
-
-  export type ConversationSessionUpdateToOneWithWhereWithoutTourInteractionsInput = {
-    where?: ConversationSessionWhereInput
-    data: XOR<ConversationSessionUpdateWithoutTourInteractionsInput, ConversationSessionUncheckedUpdateWithoutTourInteractionsInput>
-  }
-
-  export type ConversationSessionUpdateWithoutTourInteractionsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sessionId?: StringFieldUpdateOperationsInput | string
-    currentStep?: EnumTourStepFieldUpdateOperationsInput | $Enums.TourStep
-    isCompleted?: BoolFieldUpdateOperationsInput | boolean
-    isVoiceMode?: BoolFieldUpdateOperationsInput | boolean
-    selectedInterests?: ConversationSessionUpdateselectedInterestsInput | string[]
-    videoRatings?: JsonNullValueInput | InputJsonValue
-    layoutPreferences?: JsonNullValueInput | InputJsonValue
-    llmProvider?: NullableStringFieldUpdateOperationsInput | string | null
-    llmApiKey?: NullableStringFieldUpdateOperationsInput | string | null
-    conversationId?: NullableStringFieldUpdateOperationsInput | string | null
-    stepProgress?: JsonNullValueInput | InputJsonValue
-    completedSteps?: ConversationSessionUpdatecompletedStepsInput | string[]
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    lastActiveAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    user?: UserUpdateOneWithoutConversationSessionsNestedInput
-    conversationLogs?: ConversationLogUpdateManyWithoutSessionNestedInput
-  }
-
-  export type ConversationSessionUncheckedUpdateWithoutTourInteractionsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    userId?: NullableStringFieldUpdateOperationsInput | string | null
-    sessionId?: StringFieldUpdateOperationsInput | string
-    currentStep?: EnumTourStepFieldUpdateOperationsInput | $Enums.TourStep
-    isCompleted?: BoolFieldUpdateOperationsInput | boolean
-    isVoiceMode?: BoolFieldUpdateOperationsInput | boolean
-    selectedInterests?: ConversationSessionUpdateselectedInterestsInput | string[]
-    videoRatings?: JsonNullValueInput | InputJsonValue
-    layoutPreferences?: JsonNullValueInput | InputJsonValue
-    llmProvider?: NullableStringFieldUpdateOperationsInput | string | null
-    llmApiKey?: NullableStringFieldUpdateOperationsInput | string | null
-    conversationId?: NullableStringFieldUpdateOperationsInput | string | null
-    stepProgress?: JsonNullValueInput | InputJsonValue
-    completedSteps?: ConversationSessionUpdatecompletedStepsInput | string[]
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    lastActiveAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    conversationLogs?: ConversationLogUncheckedUpdateManyWithoutSessionNestedInput
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    connections?: ConnectionUncheckedUpdateManyWithoutUserNestedInput
+    layouts?: LayoutUncheckedUpdateManyWithoutUserNestedInput
+    lists?: ListUncheckedUpdateManyWithoutUserNestedInput
+    preferences?: PreferenceUncheckedUpdateManyWithoutUserNestedInput
+    userEmbedding?: UserEmbeddingUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type ConnectionCreateManyUserInput = {
@@ -25638,26 +26275,6 @@ export namespace Prisma {
     isUserSet?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-  }
-
-  export type ConversationSessionCreateManyUserInput = {
-    id?: string
-    sessionId: string
-    currentStep?: $Enums.TourStep
-    isCompleted?: boolean
-    isVoiceMode?: boolean
-    selectedInterests?: ConversationSessionCreateselectedInterestsInput | string[]
-    videoRatings?: JsonNullValueInput | InputJsonValue
-    layoutPreferences?: JsonNullValueInput | InputJsonValue
-    llmProvider?: string | null
-    llmApiKey?: string | null
-    conversationId?: string | null
-    stepProgress?: JsonNullValueInput | InputJsonValue
-    completedSteps?: ConversationSessionCreatecompletedStepsInput | string[]
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    lastActiveAt?: Date | string
-    completedAt?: Date | string | null
   }
 
   export type ConnectionUpdateWithoutUserInput = {
@@ -25829,68 +26446,49 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ConversationSessionUpdateWithoutUserInput = {
+  export type SearchEmbeddingUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    sessionId?: StringFieldUpdateOperationsInput | string
-    currentStep?: EnumTourStepFieldUpdateOperationsInput | $Enums.TourStep
-    isCompleted?: BoolFieldUpdateOperationsInput | boolean
-    isVoiceMode?: BoolFieldUpdateOperationsInput | boolean
-    selectedInterests?: ConversationSessionUpdateselectedInterestsInput | string[]
-    videoRatings?: JsonNullValueInput | InputJsonValue
-    layoutPreferences?: JsonNullValueInput | InputJsonValue
-    llmProvider?: NullableStringFieldUpdateOperationsInput | string | null
-    llmApiKey?: NullableStringFieldUpdateOperationsInput | string | null
-    conversationId?: NullableStringFieldUpdateOperationsInput | string | null
-    stepProgress?: JsonNullValueInput | InputJsonValue
-    completedSteps?: ConversationSessionUpdatecompletedStepsInput | string[]
+    query?: StringFieldUpdateOperationsInput | string
+    intent?: NullableStringFieldUpdateOperationsInput | string | null
+    entities?: SearchEmbeddingUpdateentitiesInput | string[]
+    searchCount?: IntFieldUpdateOperationsInput | number
+    clickThrough?: FloatFieldUpdateOperationsInput | number
+    avgWatchTime?: NullableFloatFieldUpdateOperationsInput | number | null
+    embeddingModel?: StringFieldUpdateOperationsInput | string
+    embeddingVersion?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    lastActiveAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    conversationLogs?: ConversationLogUpdateManyWithoutSessionNestedInput
-    tourInteractions?: TourInteractionUpdateManyWithoutSessionNestedInput
+    lastSearchedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ConversationSessionUncheckedUpdateWithoutUserInput = {
+  export type SearchEmbeddingUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    sessionId?: StringFieldUpdateOperationsInput | string
-    currentStep?: EnumTourStepFieldUpdateOperationsInput | $Enums.TourStep
-    isCompleted?: BoolFieldUpdateOperationsInput | boolean
-    isVoiceMode?: BoolFieldUpdateOperationsInput | boolean
-    selectedInterests?: ConversationSessionUpdateselectedInterestsInput | string[]
-    videoRatings?: JsonNullValueInput | InputJsonValue
-    layoutPreferences?: JsonNullValueInput | InputJsonValue
-    llmProvider?: NullableStringFieldUpdateOperationsInput | string | null
-    llmApiKey?: NullableStringFieldUpdateOperationsInput | string | null
-    conversationId?: NullableStringFieldUpdateOperationsInput | string | null
-    stepProgress?: JsonNullValueInput | InputJsonValue
-    completedSteps?: ConversationSessionUpdatecompletedStepsInput | string[]
+    query?: StringFieldUpdateOperationsInput | string
+    intent?: NullableStringFieldUpdateOperationsInput | string | null
+    entities?: SearchEmbeddingUpdateentitiesInput | string[]
+    searchCount?: IntFieldUpdateOperationsInput | number
+    clickThrough?: FloatFieldUpdateOperationsInput | number
+    avgWatchTime?: NullableFloatFieldUpdateOperationsInput | number | null
+    embeddingModel?: StringFieldUpdateOperationsInput | string
+    embeddingVersion?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    lastActiveAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    conversationLogs?: ConversationLogUncheckedUpdateManyWithoutSessionNestedInput
-    tourInteractions?: TourInteractionUncheckedUpdateManyWithoutSessionNestedInput
+    lastSearchedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ConversationSessionUncheckedUpdateManyWithoutUserInput = {
+  export type SearchEmbeddingUncheckedUpdateManyWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    sessionId?: StringFieldUpdateOperationsInput | string
-    currentStep?: EnumTourStepFieldUpdateOperationsInput | $Enums.TourStep
-    isCompleted?: BoolFieldUpdateOperationsInput | boolean
-    isVoiceMode?: BoolFieldUpdateOperationsInput | boolean
-    selectedInterests?: ConversationSessionUpdateselectedInterestsInput | string[]
-    videoRatings?: JsonNullValueInput | InputJsonValue
-    layoutPreferences?: JsonNullValueInput | InputJsonValue
-    llmProvider?: NullableStringFieldUpdateOperationsInput | string | null
-    llmApiKey?: NullableStringFieldUpdateOperationsInput | string | null
-    conversationId?: NullableStringFieldUpdateOperationsInput | string | null
-    stepProgress?: JsonNullValueInput | InputJsonValue
-    completedSteps?: ConversationSessionUpdatecompletedStepsInput | string[]
+    query?: StringFieldUpdateOperationsInput | string
+    intent?: NullableStringFieldUpdateOperationsInput | string | null
+    entities?: SearchEmbeddingUpdateentitiesInput | string[]
+    searchCount?: IntFieldUpdateOperationsInput | number
+    clickThrough?: FloatFieldUpdateOperationsInput | number
+    avgWatchTime?: NullableFloatFieldUpdateOperationsInput | number | null
+    embeddingModel?: StringFieldUpdateOperationsInput | string
+    embeddingVersion?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    lastActiveAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastSearchedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type LayoutPanelCreateManyLayoutInput = {
@@ -26075,106 +26673,6 @@ export namespace Prisma {
     watchProgress?: NullableFloatFieldUpdateOperationsInput | number | null
     rating?: NullableIntFieldUpdateOperationsInput | number | null
     isFavorite?: BoolFieldUpdateOperationsInput | boolean
-  }
-
-  export type ConversationLogCreateManySessionInput = {
-    id?: string
-    role: $Enums.MessageRole
-    content: string
-    messageId?: string | null
-    tourStep?: $Enums.TourStep | null
-    actionType?: string | null
-    metadata?: JsonNullValueInput | InputJsonValue
-    tokensUsed?: number | null
-    responseTimeMs?: number | null
-    llmProvider?: string | null
-    createdAt?: Date | string
-  }
-
-  export type TourInteractionCreateManySessionInput = {
-    id?: string
-    tourStep: $Enums.TourStep
-    actionType: string
-    actionData?: JsonNullValueInput | InputJsonValue
-    timeSpentMs?: number | null
-    wasSkipped?: boolean
-    satisfaction?: number | null
-    createdAt?: Date | string
-  }
-
-  export type ConversationLogUpdateWithoutSessionInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    role?: EnumMessageRoleFieldUpdateOperationsInput | $Enums.MessageRole
-    content?: StringFieldUpdateOperationsInput | string
-    messageId?: NullableStringFieldUpdateOperationsInput | string | null
-    tourStep?: NullableEnumTourStepFieldUpdateOperationsInput | $Enums.TourStep | null
-    actionType?: NullableStringFieldUpdateOperationsInput | string | null
-    metadata?: JsonNullValueInput | InputJsonValue
-    tokensUsed?: NullableIntFieldUpdateOperationsInput | number | null
-    responseTimeMs?: NullableIntFieldUpdateOperationsInput | number | null
-    llmProvider?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type ConversationLogUncheckedUpdateWithoutSessionInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    role?: EnumMessageRoleFieldUpdateOperationsInput | $Enums.MessageRole
-    content?: StringFieldUpdateOperationsInput | string
-    messageId?: NullableStringFieldUpdateOperationsInput | string | null
-    tourStep?: NullableEnumTourStepFieldUpdateOperationsInput | $Enums.TourStep | null
-    actionType?: NullableStringFieldUpdateOperationsInput | string | null
-    metadata?: JsonNullValueInput | InputJsonValue
-    tokensUsed?: NullableIntFieldUpdateOperationsInput | number | null
-    responseTimeMs?: NullableIntFieldUpdateOperationsInput | number | null
-    llmProvider?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type ConversationLogUncheckedUpdateManyWithoutSessionInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    role?: EnumMessageRoleFieldUpdateOperationsInput | $Enums.MessageRole
-    content?: StringFieldUpdateOperationsInput | string
-    messageId?: NullableStringFieldUpdateOperationsInput | string | null
-    tourStep?: NullableEnumTourStepFieldUpdateOperationsInput | $Enums.TourStep | null
-    actionType?: NullableStringFieldUpdateOperationsInput | string | null
-    metadata?: JsonNullValueInput | InputJsonValue
-    tokensUsed?: NullableIntFieldUpdateOperationsInput | number | null
-    responseTimeMs?: NullableIntFieldUpdateOperationsInput | number | null
-    llmProvider?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type TourInteractionUpdateWithoutSessionInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tourStep?: EnumTourStepFieldUpdateOperationsInput | $Enums.TourStep
-    actionType?: StringFieldUpdateOperationsInput | string
-    actionData?: JsonNullValueInput | InputJsonValue
-    timeSpentMs?: NullableIntFieldUpdateOperationsInput | number | null
-    wasSkipped?: BoolFieldUpdateOperationsInput | boolean
-    satisfaction?: NullableIntFieldUpdateOperationsInput | number | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type TourInteractionUncheckedUpdateWithoutSessionInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tourStep?: EnumTourStepFieldUpdateOperationsInput | $Enums.TourStep
-    actionType?: StringFieldUpdateOperationsInput | string
-    actionData?: JsonNullValueInput | InputJsonValue
-    timeSpentMs?: NullableIntFieldUpdateOperationsInput | number | null
-    wasSkipped?: BoolFieldUpdateOperationsInput | boolean
-    satisfaction?: NullableIntFieldUpdateOperationsInput | number | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type TourInteractionUncheckedUpdateManyWithoutSessionInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tourStep?: EnumTourStepFieldUpdateOperationsInput | $Enums.TourStep
-    actionType?: StringFieldUpdateOperationsInput | string
-    actionData?: JsonNullValueInput | InputJsonValue
-    timeSpentMs?: NullableIntFieldUpdateOperationsInput | number | null
-    wasSkipped?: BoolFieldUpdateOperationsInput | boolean
-    satisfaction?: NullableIntFieldUpdateOperationsInput | number | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

@@ -1,9 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { EmotionAnalysisService } from '../../../../../services/emotion-analysis.service.js';
+import { SSMLGeneratorService } from '../../../../../services/ssml-generator.service.js';
+import { EmotionalConsistencyService } from '../../../../../services/emotional-consistency.service.js';
+import { EmotionType } from '../../../../../types/emotion.types.js';
+
+// Initialize emotion services
+const emotionAnalysis = new EmotionAnalysisService();
+const ssmlGenerator = new SSMLGeneratorService();
+const emotionalConsistency = new EmotionalConsistencyService();
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { text, voiceId = "pNInz6obpgDQGcFmaJgB", stability = 0.5, similarityBoost = 0.5 } = body;
+    const { 
+      text, 
+      voiceId = "pNInz6obpgDQGcFmaJgB", 
+      stability = 0.5, 
+      similarityBoost = 0.5,
+      sessionId,
+      userId,
+      userInput,
+      enableEmotion = true,
+      targetEmotion,
+      useSSML = true
+    } = body;
 
     if (!text) {
       return NextResponse.json({ error: 'Text is required' }, { status: 400 });
@@ -15,7 +35,55 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'ElevenLabs API key not configured' }, { status: 500 });
     }
 
-    // Call ElevenLabs Text-to-Speech API
+    let finalText = text;
+    let emotionResponse = null;
+    let adjustedStability = stability;
+    let adjustedSimilarityBoost = similarityBoost;
+
+    // Process emotions if enabled and we have session context
+    if (enableEmotion && sessionId) {
+      try {
+        // Process complete emotional conversation turn
+        emotionResponse = await emotionalConsistency.processConversationTurn(
+          sessionId,
+          userInput || '', // User's input that led to this response
+          text,
+          userId
+        );
+
+        // Use SSML if requested and emotion processing succeeded
+        if (useSSML && emotionResponse.ssml) {
+          finalText = emotionResponse.ssml;
+        }
+
+        // Apply emotion-based voice parameter adjustments
+        if (emotionResponse.voiceParams) {
+          adjustedStability = emotionResponse.voiceParams.stability;
+          adjustedSimilarityBoost = emotionResponse.voiceParams.similarityBoost;
+        }
+      } catch (emotionError) {
+        console.warn('Emotion processing failed, using original text:', emotionError);
+        // Continue with original text if emotion processing fails
+      }
+    } else if (enableEmotion && targetEmotion) {
+      // Direct emotion override without conversation context
+      try {
+        const emotions = await emotionAnalysis.analyzeText(text);
+        emotions.primaryEmotion = targetEmotion as EmotionType;
+        
+        if (useSSML) {
+          finalText = await ssmlGenerator.generateSSML(text, emotions);
+        }
+        
+        const voiceParams = emotionAnalysis.mapToVoiceParameters(emotions);
+        adjustedStability = voiceParams.stability;
+        adjustedSimilarityBoost = voiceParams.similarityBoost;
+      } catch (emotionError) {
+        console.warn('Direct emotion processing failed:', emotionError);
+      }
+    }
+
+    // Call ElevenLabs Text-to-Speech API with emotion-enhanced parameters
     const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
       method: 'POST',
       headers: {
@@ -24,11 +92,11 @@ export async function POST(request: NextRequest) {
         'xi-api-key': elevenLabsApiKey
       },
       body: JSON.stringify({
-        text,
+        text: finalText, // Use emotion-processed text (may include SSML)
         model_id: "eleven_monolingual_v1",
         voice_settings: {
-          stability,
-          similarity_boost: similarityBoost
+          stability: adjustedStability,
+          similarity_boost: adjustedSimilarityBoost
         }
       })
     });
@@ -48,10 +116,31 @@ export async function POST(request: NextRequest) {
     // Convert to base64 for client transmission
     const audioBase64 = Buffer.from(audioBuffer).toString('base64');
     
-    return NextResponse.json({
+    // Build response with emotion metadata
+    const responseData: any = {
       audio: audioBase64,
-      mimeType: 'audio/mpeg'
-    });
+      mimeType: 'audio/mpeg',
+      originalText: text,
+      processedText: finalText,
+      voiceSettings: {
+        stability: adjustedStability,
+        similarity_boost: adjustedSimilarityBoost
+      }
+    };
+
+    // Include emotion analysis if available
+    if (emotionResponse) {
+      responseData.emotion = {
+        primaryEmotion: emotionResponse.emotions.primaryEmotion,
+        confidence: emotionResponse.emotions.confidence,
+        intensity: emotionResponse.emotions.intensity,
+        processingTime: emotionResponse.processingTime,
+        ssmlUsed: useSSML && !!emotionResponse.ssml,
+        keyPhrases: emotionResponse.metadata.keyPhrases
+      };
+    }
+    
+    return NextResponse.json(responseData);
 
   } catch (error) {
     console.error('Error in ElevenLabs TTS:', error);

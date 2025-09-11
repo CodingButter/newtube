@@ -133,14 +133,14 @@ export async function getDatabaseInfo() {
  * Transaction helper with retry logic
  */
 export async function withTransaction<T>(
-  fn: (tx: PrismaClient) => Promise<T>,
+  fn: (tx: Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$extends'>) => Promise<T>,
   maxRetries = 3
 ): Promise<T> {
   let lastError: Error;
   
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      return await db.$transaction(fn);
+      return await db.$transaction(fn) as T;
     } catch (error) {
       lastError = error instanceof Error ? error : new Error('Unknown transaction error');
       
@@ -178,7 +178,7 @@ export async function softDelete(
   const modelInstance = db[model] as any;
   
   if (!modelInstance.update) {
-    throw new Error(`Model ${model} does not support soft delete`);
+    throw new Error(`Model ${String(model)} does not support soft delete`);
   }
   
   return modelInstance.update({

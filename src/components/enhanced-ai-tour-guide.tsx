@@ -183,7 +183,7 @@ export default function EnhancedAITourGuide() {
       let browserResponse = '';
       
       if (browserActionsEnabled) {
-        const browserResponse = await fetch('/api/ai/browsermcp/commands', {
+        const browserApiResponse = await fetch('/api/ai/browsermcp/commands', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -197,8 +197,8 @@ export default function EnhancedAITourGuide() {
           }),
         });
 
-        if (browserResponse.ok) {
-          const browserData = await browserResponse.json();
+        if (browserApiResponse.ok) {
+          const browserData = await browserApiResponse.json();
           if (browserData.shouldExecute) {
             browserActions = browserData.actions;
             browserResponse = browserData.response;

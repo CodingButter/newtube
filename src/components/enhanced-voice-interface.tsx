@@ -333,10 +333,6 @@ export const speakWithElevenLabs = async (text: string) => {
 // Type declarations for enhanced Speech APIs
 declare global {
   interface Window {
-    SpeechRecognition: typeof SpeechRecognition;
-    webkitSpeechRecognition: typeof SpeechRecognition;
-    AudioContext: typeof AudioContext;
-    webkitAudioContext: typeof AudioContext;
     enhancedVoiceInterface?: {
       speakWithElevenLabs: (text: string) => Promise<void>;
       stopElevenLabsPlayback: () => void;

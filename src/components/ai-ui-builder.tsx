@@ -131,7 +131,7 @@ export function AIUIBuilder({
       const context = aiUIBuilder.getContext()
       const response: UIGenerationResponse = await aiUIBuilder.parseDescription(
         currentInput.trim(),
-        context
+        context || undefined
       )
 
       // Generate panels from intents

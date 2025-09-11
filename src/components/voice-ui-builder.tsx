@@ -370,10 +370,10 @@ export function VoiceUIBuilder({
               </ul>
             </CardContent>
           </Card>
-        )}
+        </div>
       )}
     </div>
-  )
+  );
 }
 
 export default VoiceUIBuilder

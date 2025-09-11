@@ -193,6 +193,6 @@ async function executeBrowserAction(action: BrowserAction): Promise<string> {
     }
   } catch (error) {
     console.error(`[BrowserMCP] Error executing ${action.type}:`, error);
-    throw new Error(`Failed to execute ${action.type}: ${error.message}`);
+    throw new Error(`Failed to execute ${action.type}: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }

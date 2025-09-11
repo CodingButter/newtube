@@ -258,8 +258,6 @@ export const speakText = (text: string) => {
 // Type declarations for Speech APIs
 declare global {
   interface Window {
-    SpeechRecognition: typeof SpeechRecognition;
-    webkitSpeechRecognition: typeof SpeechRecognition;
     voiceInterface?: {
       speak: (text: string) => void;
       stopSpeaking: () => void;

@@ -45,7 +45,7 @@ async function startServer() {
   // Set up Apollo Server
   const server = new ApolloServer({
     typeDefs,
-    resolvers,
+    resolvers as any,
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
     introspection: process.env.NODE_ENV !== 'production',
     includeStacktraceInErrorResponses: process.env.NODE_ENV === 'development',

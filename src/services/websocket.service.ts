@@ -2,7 +2,7 @@ import { Server as SocketIOServer, Socket } from 'socket.io';
 import { ConversationService } from './conversation.service.js';
 import { TourService } from './tour.service.js';
 import { UIUpdateEvent, DynamicUIState, ComponentDefinition, VoiceCommand, VoiceResponse } from '../types/dynamic-ui';
-import { logger } from '../lib/logger.js';
+import { logger } from '../lib/logger';
 
 export interface SocketWithUser extends Socket {
   userId?: string;

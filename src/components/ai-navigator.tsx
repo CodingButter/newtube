@@ -274,7 +274,7 @@ export default function AINavigator() {
         
       } catch (error) {
         console.error('Error executing action:', error);
-        updateActionStatus(action.id, 'error', error.message);
+        updateActionStatus(action.id, 'error', error instanceof Error ? error.message : 'Unknown error');
         await speakText(`Error: ${action.description} failed.`);
       }
     }

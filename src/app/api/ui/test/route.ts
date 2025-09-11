@@ -80,7 +80,7 @@ async function testBasicFunctionality() {
       success: false,
       message: 'Dynamic UI backend test failed',
       results,
-      error: error.message
+      error: error instanceof Error ? error.message : 'Unknown error'
     })
   }
 }
@@ -93,7 +93,7 @@ async function testComponentTemplates() {
     
     const validation = templateRegistry.validateComponentProps('VideoPlayer', {
       videoId: 'test123',
-      platform: 'youtube'
+      platform: 'youtube' as const
     })
 
     return NextResponse.json({
@@ -112,7 +112,7 @@ async function testComponentTemplates() {
     return NextResponse.json({
       success: false,
       message: 'Template test failed',
-      error: error.message
+      error: error instanceof Error ? error.message : 'Unknown error'
     })
   }
 }
@@ -129,7 +129,7 @@ async function testUISession() {
       displayName: 'Test Video Player',
       props: {
         videoId: 'dQw4w9WgXcQ',
-        platform: 'youtube',
+        platform: 'youtube' as const,
         title: 'Test Video'
       },
       position: { x: 0, y: 0 },
@@ -137,7 +137,7 @@ async function testUISession() {
       style: { backgroundColor: '#ffffff' },
       metadata: {
         createdAt: Date.now(),
-        createdBy: 'test',
+        createdBy: 'user' as const,
         version: 1,
         tags: ['test'],
         description: 'Test component'
@@ -180,7 +180,7 @@ async function testUISession() {
     return NextResponse.json({
       success: false,
       message: 'UI session test failed',
-      error: error.message
+      error: error instanceof Error ? error.message : 'Unknown error'
     })
   }
 }
@@ -194,7 +194,7 @@ async function testUIGeneration() {
         previousComponents: [],
         userPreferences: {
           theme: 'auto' as const,
-          layoutStyle: 'comfortable' as const,
+          layoutStyle: 'detailed' as const,
           interactionMode: 'hybrid' as const,
           animations: true,
           accessibility: {
@@ -221,7 +221,7 @@ async function testUIGeneration() {
         generationResult = await dynamicUIService.generateUI(mockRequest)
       }
     } catch (error) {
-      generationError = error.message
+      generationError = error instanceof Error ? error.message : 'Unknown error'
     }
 
     return NextResponse.json({
@@ -241,7 +241,7 @@ async function testUIGeneration() {
     return NextResponse.json({
       success: false,
       message: 'UI generation test failed',
-      error: error.message
+      error: error instanceof Error ? error.message : 'Unknown error'
     })
   }
 }
@@ -265,7 +265,7 @@ export async function POST(request: NextRequest) {
         previousComponents: [],
         userPreferences: {
           theme: 'auto' as const,
-          layoutStyle: 'comfortable' as const,
+          layoutStyle: 'detailed' as const,
           interactionMode: 'hybrid' as const,
           animations: true,
           accessibility: {
@@ -299,13 +299,13 @@ export async function POST(request: NextRequest) {
               id: 'mock-component',
               type: 'VideoFeed',
               displayName: 'Mock Video Feed',
-              props: { platform: 'youtube' },
+              props: { platform: 'youtube' as const },
               position: { x: 0, y: 0 },
               size: { width: 'auto', height: 400 },
               style: {},
               metadata: {
                 createdAt: Date.now(),
-                createdBy: 'test',
+                createdBy: 'user' as const,
                 version: 1,
                 tags: ['mock'],
                 description: 'Mock component for testing'
@@ -333,7 +333,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: false,
       error: 'Generation test failed',
-      details: error.message
+      details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 })
   }
 }
